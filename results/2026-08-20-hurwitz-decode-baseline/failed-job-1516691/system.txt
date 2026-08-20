@@ -1,0 +1,122 @@
+recorded_before_benchmark=2026-08-20T02:08:20-04:00
+hostname=torralba-3090-2.csail.mit.edu
+slurm_job_id=1516691
+slurm_job_gpus=0
+cuda_visible_devices=0
+source_repo=/data/scratch-fast/kwen1/compute-native-vq/triton
+staging=inside allocation after this hardware capture
+node_shared=true (one-GPU non-exclusive allocation on a seven-GPU node)
+git_commit=4bddbcb4f17a93b77f36cdb2b08281228cc4d907
+git_branch=fm/phase-a-hurwitz-decode
+git_status_begin
+## fm/phase-a-hurwitz-decode...origin/fm/phase-a-hurwitz-decode [ahead 3]
+?? results/2026-08-20-hurwitz-decode-baseline/environment.lock.txt
+?? results/2026-08-20-hurwitz-decode-baseline/slurm-1516691.out
+?? results/2026-08-20-hurwitz-decode-baseline/system.txt
+git_status_end
+scontrol_job_begin
+JobId=1516691 JobName=phase-a-hurwitz
+   UserId=kwen1(28131) GroupId=kwen1(28131) MCS_label=N/A
+   Priority=16 Nice=0 Account=vision-torralba-urops-meng QOS=vision-torralba-interactive
+   JobState=RUNNING Reason=None Dependency=(null)
+   Requeue=0 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:00:02 TimeLimit=01:00:00 TimeMin=N/A
+   SubmitTime=2026-08-20T01:54:02 EligibleTime=2026-08-20T01:54:02
+   AccrueTime=2026-08-20T01:54:02
+   StartTime=2026-08-20T02:08:18 EndTime=2026-08-20T03:08:18 Deadline=N/A
+   PreemptEligibleTime=2026-08-20T02:08:18 PreemptTime=None
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-08-20T02:08:18 Scheduler=Backfill
+   Partition=vision-torralba-rtx3090 AllocNode:Sid=0.0.0.0:1111304
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=torralba-3090-2
+   BatchHost=torralba-3090-2
+   NumNodes=1 NumCPUs=4 NumTasks=1 CPUs/Task=4 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=4,mem=16G,node=1,billing=1044,gres/gpu=1
+   AllocTRES=cpu=4,mem=16G,node=1,billing=1044,gres/gpu=1
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=4 MinMemoryNode=16G MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/data/scratch-fast/kwen1/compute-native-vq/triton/experiments/phase_a_decode/run_phase_a.sbatch
+   WorkDir=/data/scratch-fast/kwen1/compute-native-vq/triton
+   StdErr=/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline/slurm-1516691.out
+   StdIn=/dev/null
+   StdOut=/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline/slurm-1516691.out
+   TresPerNode=gres/gpu:1
+   TresPerTask=cpu=4
+   
+
+scontrol_job_end
+node_jobs_begin
+         1516502_7   dzhang17  R       0:03      1 torralba-3090-2
+         1516502_8   dzhang17  R       0:03      1 torralba-3090-2
+       1511822_966       gcaz  R      21:41      1 torralba-3090-2
+       1511822_930       gcaz  R      33:49      1 torralba-3090-2
+       1511822_920       gcaz  R      36:51      1 torralba-3090-2
+       1511822_916       gcaz  R      37:28      1 torralba-3090-2
+           1516691      kwen1  R       0:03      1 torralba-3090-2
+node_jobs_end
+gpu_query_begin
+0, NVIDIA GeForce RTX 3090, 8.6, 580.178.04, 24576 MiB, 24124 MiB, 350.00 W, 210 MHz, 405 MHz
+gpu_query_end
+nvidia_smi_begin
+Thu Aug 20 02:08:21 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 3090        On  |   00000000:C1:00.0 Off |                  N/A |
+|  0%   40C    P8             22W /  350W |       1MiB /  24576MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+nvidia_smi_end
+gpu_devices_begin
+crw-rw-rw- 1 root root 195, 254 Aug  3 15:13 /dev/nvidia-modeset
+crw-rw-rw- 1 root root 506,   0 Aug  3 15:23 /dev/nvidia-uvm
+crw-rw-rw- 1 root root 506,   1 Aug  3 15:23 /dev/nvidia-uvm-tools
+crw-rw-rw- 1 root root 195,   0 Aug  3 15:13 /dev/nvidia0
+crw-rw-rw- 1 root root 195,   1 Aug  3 15:13 /dev/nvidia1
+crw-rw-rw- 1 root root 195,   2 Aug  3 15:13 /dev/nvidia2
+crw-rw-rw- 1 root root 195,   3 Aug  3 15:13 /dev/nvidia3
+crw-rw-rw- 1 root root 195,   4 Aug  3 15:13 /dev/nvidia4
+crw-rw-rw- 1 root root 195,   5 Aug  3 15:13 /dev/nvidia5
+crw-rw-rw- 1 root root 195,   6 Aug  3 15:13 /dev/nvidia6
+crw-rw-rw- 1 root root 195, 255 Aug  3 15:13 /dev/nvidiactl
+
+/dev/nvidia-caps:
+total 0
+cr-------- 1 root root 510, 1 Aug  3 15:23 nvidia-cap1
+cr--r--r-- 1 root root 510, 2 Aug  3 15:23 nvidia-cap2
+gpu_devices_end
+host_memory_begin
+               total        used        free      shared  buff/cache   available
+Mem:           251Gi        21Gi       212Gi         9Gi        17Gi       216Gi
+Swap:          4.0Gi       319Mi       3.7Gi
+MemTotal:       263748608 kB
+MemAvailable:   227285788 kB
+SwapTotal:       4194300 kB
+SwapFree:        3867424 kB
+host_memory_end
+python_torch=2.13.0+cu130
+python_triton=3.7.1
+cuda_runtime=13.0
+cuda_available=True
+cuda_device_count=1
+gpu_name=NVIDIA GeForce RTX 3090
+compute_capability=(8, 6)
+vram_total_bytes=25296044032
+vram_free_bytes=25018040320
+vram_visible_total_bytes=25296044032
+multiprocessor_count=82
+bf16_supported=True

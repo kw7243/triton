@@ -90,7 +90,7 @@ PY
 } > "$RESULT_DIR/system.txt" 2>&1
 
 cat > "$RESULT_DIR/command.txt" <<EOF
-$STAGING_HELPER --staging-parent $STAGING_PARENT -- \
+/bin/bash "$STAGING_HELPER" --staging-parent $STAGING_PARENT -- \
   $PYTHON experiments/phase_a_decode/benchmark.py \
   --seed 0 --s 96 192 --t-kv 4096 16384 32768 \
   --roles 2 --kv-heads 8 --head-dim 128 --dtype fp16 \
@@ -101,7 +101,7 @@ EOF
 set +e
 (
   cd "$SOURCE_REPO"
-  "$STAGING_HELPER" --staging-parent "$STAGING_PARENT" -- \
+  /bin/bash "$STAGING_HELPER" --staging-parent "$STAGING_PARENT" -- \
     "$PYTHON" experiments/phase_a_decode/benchmark.py \
     --seed 0 \
     --s 96 192 \
@@ -124,3 +124,4 @@ printf '%s\n' "$staged_repo" > "$RESULT_DIR/staged_snapshot.txt"
 if test -f "$staged_repo/REPRODUCIBILITY_METADATA.json"; then
   cp "$staged_repo/REPRODUCIBILITY_METADATA.json" "$RESULT_DIR/REPRODUCIBILITY_METADATA.json"
 fi
+exit "$status"

@@ -1,0 +1,2 @@
+cpu-bind=MASK - torralba-3090-2, task  0  0 [2343167]: mask 0xc000000000000000c000000000000000 set
+/var/lib/slurm/slurmd/job1516691/slurm_script: line 104: /afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh: Permission denied

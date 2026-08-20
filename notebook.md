@@ -72,3 +72,38 @@ Resolved execution path:
 - Firstmate identified login-session termination during the 107 MiB copy as the cause.
 - Submit `experiments/phase_a_decode/run_phase_a.sbatch` once directly from the source repo.
 - Inside the one-GPU allocation, capture hardware/software first, then invoke the exact AFS `stage_and_run.sh` with staging parent `/data/scratch-fast/kwen1/compute-native-vq/staging` and the Phase A Python command.
+- The helper changes into its completed snapshot before running the benchmark; the benchmark writes to the absolute source result directory.
+
+## 2026-08-20 — Slurm job 1516691
+
+Current state:
+
+- Submitted wrapper commit: `4bddbcb4f17a93b77f36cdb2b08281228cc4d907`.
+- Allocation: job `1516691`, account `vision-torralba-urops-meng`, QoS `vision-torralba-interactive`, partition `vision-torralba-rtx3090`, one GPU, four CPUs, 16 GiB host-memory request.
+- Slurm accounting: `COMPLETED`, exit `0:0`, elapsed `00:00:07`, node `torralba-3090-2`, start `2026-08-20T02:08:18`, end `2026-08-20T02:08:25`.
+- Hardware: NVIDIA GeForce RTX 3090, compute capability `8.6`, 24,576 MiB VRAM, driver `580.178.04`, CUDA runtime `13.0`.
+- Software: Python `3.11.15`, PyTorch `2.13.0+cu130`, Triton `3.7.1`; bf16 reported supported.
+- Host memory: 251 GiB total, 216 GiB available at capture.
+- Node was shared: six other jobs were recorded alongside job `1516691`.
+
+Failure:
+
+- Hardware/software capture completed before benchmark code.
+- Direct execution of `/afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh` failed with `Permission denied` on the allocated node.
+- The helper is mode `775` on the login node; the allocated-node failure requires invoking the readable script through `bash`.
+- The wrapper omitted its intended final `exit "$status"`, so Slurm recorded false-success `0:0` after the helper failure.
+- No completed staged snapshot or `REPRODUCIBILITY_METADATA.json` exists. `staged_snapshot.txt` contains only a newline.
+- The benchmark never started. `timings.csv`, `correctness.json`, `tuning.json`, `trial_timings.json`, `run_metadata.json`, and `jh_speedup.png` are absent.
+- Correctness, bf16 execution, tuning selection, cold/steady timings, stability, throughput, and the primary decision gate are therefore unvalidated.
+- Gate decision: **NO RESULT**. This is not GO, OPTIMIZE ONCE, or KILL evidence.
+
+Artifacts:
+
+- Result directory: `/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline/`.
+- Preserved job evidence directory: `results/2026-08-20-hurwitz-decode-baseline/failed-job-1516691/`.
+- Evidence there includes `system.txt`, `environment.lock.txt`, `command.txt`, `stage_and_run.log`, `slurm-1516691.out`, blank `staged_snapshot.txt`, `slurm_accounting.txt`, `artifact_hashes.sha256`, and the failed-run `README.md`.
+- Preserved incomplete login-stage directories remain the two paths recorded above.
+- Firstmate authorized one replacement after the failed job ran no experiment.
+- Minimal wrapper correction: invoke the exact helper as `/bin/bash "$STAGING_HELPER" --staging-parent ...`, retain the required benchmark command, and end with `exit "$status"` so helper or benchmark failures propagate to Slurm.
+- No benchmark logic or experiment scope changed.
+- Next action: commit this evidence/fix, then submit exactly one corrected wrapper.
