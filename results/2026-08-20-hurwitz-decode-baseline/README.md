@@ -13,4 +13,6 @@ Minimal verified correction: invoke the exact required AFS helper on the authent
 
 The exact planned command and read-only validation are recorded in `outer_submission_design.txt`.
 
-No further job has been submitted. Correctness, tuning, timing, stability, CSV, plot, and GO/OPTIMIZE-ONCE/KILL remain unavailable.
+The authorized outer invocation at commit `5d29df20b` announced a 108 MiB partial stage at `/data/scratch-fast/kwen1/compute-native-vq/staging/20260820_023734-b9ea07-5d29df20b-code`, then its tracked SSH process exited `255` before metadata or `sbatch`. No Slurm job was submitted. Evidence is in `outer_staging_failure_20260820_023734.txt`; the partial stage is preserved.
+
+Correctness, tuning, timing, stability, CSV, plot, and GO/OPTIMIZE-ONCE/KILL remain unavailable.
