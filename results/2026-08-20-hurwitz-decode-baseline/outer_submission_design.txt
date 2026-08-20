@@ -1,0 +1,29 @@
+Observed 2026-08-20 from slurm-login-0.csail.mit.edu.
+
+Exact planned outer command (not executed during this validation):
+  cd /data/scratch-fast/kwen1/compute-native-vq/triton
+  /afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh \
+    --staging-parent /data/scratch-fast/kwen1/compute-native-vq/staging \
+    -- sbatch --export=ALL,SOURCE_REPO=/data/scratch-fast/kwen1/compute-native-vq/triton \
+       experiments/phase_a_decode/run_phase_a.sbatch
+
+Why this satisfies staging and Slurm constraints:
+  1. The exact AFS helper runs on the authenticated login node, where it is readable.
+  2. It creates the timestamped full-repository copy and REPRODUCIBILITY_METADATA.json.
+  3. Helper lines 139-142 change into the stage, export RESEARCH_REPRO_STAGED_DIR and
+     RESEARCH_REPRO_SOURCE_REPO, then exec the staged command.
+  4. The staged command is sbatch, so the experiment itself runs only in Slurm and
+     Slurm receives the immutable snapshot as its submit directory.
+  5. SOURCE_REPO is explicitly exported so artifacts are written to the required
+     absolute source results directory.
+
+Read-only validation:
+  exact AFS helper /bin/bash --help status=0
+  run_phase_a.sbatch bash -n status=0
+  run_phase_a.sbatch inner helper references=absent
+  source-equals-stage guard status=125 (expected refusal before any writes)
+  sbatch --test-only status=0
+  scheduler test facts=account vision-torralba-urops-meng; QoS
+    vision-torralba-interactive; partition vision-torralba-rtx3090; one GPU
+
+No stage, job submission, or experiment was performed by these checks.

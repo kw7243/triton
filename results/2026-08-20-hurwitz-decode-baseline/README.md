@@ -1,21 +1,16 @@
 # Phase A Hurwitz decode baseline
 
-Outcome: **NO RESULT**. Slurm job `1516691` allocated the requested RTX 3090 and captured hardware/software, but the AFS staging helper failed with `Permission denied` before staging or benchmark execution.
+Outcome: **NO RESULT YET**. Jobs `1516691` and `1516880` both failed before staging or benchmark execution; no correctness-qualified timing row exists.
 
-| Requirement | State | Evidence |
-|:--|:--|:--|
-| Torralba one-GPU Slurm allocation | PASS | `system.txt`, `slurm_accounting.txt` |
-| Hardware/software captured before benchmark | PASS | `system.txt` |
-| Full repository staged inside allocation | FAIL | `stage_and_run.log`; blank `staged_snapshot.txt`; metadata absent |
-| Exhaustive and random correctness | NOT RUN | `correctness.json` absent |
-| J gather, F/H axis, error, finite, bf16 gates | NOT RUN | benchmark never started |
-| Fixed tuning set compiled/selected before timing | NOT RUN | `tuning.json` absent |
-| Cold-L2 and steady p20/p50/p80; five trials | NOT RUN | `timings.csv` and `trial_timings.json` absent |
-| J/H stability and adaptive repetition | NOT RUN | no timing rows |
-| Gchunks/s, output GiB/s, configurations | NOT RUN | `timings.csv` absent |
-| Speedup plot | NOT RUN | `jh_speedup.png` absent |
-| GO / OPTIMIZE ONCE / KILL decision | UNAVAILABLE | no correctness-qualified primary row |
+| Job | Slurm state | Exact failure | Evidence |
+|---:|:---|:---|:---|
+| 1516691 | false `COMPLETED 0:0` | Direct AFS helper execution denied; wrapper omitted final status propagation | `failed-job-1516691/` |
+| 1516880 | `FAILED 126:0` | `/bin/bash` could not read the token-protected AFS helper | `failed-job-1516880/` |
 
-The job ran on shared `torralba-3090-2` with an NVIDIA GeForce RTX 3090 (compute capability 8.6), driver 580.178.04, CUDA 13.0, PyTorch 2.13.0+cu130, and Triton 3.7.1. Slurm recorded `COMPLETED 0:0` because the wrapper did not propagate the helper failure; the wrapper is corrected after this run but was not resubmitted.
+Concrete root cause: `/afs` is AuristorFS. The helper's Unix mode is `775`, but the enclosing AFS ACL grants `system:anyuser` only lookup (`l`), not read. Login succeeds with kwen1 AFS tokens; the Slurm batch process has no AFS token. A tokenless `pagsh` reproduces `readable=no` and `/bin/bash` status `126`.
 
-No CSV values or plot were fabricated from the failed run.
+Minimal verified correction: invoke the exact required AFS helper on the authenticated login node. Its staged command is `sbatch`, so the helper completes the immutable full-repository copy, changes into it, exports `RESEARCH_REPRO_STAGED_DIR` and `RESEARCH_REPRO_SOURCE_REPO`, and only then submits the GPU job. The batch wrapper consumes those exported paths, requires staging metadata, refuses to run when source and stage are the same path, and runs the benchmark from the snapshot while writing to the absolute source result directory. The scratch helper mirror was only a diagnostic control and will not be used.
+
+The exact planned command and read-only validation are recorded in `outer_submission_design.txt`.
+
+No further job has been submitted. Correctness, tuning, timing, stability, CSV, plot, and GO/OPTIMIZE-ONCE/KILL remain unavailable.
