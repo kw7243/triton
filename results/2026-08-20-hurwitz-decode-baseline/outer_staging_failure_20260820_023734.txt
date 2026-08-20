@@ -1,0 +1,28 @@
+Attempted 2026-08-20 from commit 5d29df20bc188ffb2196de4994c322966b85403b.
+
+Exact command:
+  cd /data/scratch-fast/kwen1/compute-native-vq/triton
+  /afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh \
+    --staging-parent /data/scratch-fast/kwen1/compute-native-vq/staging \
+    -- sbatch --export=ALL,SOURCE_REPO=/data/scratch-fast/kwen1/compute-native-vq/triton \
+       experiments/phase_a_decode/run_phase_a.sbatch
+
+Foreground output before failure:
+  Staging repository:
+    source: /data/scratch-fast/kwen1/compute-native-vq/triton
+    target: /data/scratch-fast/kwen1/compute-native-vq/staging/20260820_023734-b9ea07-5d29df20b-code
+
+Tracked SSH exit status: 255.
+The helper did not print `Staging complete` or a Slurm job ID.
+
+Post-failure inspection at 2026-08-20T02:38:43-04:00:
+  stage_exists=yes
+  stage_size=108M
+  reproducibility_metadata_exists=no
+  matching_stage_and_run_or_rsync_processes=none
+  squeue_jobs_for_kwen1=none
+  sacct_jobs_submitted_after_2026-08-20T02:30:00=none
+  source_head=5d29df20bc188ffb2196de4994c322966b85403b
+  source_worktree=clean
+
+Conclusion: the login transport terminated during rsync before the helper could write metadata or invoke sbatch. No experiment ran. Preserve the partial path; do not resubmit this command without new authorization.
