@@ -1,0 +1,2 @@
+cpu-bind=MASK - torralba-3090-1, task  0  0 [3135013]: mask 0xc000000000000000c000000000000000 set
+/bin/bash: /afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh: Permission denied

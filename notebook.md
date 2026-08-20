@@ -107,3 +107,33 @@ Artifacts:
 - Minimal wrapper correction: invoke the exact helper as `/bin/bash "$STAGING_HELPER" --staging-parent ...`, retain the required benchmark command, and end with `exit "$status"` so helper or benchmark failures propagate to Slurm.
 - No benchmark logic or experiment scope changed.
 - Next action: commit this evidence/fix, then submit exactly one corrected wrapper.
+
+## 2026-08-20 — Slurm job 1516880 diagnosis
+
+Current state:
+
+- Submitted commit: `b3eb35bd959fc6568170fc2e13ea1e725097673c`.
+- Slurm: job `1516880`, `FAILED`, exit `126:0`, elapsed `00:00:07`, node `torralba-3090-1`.
+- Exact failing command: `/bin/bash "$STAGING_HELPER" --staging-parent "$STAGING_PARENT" -- <benchmark command>`.
+- Saved error: `/bin/bash: /afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh: Permission denied`.
+- No staged snapshot, metadata, or benchmark artifact was created; no experiment ran.
+- Evidence directory: `results/2026-08-20-hurwitz-decode-baseline/failed-job-1516880/`.
+
+Root cause:
+
+- `/afs` is mounted as `auristorfs` from source `AFS`.
+- The helper and path components show Unix mode `775`, but the effective AFS ACL grants `kwen1 rlidwka` and `system:anyuser l` only.
+- The login process holds kwen1 rxgk/rxkad AFS tokens, so it can read and execute the helper.
+- A fresh tokenless `pagsh` has no tokens, reports the AFS helper `readable=no`, and reproduces `/bin/bash ... --help` status `126`.
+- Slurm batch jobs did not inherit the login AFS token; invoking `/bin/bash` cannot bypass the missing AFS read right.
+
+Minimal verified correction:
+
+- The scratch helper mirror was useful only as a control proving the helper bytes themselves are valid. It does not satisfy the exact-AFS-path requirement and will not be used for an experiment.
+- Invoke `/afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh` directly on the authenticated login node, where `/bin/bash ... --help` returns `0`.
+- Pass `sbatch --export=ALL,SOURCE_REPO=/data/scratch-fast/kwen1/compute-native-vq/triton experiments/phase_a_decode/run_phase_a.sbatch` as the helper's staged command.
+- The helper source shows that it completes metadata, changes to the staged repository, exports `RESEARCH_REPRO_STAGED_DIR` and `RESEARCH_REPRO_SOURCE_REPO`, then executes `sbatch` there.
+- The wrapper no longer calls any helper. It consumes those exported paths, refuses the mutable source path, requires `REPRODUCIBILITY_METADATA.json`, captures hardware/software in Slurm, and runs the benchmark from the snapshot. `set -euo pipefail` propagates setup or benchmark failure as a nonzero Slurm exit.
+- Read-only validation: helper help status `0`; wrapper `bash -n` status `0`; no `stage_and_run` or `STAGING_HELPER` reference in the wrapper; source-equals-stage rejection status `125`; `sbatch --test-only` status `0` under the verified account/QoS/partition.
+- The exact planned command and proof are in `results/2026-08-20-hurwitz-decode-baseline/outer_submission_design.txt`.
+- No further Slurm job has been submitted. Report this correction before any submission.
