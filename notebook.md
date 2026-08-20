@@ -61,3 +61,14 @@ Staging attempts:
 - The SSH session exited `255` during `rsync`; the helper did not print `Staging complete`, and `REPRODUCIBILITY_METADATA.json` is absent.
 - `squeue -u kwen1` was empty immediately afterward, proving that no experiment job was submitted.
 - Next action: retry the helper once with transport keepalives; preserve this failed directory as evidence.
+
+- Attempt 2 invoked the same helper with SSH keepalives for commit `46e810f3c04895ef61fc2344f41c1d235bb2e30d`.
+- Incomplete directory: `/data/scratch-fast/kwen1/compute-native-vq/staging/20260820_014338-57c0e6-46e810f3c-code` (107 MiB).
+- The connection again exited `255` during `rsync`; metadata is absent and no job was submitted.
+- Both partial directories are preserved and will not be deleted.
+
+Resolved execution path:
+
+- Firstmate identified login-session termination during the 107 MiB copy as the cause.
+- Submit `experiments/phase_a_decode/run_phase_a.sbatch` once directly from the source repo.
+- Inside the one-GPU allocation, capture hardware/software first, then invoke the exact AFS `stage_and_run.sh` with staging parent `/data/scratch-fast/kwen1/compute-native-vq/staging` and the Phase A Python command.

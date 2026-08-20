@@ -18,7 +18,8 @@ SOURCE_REPO=/data/scratch-fast/kwen1/compute-native-vq/triton
 RESULT_DIR="$SOURCE_REPO/results/2026-08-20-hurwitz-decode-baseline"
 PHASE_A_ROOT=/data/scratch-fast/kwen1/compute-native-vq
 PYTHON="$PHASE_A_ROOT/env/phase-a/bin/python"
-STAGED_REPO="$(pwd -P)"
+STAGING_PARENT="$PHASE_A_ROOT/staging"
+STAGING_HELPER=/afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh
 
 export PIP_CACHE_DIR="$PHASE_A_ROOT/cache/pip"
 export TRITON_CACHE_DIR="$PHASE_A_ROOT/cache/triton"
@@ -33,25 +34,20 @@ export MPLBACKEND=Agg
 mkdir -p "$RESULT_DIR" "$TRITON_CACHE_DIR" "$XDG_CACHE_HOME" \
   "$TORCHINDUCTOR_CACHE_DIR" "$CUDA_CACHE_PATH" "$MPLCONFIGDIR" "$TMPDIR"
 
-printf '%s\n' "$STAGED_REPO" > "$RESULT_DIR/staged_snapshot.txt"
-if test -f "$STAGED_REPO/REPRODUCIBILITY_METADATA.json"; then
-  cp "$STAGED_REPO/REPRODUCIBILITY_METADATA.json" "$RESULT_DIR/REPRODUCIBILITY_METADATA.json"
-fi
 "$PYTHON" -m pip freeze > "$RESULT_DIR/environment.lock.txt"
-
 {
   echo "recorded_before_benchmark=$(date --iso-8601=seconds)"
   echo "hostname=$(hostname -f)"
   echo "slurm_job_id=$SLURM_JOB_ID"
   echo "slurm_job_gpus=${SLURM_JOB_GPUS:-unset}"
   echo "cuda_visible_devices=${CUDA_VISIBLE_DEVICES:-unset}"
-  echo "staged_repo=$STAGED_REPO"
   echo "source_repo=$SOURCE_REPO"
+  echo "staging=inside allocation after this hardware capture"
   echo "node_shared=true (one-GPU non-exclusive allocation on a seven-GPU node)"
-  echo "git_commit=$(git rev-parse HEAD)"
-  echo "git_branch=$(git branch --show-current)"
+  echo "git_commit=$(git -C "$SOURCE_REPO" rev-parse HEAD)"
+  echo "git_branch=$(git -C "$SOURCE_REPO" branch --show-current)"
   echo "git_status_begin"
-  git status --short --branch
+  git -C "$SOURCE_REPO" status --short --branch
   echo "git_status_end"
   echo "scontrol_job_begin"
   scontrol show job "$SLURM_JOB_ID"
@@ -94,19 +90,37 @@ PY
 } > "$RESULT_DIR/system.txt" 2>&1
 
 cat > "$RESULT_DIR/command.txt" <<EOF
-$PYTHON experiments/phase_a_decode/benchmark.py --seed 0 --s 96 192 --t-kv 4096 16384 32768 --roles 2 --kv-heads 8 --head-dim 128 --dtype fp16 --cache-modes hot cold --warmup 25 --rep 200 --outer-trials 5 --output $RESULT_DIR
+$STAGING_HELPER --staging-parent $STAGING_PARENT -- \
+  $PYTHON experiments/phase_a_decode/benchmark.py \
+  --seed 0 --s 96 192 --t-kv 4096 16384 32768 \
+  --roles 2 --kv-heads 8 --head-dim 128 --dtype fp16 \
+  --cache-modes hot cold --warmup 25 --rep 200 --outer-trials 5 \
+  --output $RESULT_DIR
 EOF
 
-"$PYTHON" experiments/phase_a_decode/benchmark.py \
-  --seed 0 \
-  --s 96 192 \
-  --t-kv 4096 16384 32768 \
-  --roles 2 \
-  --kv-heads 8 \
-  --head-dim 128 \
-  --dtype fp16 \
-  --cache-modes hot cold \
-  --warmup 25 \
-  --rep 200 \
-  --outer-trials 5 \
-  --output "$RESULT_DIR"
+set +e
+(
+  cd "$SOURCE_REPO"
+  "$STAGING_HELPER" --staging-parent "$STAGING_PARENT" -- \
+    "$PYTHON" experiments/phase_a_decode/benchmark.py \
+    --seed 0 \
+    --s 96 192 \
+    --t-kv 4096 16384 32768 \
+    --roles 2 \
+    --kv-heads 8 \
+    --head-dim 128 \
+    --dtype fp16 \
+    --cache-modes hot cold \
+    --warmup 25 \
+    --rep 200 \
+    --outer-trials 5 \
+    --output "$RESULT_DIR"
+) 2>&1 | tee "$RESULT_DIR/stage_and_run.log"
+status=${PIPESTATUS[0]}
+set -e
+
+staged_repo=$(sed -n 's/^  target: //p' "$RESULT_DIR/stage_and_run.log" | tail -1)
+printf '%s\n' "$staged_repo" > "$RESULT_DIR/staged_snapshot.txt"
+if test -f "$staged_repo/REPRODUCIBILITY_METADATA.json"; then
+  cp "$staged_repo/REPRODUCIBILITY_METADATA.json" "$RESULT_DIR/REPRODUCIBILITY_METADATA.json"
+fi
