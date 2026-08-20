@@ -137,3 +137,15 @@ Minimal verified correction:
 - Read-only validation: helper help status `0`; wrapper `bash -n` status `0`; no `stage_and_run` or `STAGING_HELPER` reference in the wrapper; source-equals-stage rejection status `125`; `sbatch --test-only` status `0` under the verified account/QoS/partition.
 - The exact planned command and proof are in `results/2026-08-20-hurwitz-decode-baseline/outer_submission_design.txt`.
 - No further Slurm job has been submitted. Report this correction before any submission.
+
+## 2026-08-20 — Authorized outer staging attempt
+
+- Authorized source commit: `5d29df20bc188ffb2196de4994c322966b85403b`; source branch was clean.
+- Invoked the exact AFS helper on the authenticated login node with the exact staged `sbatch` command recorded in `outer_submission_design.txt`.
+- The helper announced target `/data/scratch-fast/kwen1/compute-native-vq/staging/20260820_023734-b9ea07-5d29df20b-code`.
+- The tracked foreground SSH process exited `255` during repository copy, before `Staging complete` or any Slurm job ID.
+- Inspection at `2026-08-20T02:38:43-04:00`: target exists and is 108 MiB; `REPRODUCIBILITY_METADATA.json` is absent; no matching helper or rsync process remains.
+- `squeue -u kwen1` was empty and Slurm accounting contained no submission after 02:30, so no job or experiment was launched.
+- The partial stage is preserved and was not deleted.
+- Evidence: `results/2026-08-20-hurwitz-decode-baseline/outer_staging_failure_20260820_023734.txt`.
+- This is the third authenticated login staging copy terminated before metadata. Per the retry gate, do not resubmit without Firstmate intervention.
