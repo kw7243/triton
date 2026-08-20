@@ -53,3 +53,11 @@ Environment setup:
 - Installed PyTorch `2.13.0`, Triton `3.7.1`, and Matplotlib `3.10.5`; the job will record the complete resolved package set.
 - Initialized the repository's no-mistakes gate with fork URL `https://github.com/kw7243/triton.git`; the shared daemon is running and was not modified.
 - No experiment command or GPU code has run yet.
+
+Staging attempts:
+
+- Attempt 1 invoked the required helper from the source repo for commit `9047bd25c7f88ef71c8a8fbdc71c4e1bf36f4a25`.
+- Incomplete directory: `/data/scratch-fast/kwen1/compute-native-vq/staging/20260820_014155-632901-9047bd25c-code` (107 MiB).
+- The SSH session exited `255` during `rsync`; the helper did not print `Staging complete`, and `REPRODUCIBILITY_METADATA.json` is absent.
+- `squeue -u kwen1` was empty immediately afterward, proving that no experiment job was submitted.
+- Next action: retry the helper once with transport keepalives; preserve this failed directory as evidence.
