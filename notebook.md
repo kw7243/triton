@@ -149,3 +149,32 @@ Minimal verified correction:
 - The partial stage is preserved and was not deleted.
 - Evidence: `results/2026-08-20-hurwitz-decode-baseline/outer_staging_failure_20260820_023734.txt`.
 - This is the third authenticated login staging copy terminated before metadata. Per the retry gate, do not resubmit without Firstmate intervention.
+
+## 2026-08-21 — Compact staging recovery and scheduler blocker
+
+Staging recovery:
+
+- Authenticated tmux attempts r1–r5 and every partial stage remain preserved under `/data/scratch-fast/kwen1/compute-native-vq/run-state/` and `/data/scratch-fast/kwen1/compute-native-vq/staging/`; none were deleted.
+- Full-worktree staging repeatedly hit a roughly 54-second login execution limit before metadata, including r5 after shrinking history to a 7.04 MiB pack.
+- Verified r5 run source: `/data/scratch-fast/kwen1/compute-native-vq/run-source/phase-a-hurwitz-decode-b8d099336-r5`, clean shallow branch `fm/phase-a-hurwitz-decode`, HEAD `b8d099336ca65cf7aaa1a1b664980f19f5e4e474`, tree `89d495c8884a9ec51187238d6da06123908591e1`, 1,492 tracked files, no alternates, 28 MiB total.
+- Verified r6 bare capsule: `/data/scratch-fast/kwen1/compute-native-vq/run-source/phase-a-hurwitz-decode-b8d099336-r6.git`, same HEAD/tree, bare and shallow, fsck-clean, no alternates, 24 files, one independent 7.04 MiB pack.
+- The exact AFS helper copied each compact bare capsule before its staged command materialized a clean 1,492-file worktree, copied `REPRODUCIBILITY_METADATA.json`, and submitted from that worktree with explicit staged/source paths.
+
+Scheduler terminal records:
+
+- Job `1517414`: `CANCELLED by 0`, exit `0:0`, derived exit `0:0`, reason `None`; start `2026-08-20T08:37:37`, end `08:37:39`, node `torralba-3090-2`. Batch step cancelled; extern step completed. No `slurm-1517414.out` exists.
+- Job `1524492`: guarded replacement, also `CANCELLED by 0`, exit `0:0`, derived exit `0:0`, reason `None`; start `2026-08-21T00:16:44`, end `00:16:50`, node `torralba-3090-1`. Batch step cancelled; extern step completed. No `slurm-1524492.out` exists.
+- No Phase A job remains active. No benchmark output or correctness/timing artifact exists.
+- Node context did not identify a cause: contemporaneous jobs completed on `torralba-3090-2`, Slurm records no reason/comment or node event, and controller/daemon logs are not readable by this account.
+
+Preserved staged worktrees:
+
+- Job `1517414`: `/data/scratch-fast/kwen1/compute-native-vq/staging/20260820_031814-56491e-b8d0993-code/worktree`.
+- Job `1524492`: `/data/scratch-fast/kwen1/compute-native-vq/staging/20260820_193950-fad1f6-b8d0993-code/worktree`.
+- Both are clean at HEAD `b8d099336ca65cf7aaa1a1b664980f19f5e4e474`, tree `89d495c8884a9ec51187238d6da06123908591e1`, with 1,492 tracked files and copied reproducibility metadata.
+- Full evidence and hashes: `results/2026-08-20-hurwitz-decode-baseline/scheduler-cancellation-evidence.md`.
+
+Gate:
+
+- **BLOCKED — NO RESULT.** The repeated obstacle is a scheduler/controller-side UID 0 cancellation before the batch script opens its output, not a correctness or performance result.
+- Smallest unblock: a CSAIL Slurm administrator inspects slurmctld/slurmd logs for `1517414` and `1524492` and clears the forced cancellation or identifies an allowed Torralba account/QoS/partition invocation. Do not submit again until that external action occurs.
