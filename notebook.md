@@ -222,3 +222,35 @@ Staging outcome:
 - No Slurm output or benchmark/result artifact was created by this attempt.
 - No terminal-state check was created or registered because there is no job ID to observe.
 - **BLOCKED BEFORE SUBMISSION.** Do not bypass or repeat staging, do not submit directly, and do not create an automatic fourth attempt. Captain/supervisor direction is required for any further action.
+
+## 2026-08-24 — Retry 3 compact recovery and single submission
+
+Supervisor recovery and source:
+
+- The supervisor confirmed that the failed full-worktree transport submitted no Slurm job, so the captain-authorized experiment attempt remained unused, and authorized one reuse of the proven r6/r7 compact-capsule transport. The incomplete `/data/scratch-fast/kwen1/compute-native-vq/staging/20260824_190934-b13411-18822c75b-code` stage remains untouched.
+- Exact submitted source: clean branch `fm/phase-a-hurwitz-decode`, HEAD `f2eba10425118e4ab958aa1170859209f519d0dc`, tree `e337b72cc8dcc0187223f4558f1a0622b83d7422`, 1,493 tracked files.
+- Crew split remains unchanged: `phase-a-hurwitz-decode-p1` is the exclusive scheduler/submission/event-source owner; `phase-a-retry3-validation` independently owns audit and result validation and does not submit or poll.
+
+Capsule and one-shot guards:
+
+- Fresh capsule: `/data/scratch-fast/kwen1/compute-native-vq/run-source/phase-a-hurwitz-decode-f2eba1042-retry3.git`; exact HEAD/tree/file count above, bare, shallow, fsck-clean, no alternates, one independent pack with SHA-256 `5a0111f70eb59ec3455cb2ffcac41d1be440a83247f0512fc280f5565e5224fd` and link count 1.
+- Launcher: `/data/scratch-fast/kwen1/compute-native-vq/run-state/phase-a-retry3-f2eba1042.sh`, SHA-256 `c4d07f9bb442167b49c52555fe4f5bce327dcaf03a3e872d4ab079008713135c`.
+- Materializer: `phase-a-retry3-f2eba1042-materialize.sh` inside the capsule, SHA-256 `1f05983026076f7d8f3a3a3ce774d4c7739fe664105cd357ffa3047353fae003`; it contains the sole `sbatch` command.
+- Durable ledger: `/data/scratch-fast/kwen1/compute-native-vq/run-state/phase-a-retry3-f2eba1042.ledger`; it records no retry3 queue/accounting job before helper entry or immediately before submission, an immutable launcher lock, a staged-materializer submit latch, and exactly one numeric job ID. Status: `/data/scratch-fast/kwen1/compute-native-vq/run-state/phase-a-retry3-f2eba1042.status`.
+
+Exact staging and submission:
+
+- The authenticated launcher renewed Kerberos/AFS access and invoked `/bin/bash /afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh --repo-root /data/scratch-fast/kwen1/compute-native-vq/run-source/phase-a-hurwitz-decode-f2eba1042-retry3.git --staging-parent /data/scratch-fast/kwen1/compute-native-vq/staging -- /bin/bash ./phase-a-retry3-f2eba1042-materialize.sh /data/scratch-fast/kwen1/compute-native-vq/triton f2eba10425118e4ab958aa1170859209f519d0dc e337b72cc8dcc0187223f4558f1a0622b83d7422 1493 /data/scratch-fast/kwen1/compute-native-vq/run-state/phase-a-retry3-f2eba1042.ledger 2026-08-24T19:00:00`.
+- Fresh helper stage: `/data/scratch-fast/kwen1/compute-native-vq/staging/20260824_192116-f9abbb-f2eba10-code`.
+- Full clean materialized worktree: `/data/scratch-fast/kwen1/compute-native-vq/staging/20260824_192116-f9abbb-f2eba10-code/worktree`; exact HEAD/tree/1,493-file proof above, no alternates.
+- Metadata exists in both the staged capsule and materialized worktree. Materialized `REPRODUCIBILITY_METADATA.json` SHA-256: `adf4f15117cfed812877638f3d91e8c9c2f435321eeab3bb6e27272072d41a5a`.
+- Sole submission: `sbatch --parsable --account=vision-torralba-urops-meng --qos=vision-torralba-interactive --partition=vision-torralba-rtx3090 --export=ALL,RESEARCH_REPRO_STAGED_DIR=<fresh-worktree>,SOURCE_REPO=/data/scratch-fast/kwen1/compute-native-vq/triton experiments/phase_a_decode/run_phase_a.sbatch`.
+- Slurm job `1570434` was accepted at `2026-08-24T19:21:50-04:00`, initially `PENDING` with reason `None`, requesting one node, 4 CPUs, 16 GiB, and exactly one GPU on the required Torralba account/QoS/partition.
+- Slurm stdout/stderr: `/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline/slurm-1570434.out`.
+- Expected result root: `/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline/`; expected run outputs remain `staged_snapshot.txt`, `REPRODUCIBILITY_METADATA.json`, `environment.lock.txt`, `system.txt`, `command.txt`, `run_metadata.json`, `correctness.json`, `tuning.json`, `trial_timings.json`, `timings.csv`, `README.md`, and `jh_speedup.png`.
+
+Event and retry gate:
+
+- The sole terminal-state source is `/home/ubuntu/.treehouse/firstmate-557e63/1/firstmate/state/phase-a-hurwitz-decode-p1.check.sh`, mode `0700`, SHA-256 `00a134e48670bc0e8673dc27406bac43cf142a46ff546ef7b4c13da17012b743`; its mode-`0600` `fm-custom-check-v1` trust file binds the same hash. It reads only job `1570434` and atomically wakes once on a terminal Slurm state.
+- Prior jobs `1517414` and `1524492` and all prior stages/evidence remain preserved.
+- **No fourth experiment submission is authorized.** If job `1570434` is cancelled by UID 0 or otherwise fails, do not submit automatically.
