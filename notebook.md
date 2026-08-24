@@ -210,3 +210,15 @@ Reproducible launch contract:
 - Expected durable outputs: `slurm-<jobid>.out`, `staged_snapshot.txt`, `REPRODUCIBILITY_METADATA.json`, `environment.lock.txt`, `system.txt`, `command.txt`, `run_metadata.json`, `correctness.json`, `tuning.json`, `trial_timings.json`, `timings.csv`, updated `README.md`, and `jh_speedup.png` under the absolute result directory above.
 - After submission, record the fresh stage, metadata, exact job ID/command/paths here and commit on this feature branch. Register exactly one authenticated terminal-state check under task identity `phase-a-hurwitz-decode-p1`.
 - **No fourth attempt is authorized.** If this job is cancelled by UID 0 or otherwise fails, do not submit automatically.
+
+Staging outcome:
+
+- At `2026-08-24T19:09:34-04:00`, the scheduler owner invoked the exact AFS helper and staged `sbatch` command above once from the clean source commit `18822c75be1e4359013e6b9771c0b2d089cba70c`, tree `560b950920bed61fc3ca05997568d2aca80afde0`.
+- The helper announced fresh target `/data/scratch-fast/kwen1/compute-native-vq/staging/20260824_190934-b13411-18822c75b-code`.
+- The tracked foreground SSH command ended with status `255` after about 52 seconds, before `Staging complete`, metadata creation, or a numeric `sbatch` ID.
+- The incomplete 108 MiB stage is preserved unchanged. It contains 1,615 files and resolves to the expected HEAD/tree, but `REPRODUCIBILITY_METADATA.json` is absent.
+- No matching helper/rsync process remained at `2026-08-24T19:11:05-04:00`.
+- `squeue -u kwen1` was empty and `sacct` contained no `phase-a-hurwitz` submission after `19:08`; therefore `sbatch` did not execute and no retry-3 Slurm job exists.
+- No Slurm output or benchmark/result artifact was created by this attempt.
+- No terminal-state check was created or registered because there is no job ID to observe.
+- **BLOCKED BEFORE SUBMISSION.** Do not bypass or repeat staging, do not submit directly, and do not create an automatic fourth attempt. Captain/supervisor direction is required for any further action.
