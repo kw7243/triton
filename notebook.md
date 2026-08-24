@@ -178,3 +178,35 @@ Gate:
 
 - **BLOCKED — NO RESULT.** The repeated obstacle is a scheduler/controller-side UID 0 cancellation before the batch script opens its output, not a correctness or performance result.
 - Smallest unblock: a CSAIL Slurm administrator inspects slurmctld/slurmd logs for `1517414` and `1524492` and clears the forced cancellation or identifies an allowed Torralba account/QoS/partition invocation. Do not submit again until that external action occurs.
+
+## 2026-08-24 — Captain-authorized controlled retry 3
+
+Authorization and ownership:
+
+- Captain decision `corr=f633238db1c8d4e2` authorizes exactly one controlled third Torralba submission despite unchanged UID-0 cancellation evidence. It supersedes the earlier no-third-attempt rule only for this attempt.
+- `phase-a-hurwitz-decode-p1` exclusively owns scheduler context, fresh whole-repository staging, submission, provenance, and the sole terminal-state event source.
+- `phase-a-retry3-validation` independently owns source/configuration audit and result validation; it must not submit, cancel, or poll. Scheduler ownership will not duplicate its analysis.
+
+Exact source reconciliation before this notebook edit:
+
+- Repository: `/data/scratch-fast/kwen1/compute-native-vq/triton`; branch `fm/phase-a-hurwitz-decode`.
+- HEAD `7b3457b1fac80850e0ba4addfc8f124b023388f6`; tree `73c94ff2e50187f720a378fa790b4101658c3347`.
+- Status: clean, `fm/phase-a-hurwitz-decode...origin/fm/phase-a-hurwitz-decode [ahead 8]`; no reset, discard, or prior-stage modification.
+- Remotes: `origin=https://github.com/kw7243/triton.git`; `upstream=https://github.com/triton-lang/triton.git`.
+- Batch SHA-256 `aca356cc4d1ba87ea67c94f6bca671e52e0a26b74a779722fae218dd01ba8bc6`; benchmark SHA-256 `c2c451ab3290af8d4fc97ff8bec077533a679ffd825a2d44d8907dc8cdd16a6a`.
+
+Scheduler and storage preflight:
+
+- Checked from `slurm-login-0.csail.mit.edu` as `kwen1`; `SLURM_JOB_ID` was unset and no `/dev/nvidia*` devices were visible. No GPU or benchmark code ran on the login node.
+- Current association permits account `vision-torralba-urops-meng` and QoS `vision-torralba-interactive`; partition `vision-torralba-rtx3090` is `UP`, exposes only `torralba-3090-[1-3]`, and currently has two idle nodes and one mixed node.
+- `run_phase_a.sbatch` requests one node and exactly one GPU with `--gres=gpu:1`, 4 CPUs, 16 GiB, and one hour. Its absolute stdout/stderr path is `$RESULT_DIR/slurm-%j.out`, where `$RESULT_DIR` is `/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline`.
+- `bash -n` and `sbatch --test-only` passed. The dry run mentioned projected ID `1569898`; immediate `squeue` and `sacct` checks proved that ID does not exist, so it was not a submission.
+- Prior preserved scheduler records remain jobs `1517414` and `1524492`, both `CANCELLED by 0`; their staged worktrees and all earlier partial stages/evidence remain untouched.
+
+Reproducible launch contract:
+
+- Invoke the exact AFS helper from this source repository: `/bin/bash /afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh --repo-root /data/scratch-fast/kwen1/compute-native-vq/triton --staging-parent /data/scratch-fast/kwen1/compute-native-vq/staging -- sbatch --parsable --account=vision-torralba-urops-meng --qos=vision-torralba-interactive --partition=vision-torralba-rtx3090 --export=ALL,SOURCE_REPO=/data/scratch-fast/kwen1/compute-native-vq/triton experiments/phase_a_decode/run_phase_a.sbatch`.
+- The helper must create a fresh full-repository snapshot and `REPRODUCIBILITY_METADATA.json`, then execute `sbatch` from inside that snapshot with `RESEARCH_REPRO_STAGED_DIR` exported by the helper.
+- Expected durable outputs: `slurm-<jobid>.out`, `staged_snapshot.txt`, `REPRODUCIBILITY_METADATA.json`, `environment.lock.txt`, `system.txt`, `command.txt`, `run_metadata.json`, `correctness.json`, `tuning.json`, `trial_timings.json`, `timings.csv`, updated `README.md`, and `jh_speedup.png` under the absolute result directory above.
+- After submission, record the fresh stage, metadata, exact job ID/command/paths here and commit on this feature branch. Register exactly one authenticated terminal-state check under task identity `phase-a-hurwitz-decode-p1`.
+- **No fourth attempt is authorized.** If this job is cancelled by UID 0 or otherwise fails, do not submit automatically.
