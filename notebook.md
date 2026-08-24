@@ -254,3 +254,29 @@ Event and retry gate:
 - The sole terminal-state source is `/home/ubuntu/.treehouse/firstmate-557e63/1/firstmate/state/phase-a-hurwitz-decode-p1.check.sh`, mode `0700`, SHA-256 `00a134e48670bc0e8673dc27406bac43cf142a46ff546ef7b4c13da17012b743`; its mode-`0600` `fm-custom-check-v1` trust file binds the same hash. It reads only job `1570434` and atomically wakes once on a terminal Slurm state.
 - Prior jobs `1517414` and `1524492` and all prior stages/evidence remain preserved.
 - **No fourth experiment submission is authorized.** If job `1570434` is cancelled by UID 0 or otherwise fails, do not submit automatically.
+
+## 2026-08-24 — Retry 3 terminal scheduler evidence
+
+Terminal accounting, captured once at `2026-08-24T19:27:41-04:00`:
+
+- Job `1570434` allocation: `CANCELLED by 0`, reason `None`, exit `0:0`, derived exit `0:0`; admin comment, system comment, and user comment are blank.
+- Submitted `2026-08-24T19:21:50-04:00`, eligible at the same time, started `19:21:52`, ended `19:21:53`, elapsed `00:00:01`, node `torralba-3090-1`.
+- Allocation: account `vision-torralba-urops-meng`, QoS `vision-torralba-interactive`, partition `vision-torralba-rtx3090`, 4 CPUs, 16 GiB, and one GPU.
+- Batch step `1570434.batch`: `CANCELLED`, start/end `19:21:52`/`19:21:53`, elapsed one second. Extern step `1570434.extern`: `COMPLETED`, exit `0:0`, same timestamps and node.
+- Retained submit line: `sbatch --parsable --account=vision-torralba-urops-meng --qos=vision-torralba-interactive --partition=vision-torralba-rtx3090 --export=ALL,RESEARCH_REPRO_STAGED_DIR=/data/scratch-fast/kwen1/compute-native-vq/staging/20260824_192116-f9abbb-f2eba10-code/worktree,SOURCE_REPO=/data/scratch-fast/kwen1/compute-native-vq/triton experiments/phase_a_decode/run_phase_a.sbatch`.
+- `scontrol show job -dd 1570434` reports `Invalid job id specified`; the terminal record is retained in `sacct`.
+
+Output existence and execution boundary:
+
+- Declared combined stdout/stderr `/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline/slurm-1570434.out` is absent.
+- The result-root `staged_snapshot.txt`, `REPRODUCIBILITY_METADATA.json`, `environment.lock.txt`, `system.txt`, `command.txt`, `run_metadata.json`, `correctness.json`, `tuning.json`, `trial_timings.json`, `timings.csv`, and `jh_speedup.png` are absent. The only `README.md` there predates this job (`2026-08-21T00:23:22-04:00`). No result-root file changed after submission.
+- The batch script writes `staged_snapshot.txt` and copied metadata before environment/hardware capture and invokes `benchmark.py` only afterward. Because none of those pre-benchmark writes or the Slurm log exists, the batch payload did not reach benchmark execution.
+- **No scientific result.** Correctness, stability, latency, throughput, and GO/OPTIMIZE-ONCE/KILL remain unmeasured; this terminal state is scheduler evidence only.
+
+Preserved reproducibility evidence:
+
+- Fresh staged capsule `/data/scratch-fast/kwen1/compute-native-vq/staging/20260824_192116-f9abbb-f2eba10-code` and worktree `/data/scratch-fast/kwen1/compute-native-vq/staging/20260824_192116-f9abbb-f2eba10-code/worktree` remain clean at HEAD `f2eba10425118e4ab958aa1170859209f519d0dc`, tree `e337b72cc8dcc0187223f4558f1a0622b83d7422`, with 1,493 tracked files and no alternates.
+- Both staged and worktree `REPRODUCIBILITY_METADATA.json` files remain present with SHA-256 `adf4f15117cfed812877638f3d91e8c9c2f435321eeab3bb6e27272072d41a5a`.
+- One-shot ledger `/data/scratch-fast/kwen1/compute-native-vq/run-state/phase-a-retry3-f2eba1042.ledger` remains mode `0600`, SHA-256 `b32a3f4cbca1d40f7296e16580cbfb98cc36ff84e4f9992b1b64019d3ed373ac`, and records no preexisting retry3 job, one submit latch, and sole numeric job `1570434`.
+- The custom terminal source fired once and is retired after this evidence commit; its exact empty fired marker is removed with it.
+- **MANDATORY STOP — NO FOURTH ATTEMPT.** The captain-authorized single retry is consumed. Do not submit, restage, requeue, or cancel another job without a new captain decision.
