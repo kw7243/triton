@@ -363,3 +363,30 @@ Gate and outcome:
 
 ## 2026-08-25 — Append-only notebook reconciliation for clean preflight validation
 
+- Cherry-pick `d96a5a710309b11f8a7eefbdf11d0fc28403404f` conflicted only because the local lineage had already appended CPU-correctness, preflight, and reconciliation entries. Resolution retained every local entry and appended the commit's complete clean-gate entry; no historical entry was deleted or rewritten.
+
+## 2026-08-25 — Phase A GPU correctness-only r1 pre-launch record
+
+Scientific scope and distinction:
+
+- Fresh captain authority permits exactly one bounded GPU correctness-only experiment. Unlike cancelled jobs `1517414`, `1524492`, and `1570434`, this payload stops immediately after the existing exhaustive/random J/F/H checks: it does not call tuning, timing, CUDA graphs, latency trials, `decide`, or any GO/OPTIMIZE/KILL gate.
+- Coverage is fixed at `S=96,192`, fp16 plus bf16 when supported, 24 primary units and every feasible secondary index in each exhaustive case, the existing random cases, and configs `b256-w4` and `b512-w8`. Required checks are finite values, J bitwise gather equality, F/H axis bitwise equality to J, and F/H tolerances against the independent scalar-first PyTorch oracle.
+- Correctness PASS can only unlock a separately controlled timing decision; this lane makes no broader Phase A/B timing or Gate B claim. Independent audit ownership remains `vq-phase-a-gpu-correctness-audit-r1`, which neither submits nor polls.
+
+Source and code provenance before this append:
+
+- Source worktree `/data/scratch-fast/kwen1/compute-native-vq/worktrees/vq-phase-a-gpu-correctness-r1`, branch `fm/phase-a-gpu-correctness-r1`, clean implementation commit `28d1b5e968af17f5829ef9e270945c5665763769`, tree `aeca910a220e4c809db36fe89c8540ddd56ea2c3`. This notebook-only append will be committed before staging; the exact sealed launch commit/tree and clean local state will be captured in `REPRODUCIBILITY_METADATA.json`, stage proof, and the post-submission entry.
+- `benchmark.py` SHA-256 `4d47e2575b4b086237f8971b99d204c4315b8d09d024ab8b27fc40ba16137606`.
+- GPU runner README SHA-256 `55cb29c78a2385bb0fa7662699310a055b9fe35d020c3156b55fb879077b1dd8`.
+- `run_gpu_correctness.sbatch` SHA-256 `81448a6b679026827b044146d27adbd9a50f4ea0973a2f4d645bbd0dbf846f76`.
+- `submit_from_stage.py` SHA-256 `b539ecf03554e3ffae268b3f3d0b83b7c3bb35478c37991b1e69c05726bcd623`.
+- `validate_environment.py` SHA-256 `c9dc5e5d6813aa1eac73dbc75cab7436fc12326277faacd677c8b61b0328b689`.
+- Reused preflight contract SHA-256 `cd10962b4f70e73493a7175eae7dafe16ec01829d92fdcddadc39e12f2b45c57`.
+
+Launch contract:
+
+- Fresh result root: `/data/scratch-fast/kwen1/compute-native-vq/results/2026-08-25-vq-phase-a-gpu-correctness-r1`; it contained only the scheduler preflight record before staging.
+- Bounded live evidence at `2026-08-25T16:32:40-04:00` confirms user `kwen1` is associated with account `vision-torralba-urops-meng`, that the association includes QoS `vision-torralba-interactive`, and that partition `vision-torralba-rtx3090` is UP and allows both. Evidence: `scheduler_preflight.txt`, SHA-256 `3d8de3ddb503e24944af660d7d6534cc964f596d8c096f731bb6e66c72df70a3`.
+- Intended maximum allocation: one Torralba node, one task, one RTX 3090 GPU, 4 CPUs, 16 GiB, and 15 minutes, using the exact live account/QoS/partition above. There will be exactly one `sbatch` attempt, with no interactive allocation, retry, requeue, or cancellation.
+- Immediately before that sole attempt, invoke `/afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh` from the clean source with staging parent `/data/scratch-fast/kwen1/compute-native-vq/staging`. The staged `submit_from_stage.py` must verify `.git`, metadata, clean source identity, tracked path set/content, commit/tree, and local state before its single fixed `sbatch` call.
+- The allocated-node payload must write validation and final manifests even on failure and must exit before CUDA correctness if allocation, GPU, CUDA/PyTorch, VRAM, host memory, or source/stage/result storage validation fails.
