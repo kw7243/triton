@@ -280,3 +280,42 @@ Preserved reproducibility evidence:
 - One-shot ledger `/data/scratch-fast/kwen1/compute-native-vq/run-state/phase-a-retry3-f2eba1042.ledger` remains mode `0600`, SHA-256 `b32a3f4cbca1d40f7296e16580cbfb98cc36ff84e4f9992b1b64019d3ed373ac`, and records no preexisting retry3 job, one submit latch, and sole numeric job `1570434`.
 - The custom terminal source fired once and is retired after this evidence commit; its exact empty fired marker is removed with it.
 - **MANDATORY STOP — NO FOURTH ATTEMPT.** The captain-authorized single retry is consumed. Do not submit, restage, requeue, or cancel another job without a new captain decision.
+
+## 2026-08-25 — Independent CPU-correctness lane recovery and milestone
+
+Recovered provenance and isolation:
+
+- Administrative launch worktree: `/home/ubuntu/.treehouse/triton-ff92c5/3/triton`; detached and clean before creating administrative-only branch `fm/vq-cpu-correctness-r1`. No durable source or notebook content was retained there.
+- Clean source checkout checked read-only at `/data/scratch-fast/kwen1/compute-native-vq/triton`; it was on `fm/phase-a-hurwitz-decode`, clean, and ahead of its remote by 12 commits. That existing branch and all prior stages/results/evidence were left unchanged.
+- Exact clean provenance/base: `f33a9c88651a1defe2b0a7ef4f80a3cfa1a8f25b` (`Record retry 3 terminal cancellation`).
+- Isolated worktree: `/data/scratch-fast/kwen1/compute-native-vq/worktrees/vq-cpu-correctness-r1`; branch: `fm/phase-a-cpu-correctness`; initial HEAD exactly matched the base above.
+- Creation command: `git worktree add -b fm/phase-a-cpu-correctness /data/scratch-fast/kwen1/compute-native-vq/worktrees/vq-cpu-correctness-r1 f33a9c88651a1defe2b0a7ef4f80a3cfa1a8f25b`.
+- The first inline patch transport failed twice before writing any substantive file (one local command-construction failure and one rejected corrupt patch); the scratch worktree remained clean. Recovery used mode-`0600` temporary files copied with `scp`, matching SHA-256 hashes before and after transfer, and a same-filesystem atomic directory move. The temporary CSAIL transfer directory and every VM-local transfer artifact were removed after verification; the administrative worktree was then clean.
+
+Current diagnostic tuple evidence (read-only carry-forward):
+
+- Preserved diagnostic GPU smoke job `1574206` demonstrates a current success for account/QoS/partition tuple `vision-torralba-urops-meng` / `vision-torralba-interactive` / `vision-torralba-rtx3090` on `torralba-3090-1.csail.mit.edu`. Its output records `slurm_job_id=1574206`, one visible RTX 3090, and return code `0` for both diagnostic `nvidia-smi` calls.
+- Report/one-shot submission ledger: `/data/scratch-fast/kwen1/torralba-gpu-smoke-r1-corr-3c72e85347313df9/submission-ledger.txt`, SHA-256 `381a14fd1e6e4dc7b4d764783e303839f94cbb652cdedc6577076655deb1f8b9`.
+- Diagnostic output: `/data/scratch-fast/kwen1/torralba-gpu-smoke-r1-corr-3c72e85347313df9/1574206.out`, SHA-256 `b9ac17b5ad8d89c243769699380a6be5cff6f09a527a34543a5c79fcc79e88ac`.
+- This evidence was only read from preserved files. This lane ran no Slurm command, scheduler poll, allocation command, GPU query, CUDA/Triton kernel, or experiment. The smoke validates the current resource tuple only; it is not a Phase A decoder result and does not supersede the UID-0 cancellation evidence for jobs `1517414`, `1524492`, and `1570434`.
+
+CPU-correctness implementation:
+
+- Exclusive source root: `experiments/phase_a_decode/cpu_correctness/`; no edit was made to `benchmark.py`, `run_phase_a.sbatch`, existing result directories, or another worker's directory.
+- `oracle.py` implements the independent scalar-first `(w,x,y,z)` PyTorch contract, the 24 ordered Hurwitz primary units, `id = p*S+s`, J joint-table gathering, F generic Hamilton multiplication, and H signed-permutation/half-unit specialization. All public tensor operations fail closed on non-CPU devices.
+- `test_cpu_correctness.py` exhausts all 24 primary units and all secondary indices for representative `S = 1, 2, 7, 31`; checks scalar-first basis orientation and flat-ID decomposition; covers the 8 signed permutations, all 16 half-unit sign masks, zero/signed-zero, basis, mixed-sign, and power-of-two edges; validates fp16 and bf16 storage round trips; and exercises deterministic property cases with exact seeds `0`, `20260824`, and `0xC0FFEE`.
+- `README.md` documents the no-GPU boundary and integration seam. `benchmark.py` is intentionally not imported because it couples the contract to top-level Triton/plotting dependencies and a CUDA execution path; a future GPU-only adapter can compare copied-back kernel outputs against `decode_variants()` without weakening this lane.
+- Transferred source hashes: `README.md` `b353bc23ded23cc285124ffdee10dd738e2b110f52d0e08c6f9a23da98bf4b57`; `__init__.py` `de1c288d069c711696cd7c06656c6b9f6bedd151a77b7efc9712996b12dba906`; `oracle.py` `564db778450a4441f2e85aa786e7100ba997dc7def096e16f0e3c2d0f65b6da9`; `test_cpu_correctness.py` `d26029e761401184fa12b555aed42fdfb72b12c7ca806e6d9253a535944f4d9a`.
+
+CPU-only validation and outcome:
+
+- Host: `slurm-login-0.csail.mit.edu`. Command environment: `CUDA_VISIBLE_DEVICES=""`; Python `3.10.20` (conda-forge, GCC 14.3.0); PyTorch `2.8.0+cu128`; `torch.cuda.is_available()` was `False`; default dtype was `torch.float32`.
+- The system `python3` lacked PyTorch. The scratch environment `/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python` supplied PyTorch but not pytest, so the dependency-free standard-library unittest runner was used instead of modifying a shared environment.
+- Exact test command: `CUDA_VISIBLE_DEVICES="" /data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python -m unittest discover -s experiments/phase_a_decode/cpu_correctness -p "test_*.py" -v`.
+- Result: `Ran 10 tests in 0.345s` and `OK`; zero test failures, errors, skips, or unsupported dtype cases. Both CPU fp16 and CPU bf16 round-trip checks passed. No result directory or experiment artifact was created.
+- Static checks: `git diff --check` passed; `CUDA_VISIBLE_DEVICES="" .../python -m compileall -q experiments/phase_a_decode/cpu_correctness` passed. Generated `__pycache__` was removed before commit. Per repository guidance, `make` was not run because changes are Python-only.
+
+Decision boundary:
+
+- The independent CPU mathematical contract is validated and ready for direct PR review. This is a correctness-test milestone only: no latency, throughput, or device-kernel conclusion follows.
+- **PHASE A REMAINS CLOSED.** Preserve the UID-0 blocker and the no-fourth-attempt gate. This lane makes no GO, KILL, pivot, submission, retry, or performance claim.
