@@ -406,3 +406,12 @@ Outcome and boundary:
 - **NO SUBMISSION / NO RESULT.** The sole `sbatch` site is inside `submit_from_stage.py`, and the missing staged metadata and wrapper artifacts prove execution did not reach it. No numeric job ID exists, so no terminal-state source was created or registered.
 - Per the reproducibility skill's fail-closed staging rule, do not bypass the helper, submit from source, or launch CUDA correctness from this incomplete stage. No retry, requeue, cancellation, or manual scheduler polling was performed.
 - Next dependency: supervisor direction for a policy-compliant way to complete the mandatory full-repository helper stage without weakening the one-`sbatch`, staged-only, and no-retry boundaries.
+
+## 2026-08-25 — Phase A GPU correctness-only r1 authorized staging recovery
+
+- Supervisor confirmed from the preserved boundary evidence that the first helper transport ended during copy, before metadata, staged verification, `sbatch`, or any job ID. The one authorized `sbatch` attempt is therefore unused, and exactly one fresh helper staging recovery is authorized without changing experiment scope.
+- Recovery source before this append: clean branch `fm/phase-a-gpu-correctness-r1`, commit `d72243dd5549281a1454d6c937b0a92e038f7c41`, tree `e8806a5a972fa33e7b589afe2b3dc7bada2e1a69`. This recovery entry will be committed before launch so the helper sees a clean sealed source.
+- Failed stage `/data/scratch-fast/kwen1/compute-native-vq/staging/20260825_163420-b041a0-3c7614c10-code` remains incomplete with no metadata. Its read-only path/type/size/mtime manifest SHA-256 is `782581a29852065d727f666e9be951e5920567cf79276ef3677fd4a05cebdcc3`; it must never be reused, repaired, or deleted.
+- Durable result root remains `/data/scratch-fast/kwen1/compute-native-vq/results/2026-08-25-vq-phase-a-gpu-correctness-r1` and still contains only `scheduler_preflight.txt` before recovery.
+- The recovery uses the same required AFS `stage_and_run.sh`, source, staging parent, correctness-only code/config hashes, result root, and eligible tuple `vision-torralba-urops-meng` / `vision-torralba-interactive` / `vision-torralba-rtx3090`, bounded to one node/task/GPU, 4 CPUs, 16 GiB, and 15 minutes.
+- `sbatch` remains gated on a newly announced timestamped stage reaching `Staging complete`, producing `REPRODUCIBILITY_METADATA.json`, and passing the staged wrapper's exact source/config byte verification. Any fresh transport failure, submission ambiguity, or verification drift requires an immediate stop with no further staging or submission retry.
