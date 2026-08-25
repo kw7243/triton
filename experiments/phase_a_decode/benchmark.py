@@ -319,6 +319,36 @@ def decide(rows):
         "OPTIMIZE ONCE" if primary["jh_hot_speedup"] >= 1.10 else "KILL")
 
 
+def write_correctness_artifacts(output, records, bf16):
+    payload = {
+        "status": "passed",
+        "mode": "correctness-only",
+        "timing_executed": False,
+        "tuning_executed": False,
+        "cuda_graphs_executed": False,
+        "bf16": bf16,
+        "tolerances": {"absolute": ABS_TOL, "relative_frobenius": REL_TOL},
+        "coverage": {
+            "S": [96, 192],
+            "primary_units": 24,
+            "inputs": ["exhaustive", "random"],
+            "configs": [config[2] for config in CONFIGS],
+            "checks": ["finite", "J_bitwise_gather", "F_H_axis_bitwise_J",
+                       "F_H_vs_independent_PyTorch_oracle"],
+        },
+        "records": records,
+    }
+    (output / "correctness.json").write_text(json.dumps(payload, indent=2) + "\n")
+    (output / "correctness_manifest.json").write_text(json.dumps(
+        {key: payload[key] for key in ("mode", "timing_executed", "tuning_executed",
+                                       "cuda_graphs_executed", "bf16", "tolerances", "coverage")},
+        indent=2) + "\n")
+    (output / "README.md").write_text(
+        "# Phase A GPU correctness-only result\n\n"
+        "This run executes only the exhaustive/random J/F/H correctness path. "
+        "It performs no tuning, timing, CUDA graph, latency, or Phase A decision work.\n")
+
+
 def write_artifacts(output, rows, raw, correctness, bf16, tuning, conclusion):
     with (output / "timings.csv").open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=rows[0].keys())
@@ -383,17 +413,18 @@ def parse_args():
     p.add_argument("--rep", type=int, default=200)
     p.add_argument("--outer-trials", type=int, default=5)
     p.add_argument("--output", type=Path, default=Path("results/2026-08-20-hurwitz-decode-baseline"))
+    p.add_argument("--correctness-only", action="store_true")
     return p.parse_args()
 
 
 def main():
     args = parse_args()
-    required = (args.seed == 0 and sorted(args.s) == [96, 192] and
-                sorted(args.t_kv) == [4096, 16384, 32768] and args.roles == 2 and
-                args.kv_heads == 8 and args.head_dim == 128 and
-                set(args.cache_modes) == {"hot", "cold"} and args.warmup == 25 and
-                args.rep == 200 and args.outer_trials == 5)
-    if not required:
+    correctness_protocol = (args.seed == 0 and sorted(args.s) == [96, 192] and
+                            args.roles == 2 and args.kv_heads == 8 and args.head_dim == 128)
+    timing_protocol = (sorted(args.t_kv) == [4096, 16384, 32768] and
+                       set(args.cache_modes) == {"hot", "cold"} and args.warmup == 25 and
+                       args.rep == 200 and args.outer_trials == 5)
+    if not correctness_protocol or (not args.correctness_only and not timing_protocol):
         raise ValueError("arguments do not match the declared Phase A protocol")
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA unavailable; run only through the staged Slurm entry point")
@@ -405,18 +436,38 @@ def main():
                 "torch": torch.__version__, "triton": triton.__version__,
                 "cuda_runtime": torch.version.cuda, "device": torch.cuda.get_device_name(0),
                 "compute_capability": torch.cuda.get_device_capability(0),
+                "mode": "correctness-only" if args.correctness_only else "timing",
+                "timing_executed": False, "tuning_executed": False,
+                "cuda_graphs_executed": False,
                 "assumptions": {"quaternion": "scalar-first (w,x,y,z)", "id": "p*S+s"}}
     (args.output / "run_metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
     print("correctness: starting", flush=True)
-    tables, correctness, bf16 = run_correctness(args)
+    try:
+        tables, correctness, bf16 = run_correctness(args)
+    except BaseException as exc:
+        failure = {"status": "failed", "mode": metadata["mode"],
+                   "error_type": type(exc).__name__, "error": str(exc)}
+        (args.output / "correctness.json").write_text(json.dumps(failure, indent=2) + "\n")
+        metadata.update(status="failed", correctness="FAIL", error=failure)
+        (args.output / "run_metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
+        raise
     print(f"correctness: passed; bf16: {bf16}", flush=True)
+    if args.correctness_only:
+        write_correctness_artifacts(args.output, correctness, bf16)
+        metadata.update(status="passed", correctness="PASS")
+        (args.output / "run_metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
+        print("correctness-only: PASS; no tuning or timing executed", flush=True)
+        return
     selected, tuning = {}, {"configs": [c[2] for c in CONFIGS], "selection_shape_tkv": 4096, "by_s": {}}
+    metadata["tuning_executed"] = True
     for s_size in args.s:
         selected[s_size], scores = tune(args, s_size, tables[s_size])
         tuning["by_s"][str(s_size)] = {"scores_ms": scores,
                                       "selected": {v: selected[s_size][v][2] for v in VARIANTS}}
     rows, raw = [], {}
     summaries = {s: correctness_summary(correctness, s) for s in args.s}
+    metadata["timing_executed"] = True
+    metadata["cuda_graphs_executed"] = True
     for s_size in args.s:
         for t_kv in args.t_kv:
             print(f"timing: S={s_size}, Tkv={t_kv}", flush=True)
