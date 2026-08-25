@@ -390,3 +390,19 @@ Launch contract:
 - Intended maximum allocation: one Torralba node, one task, one RTX 3090 GPU, 4 CPUs, 16 GiB, and 15 minutes, using the exact live account/QoS/partition above. There will be exactly one `sbatch` attempt, with no interactive allocation, retry, requeue, or cancellation.
 - Immediately before that sole attempt, invoke `/afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh` from the clean source with staging parent `/data/scratch-fast/kwen1/compute-native-vq/staging`. The staged `submit_from_stage.py` must verify `.git`, metadata, clean source identity, tracked path set/content, commit/tree, and local state before its single fixed `sbatch` call.
 - The allocated-node payload must write validation and final manifests even on failure and must exit before CUDA correctness if allocation, GPU, CUDA/PyTorch, VRAM, host memory, or source/stage/result storage validation fails.
+
+## 2026-08-25 — Phase A GPU correctness-only r1 full-stage transport failure
+
+Preserved launch boundary:
+
+- Sealed clean source immediately before the helper: branch `fm/phase-a-gpu-correctness-r1`, commit `3c7614c1024ebf420426da1b4c712e71ac95f0f3`, tree `ae70f01148bb6a5afe2ed17059fa277404ec3789`.
+- Exact foreground command invoked the required AFS `stage_and_run.sh` with source `/data/scratch-fast/kwen1/compute-native-vq/worktrees/vq-phase-a-gpu-correctness-r1`, staging parent `/data/scratch-fast/kwen1/compute-native-vq/staging`, and staged command `python3 experiments/phase_a_decode/gpu_correctness/submit_from_stage.py --source /data/scratch-fast/kwen1/compute-native-vq/worktrees/vq-phase-a-gpu-correctness-r1 --result /data/scratch-fast/kwen1/compute-native-vq/results/2026-08-25-vq-phase-a-gpu-correctness-r1`.
+- The helper announced target `/data/scratch-fast/kwen1/compute-native-vq/staging/20260825_163420-b041a0-3c7614c10-code`, then the tracked SSH transport ended with status `255` after about 54 seconds before `Staging complete`.
+- The incomplete 21 MiB stage remains preserved. It has no `REPRODUCIBILITY_METADATA.json`; the staged verification wrapper never ran; `stage_verification.json`, `submission_request.txt`, and `submission_response.json` are absent; and no matching helper, rsync, or submission-wrapper process remained.
+- The durable result root contains only the pre-submission `scheduler_preflight.txt`; no Slurm log, environment validation, correctness record, run metadata, or final result manifest exists.
+
+Outcome and boundary:
+
+- **NO SUBMISSION / NO RESULT.** The sole `sbatch` site is inside `submit_from_stage.py`, and the missing staged metadata and wrapper artifacts prove execution did not reach it. No numeric job ID exists, so no terminal-state source was created or registered.
+- Per the reproducibility skill's fail-closed staging rule, do not bypass the helper, submit from source, or launch CUDA correctness from this incomplete stage. No retry, requeue, cancellation, or manual scheduler polling was performed.
+- Next dependency: supervisor direction for a policy-compliant way to complete the mandatory full-repository helper stage without weakening the one-`sbatch`, staged-only, and no-retry boundaries.
