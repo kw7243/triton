@@ -1,0 +1,271 @@
+{
+  "artifact_label": "SYNTHETIC \u2014 NOT A SCIENTIFIC RESULT",
+  "bf16": "unsupported (synthetic fixture)",
+  "records": [
+    {
+      "S": 96,
+      "chunks": 36864,
+      "config": "b256-w4",
+      "dtype": "float16",
+      "input": "exhaustive",
+      "metrics": {
+        "F_vs_J": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0002
+        },
+        "F_vs_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "F_vs_quantized_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "H_vs_J": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0002
+        },
+        "H_vs_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        },
+        "H_vs_quantized_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        }
+      }
+    },
+    {
+      "S": 96,
+      "chunks": 36864,
+      "config": "b512-w8",
+      "dtype": "float16",
+      "input": "exhaustive",
+      "metrics": {
+        "F_vs_J": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0002
+        },
+        "F_vs_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "F_vs_quantized_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "H_vs_J": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0002
+        },
+        "H_vs_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        },
+        "H_vs_quantized_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        }
+      }
+    },
+    {
+      "S": 96,
+      "chunks": 65584,
+      "config": "b256-w4",
+      "dtype": "float16",
+      "input": "random",
+      "metrics": {
+        "F_vs_J": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0002
+        },
+        "F_vs_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "F_vs_quantized_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "H_vs_J": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0002
+        },
+        "H_vs_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        },
+        "H_vs_quantized_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        }
+      }
+    },
+    {
+      "S": 96,
+      "chunks": 65584,
+      "config": "b512-w8",
+      "dtype": "float16",
+      "input": "random",
+      "metrics": {
+        "F_vs_J": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0002
+        },
+        "F_vs_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "F_vs_quantized_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "H_vs_J": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0002
+        },
+        "H_vs_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        },
+        "H_vs_quantized_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        }
+      }
+    },
+    {
+      "S": 192,
+      "chunks": 73728,
+      "config": "b256-w4",
+      "dtype": "float16",
+      "input": "exhaustive",
+      "metrics": {
+        "F_vs_J": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0002
+        },
+        "F_vs_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "F_vs_quantized_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "H_vs_J": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0002
+        },
+        "H_vs_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        },
+        "H_vs_quantized_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        }
+      }
+    },
+    {
+      "S": 192,
+      "chunks": 73728,
+      "config": "b512-w8",
+      "dtype": "float16",
+      "input": "exhaustive",
+      "metrics": {
+        "F_vs_J": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0002
+        },
+        "F_vs_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "F_vs_quantized_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "H_vs_J": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0002
+        },
+        "H_vs_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        },
+        "H_vs_quantized_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        }
+      }
+    },
+    {
+      "S": 192,
+      "chunks": 65584,
+      "config": "b256-w4",
+      "dtype": "float16",
+      "input": "random",
+      "metrics": {
+        "F_vs_J": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0002
+        },
+        "F_vs_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "F_vs_quantized_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "H_vs_J": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0002
+        },
+        "H_vs_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        },
+        "H_vs_quantized_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        }
+      }
+    },
+    {
+      "S": 192,
+      "chunks": 65584,
+      "config": "b512-w8",
+      "dtype": "float16",
+      "input": "random",
+      "metrics": {
+        "F_vs_J": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0002
+        },
+        "F_vs_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "F_vs_quantized_oracle": {
+          "max_abs": 0.0004,
+          "relative_fro": 0.0003
+        },
+        "H_vs_J": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0002
+        },
+        "H_vs_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        },
+        "H_vs_quantized_oracle": {
+          "max_abs": 0.0005,
+          "relative_fro": 0.0003
+        }
+      }
+    }
+  ],
+  "status": "passed"
+}

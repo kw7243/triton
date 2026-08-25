@@ -1,0 +1,22 @@
+{
+  "artifact_label": "SYNTHETIC \u2014 NOT A SCIENTIFIC RESULT",
+  "assumptions": {
+    "id": "p*S+s",
+    "quaternion": "scalar-first (w,x,y,z)"
+  },
+  "compute_capability": [
+    8,
+    6
+  ],
+  "cuda_runtime": "13.0-synthetic",
+  "cwd": "/data/scratch-fast/kwen1/compute-native-vq/worktrees/vq-analysis-viz-r1",
+  "device": "SYNTHETIC GPU \u2014 NO DEVICE WAS USED",
+  "fixture_seed": 20260824,
+  "git_branch": "fm/phase-a-analysis-viz",
+  "git_commit": "f33a9c88651a1defe2b0a7ef4f80a3cfa1a8f25b",
+  "schema_version": "phase-a-analysis-v1",
+  "status": "passed",
+  "synthetic": true,
+  "torch": "2.13.0+synthetic",
+  "triton": "3.7.1+synthetic"
+}

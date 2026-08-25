@@ -1,0 +1,32 @@
+Observed 2026-08-20 from slurm-login-0.csail.mit.edu.
+
+Allocated-node failure:
+  job=1516880 node=torralba-3090-1 state=FAILED exit=126:0 elapsed=00:00:07
+  /bin/bash: /afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh: Permission denied
+
+AFS helper on login node:
+  path=/afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh
+  filesystem=auristorfs source=AFS mount=/afs options=rw,relatime
+  unix_mode=775 owner=kwen1 group=kwen1
+  sha256=44e5dc6f1a958b1f4b32e8dceeb49814885ad8dcca59716090ca87b1033731fa
+  ACL kwen1=rlidwka
+  ACL system:anyuser=l
+  authenticated login: readable=yes executable=yes bash_status=0
+
+Tokenless reproduction using a fresh pagsh:
+  tokens: none
+  AFS helper readable=no
+  AFS helper executable=yes (Unix mode only; not sufficient for reading)
+  /bin/bash AFS-helper --help status=126
+
+Diagnostic scratch mirror (noncompliant; not used for an experiment):
+  path=/data/scratch-fast/kwen1/compute-native-vq/tools/stage_and_run.sh
+  source=byte-identical copy of the AFS helper
+  sha256=44e5dc6f1a958b1f4b32e8dceeb49814885ad8dcca59716090ca87b1033731fa
+  cmp(AFS,scratch)=identical
+  filesystem=nfs4 source=nfs-prod-aia-1.csail.mit.edu:/scratch/scratch
+  options include rw,hard,sec=sys
+  tokenless readable=yes
+  tokenless executable=yes
+  tokenless /bin/bash scratch-helper --help status=0
+  conclusion=the helper bytes are valid, but this mirror does not satisfy the exact-AFS-path requirement

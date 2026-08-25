@@ -1,0 +1,18 @@
+{
+  "artifact_label": "SYNTHETIC \u2014 NOT A SCIENTIFIC RESULT",
+  "correctness_cases": 8,
+  "fixture_seed": 20260824,
+  "input_sha256": {
+    "correctness.json": "074650f6e13ff6f3394dddb464d56233707fd57df0e5184776aec4035c1b264a",
+    "run_metadata.json": "9d2263915dfc07d54b363540dee8490b086c614b6194892fd475c4d4c0e31401",
+    "timings.csv": "0fa3c415776f83c9f6578b9122a94171642d25a08073167a838398c359250690",
+    "trial_timings.json": "68c88a4c6b7e1731cfea6351e5ce00735990427b0c0e4de10c4b0c61bf727cee",
+    "tuning.json": "1583298e3cf2c79976ce04605e9f5863d2b1fd7f2ba67f397d81aff490d57be5"
+  },
+  "schema_version": "phase-a-analysis-v1",
+  "scientific_decision": null,
+  "synthetic": true,
+  "timing_cells": 6,
+  "unstable_cells": [],
+  "validation": "passed"
+}
