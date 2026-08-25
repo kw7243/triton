@@ -53,6 +53,86 @@ class RecordContractTest(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "duplicate JSON object key"):
             loads_jsonl(duplicated + "\n")
 
+    def _measurement_record(self):
+        record = copy.deepcopy(self.records[1])
+        record["code"]["dirty"] = False
+        record["model"]["revision"] = "a" * 40
+        record["quant"].update({
+            "w_group_size": "128",
+            "a_group_size": "per-row",
+            "scale_granularity": "per-group-W4;dynamic-per-row-A4",
+            "clip": "none",
+            "calibration_dataset": "wikitext-2-raw-v1@" + "b" * 40,
+        })
+        record["hardware"] = {
+            "gpu": "observed-gpu",
+            "compute_capability": "8.6",
+            "driver": "observed-driver",
+            "cuda": "observed-cuda",
+            "torch": "observed-torch",
+            "triton": "observed-triton",
+            "clock_policy": "observed-unlocked",
+        }
+        record["metrics"].update({
+            "correctness_passed": True,
+            "inverse_rel_error": 0.0,
+            "inverse_max_abs_error": 0.0,
+            "local_equivalence_rel_error": 0.0,
+            "local_equivalence_max_abs_error": 0.0,
+            "local_nmse": 0.0,
+            "nmse_epsilon": 1e-12,
+            "activation_absmax": 1.0,
+            "activation_rms": 0.5,
+            "rotation_us_p10": 1.0,
+            "rotation_us_median": 2.0,
+            "rotation_us_p90": 3.0,
+        })
+        record["execution"].update({
+            "status": "measurement",
+            "scheduler_clearance": True,
+            "scientific_evidence": False,
+            "synthetic_input": True,
+            "transform_launches": 2,
+            "transform_copies": 0,
+            "total_launches": 2,
+        })
+        return record
+
+    def test_synthetic_workload_cannot_be_mislabeled_as_scientific_evidence(self):
+        record = self._measurement_record()
+        record["execution"]["synthetic_input"] = False
+        record["execution"]["scientific_evidence"] = True
+        with self.assertRaisesRegex(ContractError, "must agree with workload.input_source"):
+            validate_record(record)
+
+        record = self._measurement_record()
+        record["execution"]["scientific_evidence"] = True
+        with self.assertRaisesRegex(ContractError, "cannot be labeled scientific evidence"):
+            validate_record(record)
+
+    def test_measurement_requires_immutable_model_revision(self):
+        record = self._measurement_record()
+        record["model"]["revision"] = "main"
+        with self.assertRaisesRegex(ContractError, "immutable 40-character model revision"):
+            validate_record(record)
+
+    def test_measurement_requires_resolved_quant_provenance(self):
+        for key in ("w_group_size", "clip"):
+            with self.subTest(key=key):
+                record = self._measurement_record()
+                record["quant"][key] = "UNRESOLVED-PHASE-A-OWNER"
+                with self.assertRaisesRegex(ContractError, f"resolved quant.{key}"):
+                    validate_record(record)
+
+        record = self._measurement_record()
+        record["quant"]["calibration_dataset"] = "wikitext-2-raw-v1@main"
+        with self.assertRaisesRegex(ContractError, "calibration_dataset=name@40-character-commit"):
+            validate_record(record)
+
+    def test_resolved_measurement_provenance_validates(self):
+        record = self._measurement_record()
+        self.assertIs(validate_record(record), record)
+
 
 if __name__ == "__main__":
     unittest.main()

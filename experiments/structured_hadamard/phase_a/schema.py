@@ -191,6 +191,11 @@ def _validate_execution(record) -> None:
             _integer(execution[key], f"execution.{key}")
 
     unexecuted = execution["status"] == "unexecuted-plan"
+    workload_is_synthetic = record["workload"]["input_source"] == "synthetic-fixed-seed"
+    if execution["synthetic_input"] is not workload_is_synthetic:
+        raise ContractError("execution.synthetic_input must agree with workload.input_source")
+    if workload_is_synthetic and execution["scientific_evidence"]:
+        raise ContractError("synthetic workloads cannot be labeled scientific evidence")
     if unexecuted:
         if execution["scheduler_clearance"] or execution["scientific_evidence"]:
             raise ContractError("unexecuted plans require scheduler_clearance=false and scientific_evidence=false")
@@ -204,8 +209,6 @@ def _validate_execution(record) -> None:
 
     if not execution["scheduler_clearance"]:
         raise ContractError("measurements require scheduler clearance")
-    if execution["scientific_evidence"] and execution["synthetic_input"]:
-        raise ContractError("synthetic measurements cannot be labeled scientific evidence")
     if metrics["correctness_passed"] is not True:
         raise ContractError("measurements require a passing correctness gate")
     if any(execution[key] is None for key in ("transform_launches", "transform_copies", "total_launches")):
@@ -272,8 +275,8 @@ def validate_record(record) -> dict:
         raise ContractError("model identity/dimensions do not match the first-model contract")
     if model["n_layers"] != 32:
         raise ContractError("model.n_layers must be 32")
-    if not unexecuted and model["revision"].startswith("UNRESOLVED"):
-        raise ContractError("measurements require a pinned model revision")
+    if not unexecuted and not _HEX40.fullmatch(model["revision"]):
+        raise ContractError("measurements require an immutable 40-character model revision")
 
     _require_exact_keys(record["quant"], _QUANT, "quant")
     quant = record["quant"]
@@ -285,6 +288,13 @@ def validate_record(record) -> dict:
         _boolean(quant[key], f"quant.{key}")
     _integer(quant["calibration_seed"], "quant.calibration_seed")
     _integer(quant["calibration_rows"], "quant.calibration_rows", minimum=1)
+    if not unexecuted:
+        for key in ("w_group_size", "a_group_size", "scale_granularity", "clip"):
+            if "UNRESOLVED" in quant[key].upper():
+                raise ContractError(f"measurements require resolved quant.{key}")
+        dataset_name, separator, dataset_revision = quant["calibration_dataset"].rpartition("@")
+        if not dataset_name or separator != "@" or not _HEX40.fullmatch(dataset_revision):
+            raise ContractError("measurements require calibration_dataset=name@40-character-commit")
 
     _require_exact_keys(record["site"], _SITE, "site")
     if record["site"]["kind"] != "mlp.down_proj.input":

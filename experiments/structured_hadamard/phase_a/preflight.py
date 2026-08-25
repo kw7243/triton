@@ -68,7 +68,7 @@ def _raw_samples_path(record_jsonl: str) -> str:
     return str(path.with_name(path.name.removesuffix(".jsonl") + ".raw-samples.jsonl"))
 
 
-def build_plan(*, result_jsonl: str = DEFAULT_RESULT_JSONL, head: str = BASE_COMMIT, dirty: bool = True) -> list[dict]:
+def build_plan(*, head: str, dirty: bool, result_jsonl: str = DEFAULT_RESULT_JSONL) -> list[dict]:
     if not PurePosixPath(result_jsonl).is_absolute() or not result_jsonl.endswith(".jsonl"):
         raise ValueError("result_jsonl must be an absolute .jsonl path")
     template = {

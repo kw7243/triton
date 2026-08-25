@@ -32,9 +32,10 @@ The Apache-2.0 attribution is in `THIRD_PARTY_NOTICES.md`.
 
 `reference.py` is dependency-free and independent of the Triton kernels.
 `triton_transform.py` lazily defines a two-launch `Hfull` path: an on-chip
-64-point FHT and a masked/tiled `U_172` reduction. Padding the reduction tile to
-256 is an implementation mask only; it never pads or truncates the 11008-wide
-operator. The `I` branch returns before importing Torch or Triton.
+64-point FHT with an fp32 intermediate (preventing unnormalized fp16 overflow)
+and a masked/tiled `U_172` reduction. Padding the reduction tile to 256 is an
+implementation mask only; it never pads or truncates the 11008-wide operator.
+The `I` branch returns before importing Torch or Triton.
 
 `profiler.py` keeps `transform-only` and `transform+quantize` as distinct timing
 identities. The latter requires the future owner to provide the frozen

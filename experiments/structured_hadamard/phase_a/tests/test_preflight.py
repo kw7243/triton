@@ -11,6 +11,10 @@ from experiments.structured_hadamard.phase_a.schema import BASE_COMMIT
 
 class PreflightTest(unittest.TestCase):
 
+    def test_build_plan_requires_explicit_git_provenance(self):
+        with self.assertRaises(TypeError):
+            build_plan()
+
     def test_exact_unexecuted_matrix_has_no_cuda_import(self):
         before = set(sys.modules)
         records = build_plan(head=BASE_COMMIT, dirty=True)

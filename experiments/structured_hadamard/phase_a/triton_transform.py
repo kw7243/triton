@@ -24,7 +24,10 @@ def _kernel_bundle():
     def fht64_kernel(source, intermediate):
         row_k = tl.program_id(0)
         offsets = tl.arange(0, 64)
-        values = tl.load(source + row_k * 64 + offsets)
+        # The unnormalized coefficient can exceed fp16 even when the final
+        # normalized Hfull output is representable. Accumulate and store the
+        # inter-kernel boundary in fp32.
+        values = tl.load(source + row_k * 64 + offsets).to(tl.float32)
 
         values = values.reshape(32, 2)
         lhs, rhs = tl.split(values)
@@ -70,6 +73,22 @@ def _kernel_bundle():
     return triton, fht64_kernel, u172_kernel
 
 
+def _allocate_intermediate(torch_module, example):
+    return torch_module.empty_like(example, dtype=torch_module.float32)
+
+
+def _storage_bounds(tensor) -> tuple[int, int]:
+    element_size = tensor.element_size()
+    start = tensor.untyped_storage().data_ptr() + tensor.storage_offset() * element_size
+    return start, start + tensor.numel() * element_size
+
+
+def _tensors_overlap(lhs, rhs) -> bool:
+    lhs_start, lhs_end = _storage_bounds(lhs)
+    rhs_start, rhs_end = _storage_bounds(rhs)
+    return max(lhs_start, rhs_start) < min(lhs_end, rhs_end)
+
+
 class HFullWorkspace:
     """Prepared buffers and matrix for repeated ``[N, 11008]`` launches."""
 
@@ -83,7 +102,7 @@ class HFullWorkspace:
         self.shape = tuple(example.shape)
         self.dtype = example.dtype
         self.device = example.device
-        self.intermediate = torch.empty_like(example)
+        self.intermediate = _allocate_intermediate(torch, example)
         self.output = torch.empty_like(example)
         # Matrix preparation is outside the timed transform boundary.
         self.matrix = torch.tensor(u172(), dtype=example.dtype, device=example.device).contiguous()
@@ -107,8 +126,10 @@ class HFullWorkspace:
         elif (tuple(out.shape) != self.shape or out.dtype != self.dtype or out.device != self.device
               or not out.is_contiguous()):
             raise ValueError("output must match the workspace and be contiguous")
-        if out.data_ptr() == tensor.data_ptr():
+        if _tensors_overlap(out, tensor):
             raise ValueError("Hfull requires distinct input and output buffers")
+        if _tensors_overlap(out, self.intermediate):
+            raise ValueError("Hfull output must not overlap the intermediate workspace")
 
         triton, fht64_kernel, u172_kernel = _kernel_bundle()
         fht64_kernel[(self.shape[0] * FULL_K, )](tensor, self.intermediate, num_warps=1)

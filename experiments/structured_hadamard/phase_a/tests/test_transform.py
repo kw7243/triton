@@ -1,16 +1,65 @@
 from __future__ import annotations
 
 import math
+import struct
 import sys
 import unittest
 
 from experiments.structured_hadamard.phase_a.reference import D_FF, forward_rows, inverse_rows, transform_spec
-from experiments.structured_hadamard.phase_a.triton_transform import apply_transform
+from experiments.structured_hadamard.phase_a.triton_transform import (HFullWorkspace, _allocate_intermediate,
+                                                                      apply_transform)
 from experiments.structured_hadamard.phase_a.u172 import (INT8_ROW_MAJOR_SHA256, MATRIX_DIGEST, u172,
                                                            verify_orthogonality)
 
 
 class TransformContractTest(unittest.TestCase):
+
+    class _FakeStorage:
+
+        def __init__(self, pointer):
+            self.pointer = pointer
+
+        def data_ptr(self):
+            return self.pointer
+
+    class _FakeTensor:
+
+        ndim = 2
+        shape = (1, D_FF)
+        is_cuda = True
+        dtype = "torch.float16"
+        device = "cuda:0"
+
+        def __init__(self, pointer, *, storage_offset=0, elements=D_FF, element_size=2):
+            self._storage = TransformContractTest._FakeStorage(pointer)
+            self._storage_offset = storage_offset
+            self._elements = elements
+            self._element_size = element_size
+
+        def is_contiguous(self):
+            return True
+
+        def untyped_storage(self):
+            return self._storage
+
+        def storage_offset(self):
+            return self._storage_offset
+
+        def numel(self):
+            return self._elements
+
+        def element_size(self):
+            return self._element_size
+
+    class _FakeTorch:
+        float32 = object()
+
+        def __init__(self):
+            self.requested_dtype = None
+
+        def empty_like(self, example, *, dtype):
+            self.requested_dtype = dtype
+            return (example, dtype)
 
     def test_u172_digest_and_orthogonality(self):
         self.assertEqual(MATRIX_DIGEST, f"sha256:int8-row-major:{INT8_ROW_MAJOR_SHA256}")
@@ -38,6 +87,32 @@ class TransformContractTest(unittest.TestCase):
         self.assertEqual(transform_spec("I").implementation, "host-no-launch")
         with self.assertRaisesRegex(ValueError, "hidden copy"):
             apply_transform(sentinel, "I", out=object())
+
+    def test_hfull_uses_non_overflowing_fp32_intermediate(self):
+        overflowing_coefficient = 64 * 1100.0
+        with self.assertRaises(OverflowError):
+            struct.pack("e", overflowing_coefficient)
+        self.assertEqual(struct.unpack("f", struct.pack("f", overflowing_coefficient))[0], overflowing_coefficient)
+
+        fake_torch = self._FakeTorch()
+        marker = object()
+        allocated = _allocate_intermediate(fake_torch, marker)
+        self.assertIs(fake_torch.requested_dtype, fake_torch.float32)
+        self.assertEqual(allocated, (marker, fake_torch.float32))
+
+    def test_hfull_rejects_output_overlapping_intermediate(self):
+        workspace = object.__new__(HFullWorkspace)
+        workspace.shape = (1, D_FF)
+        workspace.dtype = "torch.float16"
+        workspace.device = "cuda:0"
+        workspace.intermediate = self._FakeTensor(20_000)
+        workspace.output = self._FakeTensor(50_000)
+        workspace.matrix = object()
+        input_tensor = self._FakeTensor(100_000)
+        overlapping_output = self._FakeTensor(20_000, storage_offset=1)
+
+        with self.assertRaisesRegex(ValueError, "overlap the intermediate"):
+            workspace(input_tensor, out=overlapping_output)
 
     def test_all_four_specs_freeze_sign_and_permutation(self):
         for transform_id in ("I", "H32", "H128", "Hfull"):
