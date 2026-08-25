@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "lane": {
+    "kind": "cpu-safe-static-preflight",
+    "scheduler_contact": false,
+    "submission_authorized": false,
+    "fourth_phase_a_submission_authorized": false,
+    "uid0_cause_fixed": false
+  },
+  "provenance": {
+    "branch": "fm/phase-a-benchmark-preflight",
+    "base_commit": "f33a9c88651a1defe2b0a7ef4f80a3cfa1a8f25b",
+    "source_repo": "/data/scratch-fast/kwen1/compute-native-vq/triton",
+    "worktree": "/data/scratch-fast/kwen1/compute-native-vq/worktrees/vq-benchmark-preflight-r1",
+    "allowed_changes": [
+      "experiments/phase_a_decode/preflight/",
+      "notebook.md"
+    ],
+    "frozen_files": {
+      "experiments/phase_a_decode/benchmark.py": "c2c451ab3290af8d4fc97ff8bec077533a679ffd825a2d44d8907dc8cdd16a6a",
+      "experiments/phase_a_decode/run_phase_a.sbatch": "aca356cc4d1ba87ea67c94f6bca671e52e0a26b74a779722fae218dd01ba8bc6"
+    }
+  },
+  "staging": {
+    "mode": "full-repository-copy",
+    "metadata_file": "REPRODUCIBILITY_METADATA.json",
+    "staging_parent": "/data/scratch-fast/kwen1/compute-native-vq/staging",
+    "require_source_stage_inequality": true,
+    "required_metadata_fields": [
+      "command",
+      "created_at_utc",
+      "cwd",
+      "git_commit_full",
+      "git_commit_short",
+      "git_status_short",
+      "hostname",
+      "source_repo",
+      "staged_repo"
+    ],
+    "required_metadata_values": {
+      "cwd": "/data/scratch-fast/kwen1/compute-native-vq/triton",
+      "git_commit_full": "f33a9c88651a1defe2b0a7ef4f80a3cfa1a8f25b",
+      "git_commit_short": "f33a9c8",
+      "git_status_short": "",
+      "source_repo": "/data/scratch-fast/kwen1/compute-native-vq/triton"
+    }
+  },
+  "slurm": {
+    "directives": {
+      "account": "vision-torralba-urops-meng",
+      "qos": "vision-torralba-interactive",
+      "partition": "vision-torralba-rtx3090",
+      "nodes": "1",
+      "ntasks": "1",
+      "cpus-per-task": "4",
+      "gres": "gpu:1",
+      "mem": "16G",
+      "time": "01:00:00",
+      "output": "/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline/slurm-%j.out",
+      "error": "/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline/slurm-%j.out"
+    }
+  },
+  "results": {
+    "directory": "/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline",
+    "artifacts": [
+      "slurm-<jobid>.out",
+      "staged_snapshot.txt",
+      "REPRODUCIBILITY_METADATA.json",
+      "environment.lock.txt",
+      "system.txt",
+      "command.txt",
+      "run_metadata.json",
+      "correctness.json",
+      "tuning.json",
+      "trial_timings.json",
+      "timings.csv",
+      "README.md",
+      "jh_speedup.png"
+    ]
+  },
+  "fail_closed": {
+    "strict_shell": "set -euo pipefail",
+    "required_script_fragments": [
+      "SOURCE_REPO=${SOURCE_REPO:-${RESEARCH_REPRO_SOURCE_REPO:-}}",
+      "STAGED_REPO=${RESEARCH_REPRO_STAGED_DIR:-${SLURM_SUBMIT_DIR:-}}",
+      "if test -z \"$SOURCE_REPO\" || test -z \"$STAGED_REPO\"; then",
+      "if test \"$SOURCE_REPO\" = \"$STAGED_REPO\"; then",
+      "if test ! -f \"$STAGED_REPO/REPRODUCIBILITY_METADATA.json\"; then",
+      "RESULT_DIR=\"$SOURCE_REPO/results/2026-08-20-hurwitz-decode-baseline\"",
+      "--output \"$RESULT_DIR\""
+    ],
+    "final_command_prefix": "\"$PYTHON\" experiments/phase_a_decode/benchmark.py"
+  },
+  "admin_evidence_before_retry": {
+    "job_id": "1570434",
+    "minimum": "administrator-authenticated controller/daemon diagnosis naming the cancellation cause and confirming clearance or the exact permitted Torralba invocation",
+    "new_submission_authorization_also_required": true
+  }
+}

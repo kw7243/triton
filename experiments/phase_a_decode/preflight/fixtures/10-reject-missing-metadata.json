@@ -1,0 +1,8 @@
+{
+  "label": "reject-missing-full-stage-metadata",
+  "expected": "fail",
+  "mutations": [{
+    "path": "metadata",
+    "value": null
+  }]
+}
