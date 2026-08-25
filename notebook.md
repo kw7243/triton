@@ -415,3 +415,22 @@ Outcome and boundary:
 - Durable result root remains `/data/scratch-fast/kwen1/compute-native-vq/results/2026-08-25-vq-phase-a-gpu-correctness-r1` and still contains only `scheduler_preflight.txt` before recovery.
 - The recovery uses the same required AFS `stage_and_run.sh`, source, staging parent, correctness-only code/config hashes, result root, and eligible tuple `vision-torralba-urops-meng` / `vision-torralba-interactive` / `vision-torralba-rtx3090`, bounded to one node/task/GPU, 4 CPUs, 16 GiB, and 15 minutes.
 - `sbatch` remains gated on a newly announced timestamped stage reaching `Staging complete`, producing `REPRODUCIBILITY_METADATA.json`, and passing the staged wrapper's exact source/config byte verification. Any fresh transport failure, submission ambiguity, or verification drift requires an immediate stop with no further staging or submission retry.
+
+## 2026-08-25 — Phase A GPU correctness-only r1 sole submission accepted
+
+Fresh stage and immutable proof:
+
+- The foreground PTY-backed recovery invoked the same required AFS helper and reached `Staging complete` for fresh stage `/data/scratch-fast/kwen1/compute-native-vq/staging/20260825_164006-0015a3-9dc0f26d1-code`; the failed stage `20260825_163420-b041a0-3c7614c10-code` remains untouched.
+- Staged `REPRODUCIBILITY_METADATA.json` records clean source commit `9dc0f26d19a49f21201d048d28059662b94abc39`, tree `f7a770e5be03dfbdaafea73ce79e3c377603029a`, and exact source/stage paths; SHA-256 `857048b9e389c608e6fdae9f5b0eb5c0866b75d44808f7bc495b107e722e1163`.
+- `stage_verification.json` records 1,511 identical tracked paths, aggregate content SHA-256 `7839f4ff799bd31c7936b26dd45085788cb75a63d2f0344a5343dd86fc3275ef`, identical `.git` pointer SHA-256 `62fee656b5ed519398878f4419098431b2f79f8e6f91bc37d004eb1a80480420`, and clean local state; file SHA-256 `1441191eae67ddcca09bd914b9e6af3826aedc5f3043b5caf8ff112f58e32434`.
+
+Sole submission:
+
+- Exact command: `sbatch --parsable --account=vision-torralba-urops-meng --qos=vision-torralba-interactive --partition=vision-torralba-rtx3090 --nodes=1 --ntasks=1 --cpus-per-task=4 --gres=gpu:1 --mem=16G --time=00:15:00 --output=/data/scratch-fast/kwen1/compute-native-vq/results/2026-08-25-vq-phase-a-gpu-correctness-r1/slurm-%j.out --error=/data/scratch-fast/kwen1/compute-native-vq/results/2026-08-25-vq-phase-a-gpu-correctness-r1/slurm-%j.out --export=ALL,SOURCE_REPO=/data/scratch-fast/kwen1/compute-native-vq/worktrees/vq-phase-a-gpu-correctness-r1,RESULT_DIR=/data/scratch-fast/kwen1/compute-native-vq/results/2026-08-25-vq-phase-a-gpu-correctness-r1 experiments/phase_a_decode/gpu_correctness/run_gpu_correctness.sbatch`.
+- Response: return code `0`, stdout numeric job ID `1579631`, stderr `sbatch: partition vision-torralba-rtx3090, qos vision-torralba-interactive`. Request SHA-256 `eb354289555fb87fca46ee153a2aee992e9def8d93c4f5c3a214e1cdf28971c1`; response SHA-256 `ab01f3f89e69eaed0eba2bb4e76afb8c682edf4a04150524ad378c26d5fe52f6`.
+- Durable result root: `/data/scratch-fast/kwen1/compute-native-vq/results/2026-08-25-vq-phase-a-gpu-correctness-r1`; combined stdout/stderr: `slurm-1579631.out`. The staged payload alone owns environment validation, correctness, and final result manifests.
+
+Exclusive terminal source:
+
+- Sole monitoring owner is task `vq-phase-a-gpu-correctness-r1` through fixed-host/fixed-job check `/home/ubuntu/.treehouse/firstmate-557e63/1/firstmate/state/vq-phase-a-gpu-correctness-r1.check.sh`, mode `0700`, SHA-256 `997b647242bd71eec798fc7b8616751cd89bd82a1d018ff95f86cf85e3514ca0`, bound by its mode-`0600` `fm-custom-check-v1` trust record.
+- The check queries only `sacct -X` for job `1579631`, stays silent for nonterminal states and transient errors, and atomically emits once for a terminal state. No conversational/manual scheduler polling, retry, requeue, or cancellation is permitted.
