@@ -280,3 +280,38 @@ Preserved reproducibility evidence:
 - One-shot ledger `/data/scratch-fast/kwen1/compute-native-vq/run-state/phase-a-retry3-f2eba1042.ledger` remains mode `0600`, SHA-256 `b32a3f4cbca1d40f7296e16580cbfb98cc36ff84e4f9992b1b64019d3ed373ac`, and records no preexisting retry3 job, one submit latch, and sole numeric job `1570434`.
 - The custom terminal source fired once and is retired after this evidence commit; its exact empty fired marker is removed with it.
 - **MANDATORY STOP — NO FOURTH ATTEMPT.** The captain-authorized single retry is consumed. Do not submit, restage, requeue, or cancel another job without a new captain decision.
+
+## 2026-08-25 — Phase A submission-free benchmark preflight (`fm/phase-a-benchmark-preflight`)
+
+Provenance and isolation:
+
+- Administrative launch worktree: `/home/ubuntu/.treehouse/triton-ff92c5/4/triton`; `pwd -P` and `git rev-parse --show-toplevel` both resolved exactly to it before the administrative branch `fm/vq-benchmark-preflight-r1` was created. No substantive file or commit was made there.
+- Scratch source: `/data/scratch-fast/kwen1/compute-native-vq/triton`; clean branch `fm/phase-a-hurwitz-decode`, exact HEAD/base `f33a9c88651a1defe2b0a7ef4f80a3cfa1a8f25b`.
+- Isolated scratch worktree: `/data/scratch-fast/kwen1/compute-native-vq/worktrees/vq-benchmark-preflight-r1`; branch `fm/phase-a-benchmark-preflight`, created directly from `f33a9c88651a1defe2b0a7ef4f80a3cfa1a8f25b` only after the source was verified clean and both the branch and target path were verified absent.
+- Frozen hashes: `benchmark.py` SHA-256 `c2c451ab3290af8d4fc97ff8bec077533a679ffd825a2d44d8907dc8cdd16a6a`; `run_phase_a.sbatch` SHA-256 `aca356cc4d1ba87ea67c94f6bca671e52e0a26b74a779722fae218dd01ba8bc6`. Neither file was edited.
+
+Exact scratch setup command (after read-only guards):
+
+```text
+git -C /data/scratch-fast/kwen1/compute-native-vq/triton worktree add -b fm/phase-a-benchmark-preflight /data/scratch-fast/kwen1/compute-native-vq/worktrees/vq-benchmark-preflight-r1 f33a9c88651a1defe2b0a7ef4f80a3cfa1a8f25b
+```
+
+Implementation and dry validation:
+
+- Added only `experiments/phase_a_decode/preflight/`: a pinned `contract.json`, standard-library-only static validator, labeled safe fixtures, and usage/admin-gate documentation.
+- Exact development live command: `python3 experiments/phase_a_decode/preflight/validate_preflight.py --allow-owned-dirty` → `PASS live: frozen Phase A contract is internally consistent and submission-free`; the override accepts dirt only within this lane's two owned paths, and the committed clean gate is recorded separately below.
+- Exact fixture command: `python3 experiments/phase_a_decode/preflight/validate_preflight.py --fixtures-dir experiments/phase_a_decode/preflight/fixtures` → exit `0`.
+- `valid-full-stage-metadata-and-contract` → expected pass, passed.
+- `reject-missing-full-stage-metadata` → expected fail, rejected for missing `REPRODUCIBILITY_METADATA.json`.
+- `reject-compact-capsule-instead-of-full-source` → expected fail, rejected for source mismatch.
+- `reject-stage-equal-to-source` → expected fail, rejected for source/stage equality and invalid stage parent.
+- `reject-non-torralba-account` → expected fail, rejected for account drift.
+- `reject-relative-result-directory` → expected fail, rejected for nonexact/nonabsolute results.
+- `reject-masked-critical-exit` → expected fail, rejected for masked critical exit.
+- Additional CPU-only checks: `python3 -m py_compile experiments/phase_a_decode/preflight/validate_preflight.py`, `python3 -m json.tool` on the manifest and every fixture, frozen-wrapper `bash -n`, and `git diff --check`; all passed.
+
+Gate and outcome:
+
+- The manifest pins the named branch/base, full-stage metadata fields and exact source identity, source/stage inequality, Torralba-only account `vision-torralba-urops-meng`, QoS `vision-torralba-interactive`, partition `vision-torralba-rtx3090`, one node/task/GPU, 4 CPUs, 16 GiB, one hour, absolute result/log paths, all 13 expected artifacts including the Slurm log, and fail-closed exit propagation.
+- Smallest administrative evidence before a future retry is scientifically justified: one administrator-authenticated controller/daemon diagnosis tied to job `1570434` that names the cancellation cause and either confirms it was cleared or supplies the exact permitted Torralba invocation. A new explicit fourth-submission authorization is separately required.
+- This lane does not claim the UID-0 cause is fixed. It contacted no scheduler, created no full or partial stage, ran no GPU/benchmark code, changed no results/evidence/retry ledger, and created no experiment stage, Slurm job ID, or event source.

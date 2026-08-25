@@ -1,0 +1,8 @@
+{
+  "label": "reject-non-torralba-account",
+  "expected": "fail",
+  "mutations": [{
+    "path": "slurm_directives.account",
+    "value": "some-other-account"
+  }]
+}
