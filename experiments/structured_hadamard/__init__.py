@@ -1,0 +1,1 @@
+"""Structured Hadamard research components."""
