@@ -358,3 +358,8 @@ Gate and outcome:
 ## 2026-08-25 — Append-only notebook reconciliation for preflight reuse
 
 - Cherry-pick `324f397bbaa8d0045f5a556da9ffd19edf87100c` conflicted only at the append point in `notebook.md`. Resolution retained the complete CPU-correctness lineage followed by the complete submission-free preflight lineage; no historical entry was deleted or rewritten.
+
+- Clean committed gate: at commit `324f397bbaa8d0045f5a556da9ffd19edf87100c`, exact command `PYTHONDONTWRITEBYTECODE=1 python3 experiments/phase_a_decode/preflight/validate_preflight.py` returned `PASS live: frozen Phase A contract is internally consistent and submission-free` with the worktree clean.
+
+## 2026-08-25 — Append-only notebook reconciliation for clean preflight validation
+
