@@ -280,3 +280,58 @@ Preserved reproducibility evidence:
 - One-shot ledger `/data/scratch-fast/kwen1/compute-native-vq/run-state/phase-a-retry3-f2eba1042.ledger` remains mode `0600`, SHA-256 `b32a3f4cbca1d40f7296e16580cbfb98cc36ff84e4f9992b1b64019d3ed373ac`, and records no preexisting retry3 job, one submit latch, and sole numeric job `1570434`.
 - The custom terminal source fired once and is retired after this evidence commit; its exact empty fired marker is removed with it.
 - **MANDATORY STOP — NO FOURTH ATTEMPT.** The captain-authorized single retry is consumed. Do not submit, restage, requeue, or cancel another job without a new captain decision.
+
+## 2026-08-25 — Phase A analysis schema and synthetic visualization lane
+
+Provenance and isolation:
+
+- Administrative launch checkout: `/home/ubuntu/.treehouse/triton-ff92c5/5/triton`, verified as the disposable top level before creating bookkeeping branch `fm/vq-analysis-viz-r1`; no substantive file was written there.
+- Source checkout: `/data/scratch-fast/kwen1/compute-native-vq/triton`; it was clean at exact HEAD `f33a9c88651a1defe2b0a7ef4f80a3cfa1a8f25b` before worktree creation.
+- Base commit: `f33a9c88651a1defe2b0a7ef4f80a3cfa1a8f25b` (`Record retry 3 terminal cancellation`).
+- Analysis branch: `fm/phase-a-analysis-viz`.
+- Isolated remote worktree: `/data/scratch-fast/kwen1/compute-native-vq/worktrees/vq-analysis-viz-r1`, created directly from the base commit and clean before edits.
+- Origin: `https://github.com/kw7243/triton.git`.
+- Exclusive implementation scope: `experiments/phase_a_decode/analysis/`, `results/2026-08-24-phase-a-analysis-synthetic/`, and this uniquely titled append-only notebook section.
+- `benchmark.py`, `run_phase_a.sbatch`, the real baseline result root, prior stages, and all evidence files were left unchanged.
+
+Fixture and schema:
+
+- Executable schema version: `phase-a-analysis-v1`.
+- Deterministic fixture seed: `20260824`.
+- Fixture input root: `results/2026-08-24-phase-a-analysis-synthetic/inputs/`.
+- The fixture metadata declares `synthetic=true`, the seed/schema above, base commit and analysis branch, and a synthetic device string. The fixture was created without CUDA, a GPU, Slurm, polling, staging, submission, a job ID, or an event source.
+- The validator requires `correctness.json`, `tuning.json`, `trial_timings.json`, `timings.csv`, and `run_metadata.json`; it rejects missing/malformed/duplicate/partial data and recomputes quantiles, medians, stability, throughput, J/H ratios, configuration selections, and cross-file trial/timing agreement.
+- Aggregation reports descriptive J/H and F/H hot/cold comparisons plus J/F/H stability summaries. It does not call the benchmark decision logic and produces no scientific gate or weight-VQ recommendation.
+- Every generated CSV row, the Markdown heading/footnote, and the SVG metadata/visible watermark say `SYNTHETIC — NOT A SCIENTIFIC RESULT`.
+
+Exact generation commands, run from the isolated remote worktree:
+
+```bash
+python3 -m experiments.phase_a_decode.analysis.make_synthetic_fixture --output results/2026-08-24-phase-a-analysis-synthetic/inputs
+python3 -m experiments.phase_a_decode.analysis.analyze --input results/2026-08-24-phase-a-analysis-synthetic/inputs --output results/2026-08-24-phase-a-analysis-synthetic
+```
+
+Exact validation commands and outcomes:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s experiments/phase_a_decode/analysis/tests -v
+# 9 tests passed: complete/deterministic output, missing, malformed, duplicate JSON key,
+# duplicate timing cell, unstable, partial, and cross-file mismatch coverage.
+
+PYTHONDONTWRITEBYTECODE=1 python3 - <<'PY'
+import xml.etree.ElementTree as ET
+from pathlib import Path
+ET.parse(Path("results/2026-08-24-phase-a-analysis-synthetic/comparison.svg"))
+print("comparison.svg: valid XML")
+PY
+# comparison.svg: valid XML
+
+git diff --check
+# passed with no output
+```
+
+- Protected-scope check found no changes to `experiments/phase_a_decode/benchmark.py`, `experiments/phase_a_decode/run_phase_a.sbatch`, or `results/2026-08-20-hurwitz-decode-baseline/`.
+- `make` was intentionally not run because this lane changes only Python/docs/data and no native/compiler code.
+- Versions: Python `3.10.12`; git `2.55.0`; Linux `5.15.0-190-generic #200-Ubuntu SMP Fri Aug 7 15:06:04 UTC 2026 x86_64 GNU/Linux`.
+- Generated artifacts: `analysis_table.csv` SHA-256 `4ff417f6ce4e9ef2e155b0e5a9dd242a9aa230bf3584387395f8dc241d56ca42`; `analysis_table.md` `ab1c496516d3dfac731067113d3e06cac9a21efb3fd13345e673cdcfb11d00dd`; `comparison.svg` `1d92347c9e4c5f5b266391c0c4b53c77448756120e22eda310b0f4b53aafbf64`; `validation_report.json` `9134329ca2f205dd1cc2319a213396c9a625502cd40667a9b3a1003a5e0da365`.
+- `validation_report.json` records validation `passed`, six timing cells, eight correctness cases, zero unstable synthetic cells, all five input SHA-256 values, and `scientific_decision: null`.
