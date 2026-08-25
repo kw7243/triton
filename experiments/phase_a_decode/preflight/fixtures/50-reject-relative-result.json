@@ -1,0 +1,8 @@
+{
+  "label": "reject-relative-result-directory",
+  "expected": "fail",
+  "mutations": [{
+    "path": "result_directory",
+    "value": "results/phase-a"
+  }]
+}

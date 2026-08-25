@@ -1,0 +1,8 @@
+{
+  "label": "reject-compact-capsule-instead-of-full-source",
+  "expected": "fail",
+  "mutations": [{
+    "path": "metadata.source_repo",
+    "value": "/data/scratch-fast/kwen1/compute-native-vq/run-source/compact.git"
+  }]
+}

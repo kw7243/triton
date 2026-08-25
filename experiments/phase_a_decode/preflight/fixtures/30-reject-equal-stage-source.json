@@ -1,0 +1,8 @@
+{
+  "label": "reject-stage-equal-to-source",
+  "expected": "fail",
+  "mutations": [{
+    "path": "metadata.staged_repo",
+    "value": "/data/scratch-fast/kwen1/compute-native-vq/triton"
+  }]
+}

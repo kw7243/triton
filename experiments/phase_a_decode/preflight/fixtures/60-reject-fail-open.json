@@ -1,0 +1,8 @@
+{
+  "label": "reject-masked-critical-exit",
+  "expected": "fail",
+  "mutations": [{
+    "path": "fail_closed.critical_exit_unmasked",
+    "value": false
+  }]
+}
