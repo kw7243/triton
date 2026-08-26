@@ -263,3 +263,62 @@ will record the stage, commits, manifest evidence, exact argv, output path,
 marker, job id, and concrete `slurm-<job id>` handoff. Firstmate alone will arm
 that terminal source. This task owner will not query or wait on the job and
 will append terminal evidence only after a later Firstmate steer.
+
+### Sole submission and terminal-owner handoff
+
+The exact pinned source and staged commit are both
+`c93a31f7a9343f8ceeaf90d3955bae1104c7b122`, a normal descendant of the
+accepted base. The clean remote source is
+`/data/scratch-fast/kwen1/structured-hadamard/rot-scheduler-marker-r1/source-c93a31f7a934`.
+The newly created stage is
+`/data/scratch-fast/kwen1/structured-hadamard/rot-scheduler-marker-r1/staging/20260826T204344Z-c93a31f7a934-code`.
+Both are owned by `kwen1` (UID 28131). The stage has an ordinary self-contained
+`.git` directory, no object alternate, exact `HEAD`, verified connectivity,
+and remains usable independently of the source metadata.
+
+The stage metadata schema is `phase-a-repository-stage-v2`. Its complete
+working-tree manifest contains 1,753 entries with digest
+`bfa8f8e2a03876347c755460097b80c08ab8d1fe2db6dea3912993b1ab377700`;
+`REPRODUCIBILITY_METADATA.json` has SHA-256
+`b634b6c55b256a2fb3de038dad778a57ad40c6cba14d5de6fb7f4b2a5f8905b6`.
+The source was stable and clean, so the required dirty-tracked, ordinary
+untracked, and allowed ignored included-input counts were each zero. The full
+path/identity manifest and preflight summary are preserved at mode 0600 under
+`/data/scratch-fast/kwen1/structured-hadamard/rot-scheduler-marker-r1/run-state/submit-once.latch/`.
+The helper's earlier ordinary- and linked-worktree tests separately exercised
+nonzero dirty, untracked, and ignored inputs before this stage was trusted.
+
+The absolute submitted marker path is
+`/data/scratch-fast/kwen1/structured-hadamard/rot-scheduler-marker-r1/staging/20260826T204344Z-c93a31f7a934-code/experiments/structured_hadamard/phase_a/run_scheduler_marker.sh`.
+Preflight proved 696 bytes, executable mode 0775, SHA-256
+`78787a8883f6fd257a7e3dc48aed6eac6717fb109eccbc45652a97a77583bd28`,
+and exactly two executable actions: the first is the single `printf` of marker
+`e27feb7a0c3cd46a8a4bc35c70c87591`, `$SLURM_JOB_ID`, and
+`$RESEARCH_REPRO_STAGED_DIR`; the second is `exit 0`. The script contains no
+scientific or diagnostic payload.
+
+The output parent was owned by `kwen1`, mode 0755, writable/searchable, and had
+zero pre-existing `slurm-*.out` files. Combined output/error uses the preserved
+template
+`/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline/slurm-%j.out`.
+The exact submission working directory was the stage above. The exact sole
+`sbatch` argv was:
+
+```text
+/usr/bin/sbatch --parsable --account=vision-torralba-urops-meng --qos=vision-torralba-interactive --partition=vision-torralba-rtx3090 --export=ALL,RESEARCH_REPRO_STAGED_DIR=/data/scratch-fast/kwen1/structured-hadamard/rot-scheduler-marker-r1/staging/20260826T204344Z-c93a31f7a934-code,SOURCE_REPO=/data/scratch-fast/kwen1/structured-hadamard/rot-scheduler-marker-r1/source-c93a31f7a934 /data/scratch-fast/kwen1/structured-hadamard/rot-scheduler-marker-r1/staging/20260826T204344Z-c93a31f7a934-code/experiments/structured_hadamard/phase_a/run_scheduler_marker.sh
+```
+
+The durable latch reserved attempt limit 1, submission owner
+`rot-scheduler-marker-r1`, and the deterministic terminal-source rule before
+the invocation. The one captured invocation returned status 0 and exactly one
+canonical numeric stdout line: Slurm job `1589782`. Captured stdout, stderr,
+and exit status remain in the latch; they were not used to authorize any retry.
+The exact realized output path is
+`/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline/slurm-1589782.out`.
+
+Terminal-state ownership is handed exclusively to Firstmate as source id
+`slurm-1589782`. The task status is paused on that registered-owner handoff,
+not complete. This owner did not poll, wait on, inspect, cancel, requeue, or
+otherwise query or mutate the accepted job after submission, and will never
+submit another job for this task. A later Firstmate steer is required to append
+the event-captured terminal outcome here.
