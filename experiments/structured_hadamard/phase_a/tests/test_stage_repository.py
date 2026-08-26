@@ -7,7 +7,8 @@ import subprocess
 import tempfile
 import unittest
 
-from experiments.structured_hadamard.phase_a.stage_repository import StageError, stage_repository
+from experiments.structured_hadamard.phase_a.stage_repository import (DEFAULT_EXCLUDED_ROOT_DIRECTORIES, StageError,
+                                                                      stage_repository)
 
 
 def _git(root: Path, *args: str) -> str:
@@ -20,7 +21,11 @@ def _init_repository(path: Path) -> str:
     _git(path, "config", "user.name", "Phase A Test")
     _git(path, "config", "user.email", "phase-a-test@example.invalid")
     (path / "tracked.txt").write_text("committed\n", encoding="utf-8")
-    _git(path, "add", "tracked.txt")
+    (path / "outputs").mkdir()
+    (path / "outputs" / "tracked-input.cfg").write_text("committed tracked input\n", encoding="utf-8")
+    (path / ".gitignore").write_text("ignored-input.cfg\noutputs/\n__pycache__/\n", encoding="utf-8")
+    _git(path, "add", "tracked.txt", ".gitignore")
+    _git(path, "add", "--force", "outputs/tracked-input.cfg")
     _git(path, "commit", "--quiet", "-m", "fixture")
     return _git(path, "rev-parse", "HEAD")
 
@@ -41,9 +46,31 @@ class RepositoryStageTest(unittest.TestCase):
         self.assertEqual(_git(stage, "rev-parse", "--git-common-dir"), ".git")
         self.assertEqual((stage / "tracked.txt").read_text(encoding="utf-8"), "dirty tracked\n")
         self.assertEqual((stage / "untracked.txt").read_text(encoding="utf-8"), "untracked input\n")
+        self.assertEqual((stage / "ignored-input.cfg").read_text(encoding="utf-8"), "ignored input\n")
+        self.assertEqual((stage / "outputs" / "tracked-input.cfg").read_text(encoding="utf-8"),
+                         "dirty tracked excluded-name input\n")
+        self.assertFalse((stage / "outputs" / "generated.bin").exists())
+        self.assertFalse((stage / "package" / "__pycache__").exists())
         metadata = json.loads((stage / "REPRODUCIBILITY_METADATA.json").read_text(encoding="utf-8"))
+        self.assertEqual(metadata["schema_version"], "phase-a-repository-stage-v2")
         self.assertEqual(metadata["source_head"], expected_head)
-        self.assertGreaterEqual(metadata["tracked_and_untracked_entries"], 2)
+        self.assertGreaterEqual(metadata["tracked_and_untracked_entries"], 5)
+        self.assertEqual(metadata["default_exclusions"]["root_directories"],
+                         list(DEFAULT_EXCLUDED_ROOT_DIRECTORIES))
+
+    def _add_dirty_inputs(self, source: Path) -> None:
+        (source / "tracked.txt").write_text("dirty tracked\n", encoding="utf-8")
+        (source / "outputs" / "tracked-input.cfg").write_text("dirty tracked excluded-name input\n",
+                                                               encoding="utf-8")
+        (source / "untracked.txt").write_text("untracked input\n", encoding="utf-8")
+        (source / "ignored-input.cfg").write_text("ignored input\n", encoding="utf-8")
+        (source / "outputs" / "generated.bin").write_bytes(b"generated output")
+        (source / "package" / "__pycache__").mkdir(parents=True)
+        (source / "package" / "__pycache__" / "module.pyc").write_bytes(b"generated cache")
+        self.assertEqual(_git(source, "check-ignore", "ignored-input.cfg"), "ignored-input.cfg")
+        self.assertEqual(_git(source, "check-ignore", "outputs/generated.bin"), "outputs/generated.bin")
+        self.assertEqual(_git(source, "check-ignore", "package/__pycache__/module.pyc"),
+                         "package/__pycache__/module.pyc")
 
     def test_stages_ordinary_repository_with_independent_git_and_dirty_inputs(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -51,8 +78,7 @@ class RepositoryStageTest(unittest.TestCase):
             source = root / "source"
             stage = root / "stage"
             head = _init_repository(source)
-            (source / "tracked.txt").write_text("dirty tracked\n", encoding="utf-8")
-            (source / "untracked.txt").write_text("untracked input\n", encoding="utf-8")
+            self._add_dirty_inputs(source)
 
             self._assert_complete_stage(source, stage, head)
             shutil.rmtree(source)
@@ -68,8 +94,7 @@ class RepositoryStageTest(unittest.TestCase):
             head = _init_repository(primary)
             _git(primary, "worktree", "add", "--quiet", "-b", "fixture-linked", str(linked), head)
             self.assertTrue((linked / ".git").is_file())
-            (linked / "tracked.txt").write_text("dirty tracked\n", encoding="utf-8")
-            (linked / "untracked.txt").write_text("untracked input\n", encoding="utf-8")
+            self._add_dirty_inputs(linked)
 
             self._assert_complete_stage(linked, stage, head)
             shutil.rmtree(linked)

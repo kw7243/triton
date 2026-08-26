@@ -113,9 +113,14 @@ are accepted; `H32` and `H128` remain CPU/reference specifications only.
 Future experimental commands must use the repo-local
 `experiments/structured_hadamard/phase_a/stage_repository.py` helper. It
 materializes an ordinary, independent Git repository at the exact source
-`HEAD`, copies and hashes every tracked and non-ignored untracked working-tree
-input (including dirty tracked content), supports linked-worktree sources, and
-fails before running a command unless those properties are re-verified. Its
+`HEAD`, copies and hashes every tracked and untracked working-tree input
+(including Git-ignored repo-local inputs and dirty tracked content), supports
+linked-worktree sources, and fails before running a command unless those
+properties are re-verified. Its exact default exclusions are root-level
+`staging`, `out`, `outputs`, `eval_outputs`, `slurm_outputs`, and `wandb`
+trees, plus `.cache`, `__pycache__`, `.pytest_cache`, `.mypy_cache`,
+`.ruff_cache`, `.venv`, and `venv` directories at any depth; tracked files
+override every exclusion. Source `.git` metadata is cloned independently. Its
 preparation-time command is limited to a bounded Git assertion/no-op; no
 benchmark or scientific workload is used to validate staging.
 
@@ -160,3 +165,51 @@ git diff --check
 documentation. No experimental command was run, so no actual research stage
 or GPU/scheduler boundary was entered. The final ancestry remains exactly
 `f893845b9b91599ebd3b7a9c7f28164f39c7ed94..HEAD` on the named branch.
+
+## 2026-08-26 — Ignored-input staging follow-up
+
+Resumed the clean named branch with local and remote both at
+`cd016b8e65ae81d3401e27492370ba93995313ac`. Read-only acceptance review found
+that the staging manifest used Git's standard excludes and therefore omitted
+ignored repo-local inputs. The helper now enumerates the working tree directly
+and includes Git-ignored files in its hashed before/copy/after proof, subject
+only to the exact generated/cache/virtualenv exclusions documented above.
+The staging metadata contract is `phase-a-repository-stage-v2` and records the
+active default exclusion lists. Existing independent-Git, exact-HEAD,
+path-safety, object-connectivity, and source-stability checks are unchanged.
+
+Follow-up CPU/static validation from the source worktree:
+
+```text
+python3 -m compileall -q experiments/structured_hadamard/phase_a
+  -> passed
+python3 -m unittest discover -s experiments/structured_hadamard/phase_a/tests -v
+  -> 26 tests passed in 1.897 seconds
+python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_stage_repository -v
+  -> 3 tests passed in 0.632 seconds; both ordinary and linked-worktree
+     fixtures copied and verified an ignored repo-local input, excluded an
+     ignored root outputs tree and nested __pycache__ tree, preserved exact
+     HEAD and dirty tracked/ordinary untracked content (including a tracked
+     file overriding the outputs exclusion), and remained usable after source
+     metadata removal; the optional command remained the bounded
+     `git cat-file -e HEAD^{commit}` assertion
+python3 -m experiments.structured_hadamard.phase_a.oracle \
+  --seed 0 --token-rows 2 --weight-rows 3
+  -> all I/H32/H128/Hfull CPU/reference checks passed at width 11008;
+     maximum absolute error 3.1086244689504383e-15; not scientific evidence
+python3 -m experiments.structured_hadamard.phase_a.preflight \
+  --scheduler-clearance=false --format=jsonl \
+  --result-jsonl /data/scratch-fast/kwen1/structured-hadamard/phase-a/results/phase-a.jsonl
+  -> four unexecuted I/Hfull rows passed the fusion=none, sequential-boundary,
+     scheduler_clearance=false, and scientific_evidence=false assertions
+python3 -m experiments.structured_hadamard.phase_a.preflight \
+  --scheduler-clearance=false --execute
+  -> refused with exit status 2 as required
+git diff --check
+  -> passed
+```
+
+`make` was not run because the follow-up changes only Python tests/helper code
+and documentation. No experiment, benchmark, model, GPU/CUDA/Slurm command,
+PR, merge, or no-mistakes pipeline ran. The delivery identity is the clean
+named-branch `HEAD`, with the pinned base still its ancestor.

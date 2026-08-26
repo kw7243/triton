@@ -99,12 +99,19 @@ installation; they remain pytest-discoverable when pytest is available.
 Only a later, explicitly cleared GPU owner may activate profiling. Before any
 experimental command, that owner must use `stage_repository.py` to create a
 complete pinned repository—including an ordinary independent `.git`
-directory, the exact source `HEAD`, dirty tracked content, and non-ignored
-untracked inputs—and then run entirely inside the staged copy. The helper also
-handles linked-worktree sources by cloning independent metadata. It refuses
+directory, the exact source `HEAD`, dirty tracked content, and all untracked
+inputs, including Git-ignored repo-local configs/scripts/inputs—and then run
+entirely inside the staged copy. The only default working-tree exclusions are
+the recursively excluded root trees `staging`, `out`, `outputs`,
+`eval_outputs`, `slurm_outputs`, and `wandb`; cache/virtualenv directory names
+`.cache`, `__pycache__`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`,
+`.venv`, and `venv` are excluded at any depth. Tracked files always override
+these exclusions. Source `.git` metadata is handled separately by the
+independent clone. The helper supports linked-worktree sources and refuses
 existing/in-repository destinations, unmerged indexes, submodules it cannot
-prove independent, special input files, external Git object alternates, source
-changes during copying, or any failed post-copy verification.
+prove independent, special included input files, external Git object
+alternates, source changes during copying, or any failed post-copy
+verification.
 
 The bounded staging assertion used during preparation is:
 

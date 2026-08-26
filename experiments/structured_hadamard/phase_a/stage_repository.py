@@ -2,8 +2,10 @@
 
 The staged checkout has an ordinary, self-contained ``.git`` directory even
 when the source is a linked worktree. The source ``HEAD`` is cloned without
-local hardlinks, then the complete tracked and non-ignored untracked working
-tree is copied and verified before an optional command may run.
+local hardlinks, then tracked and all included untracked working-tree entries
+(including Git-ignored inputs) are copied and verified before an optional
+command may run. Only the explicit generated/cache/virtualenv directory trees
+below are excluded by default; tracked paths always override those exclusions.
 """
 
 from __future__ import annotations
@@ -18,6 +20,28 @@ import stat
 import subprocess
 import sys
 from typing import Sequence
+
+
+# Root-level generated trees are excluded recursively. Cache and virtualenv
+# directory names are excluded at any depth. These are the only default
+# working-tree exclusions; .git metadata is handled independently by cloning.
+DEFAULT_EXCLUDED_ROOT_DIRECTORIES = (
+    "staging",
+    "out",
+    "outputs",
+    "eval_outputs",
+    "slurm_outputs",
+    "wandb",
+)
+DEFAULT_EXCLUDED_DIRECTORY_NAMES = (
+    ".cache",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "venv",
+)
 
 
 class StageError(RuntimeError):
@@ -70,17 +94,48 @@ def _validate_source(source: Path) -> tuple[Path, str, Path]:
 
 
 def _source_paths(source: Path) -> tuple[Path, ...]:
-    output = _git(source, "ls-files", "-z", "--cached", "--others", "--exclude-standard", text=False)
-    paths = []
-    for raw in output.split(b"\0"):
+    tracked_output = _git(source, "ls-files", "-z", "--cached", text=False)
+    tracked_paths = set()
+    for raw in tracked_output.split(b"\0"):
         if not raw:
             continue
         relative = Path(os.fsdecode(raw))
         if relative.is_absolute() or ".." in relative.parts or relative.parts[0] == ".git":
             raise StageError(f"unsafe repository path: {relative}")
-        paths.append(relative)
-    if len(paths) != len(set(paths)):
-        raise StageError("Git returned duplicate tracked/untracked paths")
+        if relative in tracked_paths:
+            raise StageError("Git returned duplicate tracked paths")
+        tracked_paths.add(relative)
+
+    filesystem_paths = set()
+    pending = [(source, Path())]
+    while pending:
+        directory, relative_directory = pending.pop()
+        try:
+            with os.scandir(directory) as iterator:
+                entries = sorted(iterator, key=lambda entry: os.fsencode(entry.name))
+        except OSError as exc:
+            raise StageError(f"cannot enumerate source directory {directory}: {exc}") from exc
+        for entry in entries:
+            relative = relative_directory / entry.name
+            if entry.name == ".git":
+                continue
+            try:
+                is_directory = entry.is_dir(follow_symlinks=False)
+            except OSError as exc:
+                raise StageError(f"cannot inspect source entry {entry.path}: {exc}") from exc
+            if is_directory:
+                excluded_at_root = len(relative.parts) == 1 and entry.name in DEFAULT_EXCLUDED_ROOT_DIRECTORIES
+                excluded_by_name = entry.name in DEFAULT_EXCLUDED_DIRECTORY_NAMES
+                if excluded_at_root or excluded_by_name:
+                    continue
+                pending.append((Path(entry.path), relative))
+            else:
+                # Symlinks, regular files, and special entries are included.
+                # The manifest later rejects special entries rather than
+                # silently omitting an input it cannot reproduce.
+                filesystem_paths.add(relative)
+
+    paths = tracked_paths | filesystem_paths
     return tuple(sorted(paths, key=lambda path: os.fsencode(path.as_posix())))
 
 
@@ -189,11 +244,15 @@ def stage_repository(source: str | os.PathLike[str], destination: str | os.PathL
             raise StageError("source working-tree inputs changed while staging")
         _verify_stage(destination_path, source_common_dir, head, before)
         metadata = {
-            "schema_version": "phase-a-repository-stage-v1",
+            "schema_version": "phase-a-repository-stage-v2",
             "source_head": head,
             "source_git_common_dir": str(source_common_dir),
             "staged_git_common_dir": str(destination_path / ".git"),
             "tracked_and_untracked_entries": len(before),
+            "default_exclusions": {
+                "root_directories": list(DEFAULT_EXCLUDED_ROOT_DIRECTORIES),
+                "directory_names_at_any_depth": list(DEFAULT_EXCLUDED_DIRECTORY_NAMES),
+            },
             "working_tree_manifest_sha256": hashlib.sha256(
                 json.dumps(before, sort_keys=True, separators=(",", ":")).encode("utf-8")
             ).hexdigest(),
