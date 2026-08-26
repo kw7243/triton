@@ -213,3 +213,53 @@ git diff --check
 and documentation. No experiment, benchmark, model, GPU/CUDA/Slurm command,
 PR, merge, or no-mistakes pipeline ran. The delivery identity is the clean
 named-branch `HEAD`, with the pinned base still its ancestor.
+
+## 2026-08-26 — Staged scheduler-marker counterfactual preparation
+
+Captain authorization is limited to task owner `rot-scheduler-marker-r1`, one
+new complete repository stage, one marker-only `sbatch` invocation, and one
+Firstmate-owned terminal event source. This is a scheduler-boundary
+counterfactual, not the Phase A experiment. The submitted script must not run
+Python, CUDA, `nvidia-smi`, model code, imports, benchmarks, or scientific
+payloads, and there is no retry, cancellation, allocation, or manual polling
+authority.
+
+The accepted source and remote branch both began at
+`c53cf746ade4c615aa3890c8be1b8b152df02038`. The commit containing this plan
+and `experiments/structured_hadamard/phase_a/run_scheduler_marker.sh` will be
+the exact pinned source for staging. The marker token is
+`e27feb7a0c3cd46a8a4bc35c70c87591`. After its shebang and Slurm comments, the
+script's first executable action is the single `printf` that writes the token,
+Slurm job id, and exported absolute stage path to combined durable Slurm
+stdout/stderr; its next executable action is `exit 0`.
+
+The recovered failed-staged contract is held fixed: job name
+`phase-a-hurwitz`; account `vision-torralba-urops-meng`; QoS
+`vision-torralba-interactive`; partition `vision-torralba-rtx3090`; one node,
+one task, one `gpu:1`, four CPUs, `16G`, and `01:00:00`; submission working
+directory equal to the new stage; explicit
+`ALL,RESEARCH_REPRO_STAGED_DIR=<stage>,SOURCE_REPO=<source>` exports; and
+combined output/error pattern
+`/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline/slurm-%j.out`.
+As in failed staged retry 3, account/QoS/partition are repeated on the `sbatch`
+CLI while the job shape remains in the script. The only authorized launch
+changes are the new compliant full stage and the absolute staged marker-script
+argument.
+
+Before submission, the repo-local `stage_repository.py` helper must create a
+new stage under `/data/scratch-fast/kwen1`, and read-only preflight must prove
+the exact source/staged commit, ordinary independent staged `.git`, object
+connectivity, complete `phase-a-repository-stage-v2` input manifest, source
+stability, marker bytes/mode/action order, scratch/output ownership and modes,
+non-colliding `%j` output pattern, exact `sbatch` argv, and exclusive task
+ownership. A durable latch must reserve the sole attempt and the deterministic
+Firstmate source-id mapping `slurm-<canonical numeric job id>` before the one
+submission. Any staging/preflight failure stops before `sbatch`; an ambiguous
+submission consumes the attempt and permits neither a retry nor a scheduler
+query.
+
+On a unique numeric id, durable remote provenance and this source notebook
+will record the stage, commits, manifest evidence, exact argv, output path,
+marker, job id, and concrete `slurm-<job id>` handoff. Firstmate alone will arm
+that terminal source. This task owner will not query or wait on the job and
+will append terminal evidence only after a later Firstmate steer.
