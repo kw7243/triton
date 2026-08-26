@@ -1,4 +1,4 @@
-"""Fail-closed ``rot-site-v1.phase-a.1`` JSONL record contract."""
+"""Fail-closed ``rot-site-v1.phase-a.2`` JSONL record contract."""
 
 from __future__ import annotations
 
@@ -11,9 +11,10 @@ from typing import Iterable
 from .reference import D_FF, D_MODEL, FULL_K, FULL_Q, TRANSFORM_IDS
 from .u172 import MATRIX_DIGEST
 
-SCHEMA_VERSION = "rot-site-v1.phase-a.1"
+SCHEMA_VERSION = "rot-site-v1.phase-a.2"
 BASE_COMMIT = "f893845b9b91599ebd3b7a9c7f28164f39c7ed94"
 ORACLE_COMMIT = "5008669b08c1f11f9b64d52d16fddd47ca754c5a"
+MEASUREMENT_TRANSFORM_IDS = ("I", "Hfull")
 
 _TOP_LEVEL = {
     "schema_version", "run_id", "code", "model", "quant", "site", "transform", "workload", "hardware",
@@ -45,7 +46,10 @@ _METRICS = {
     "rotation_quantize_us_median", "rotation_quantize_us_p90", "affected_layer_us_median",
     "end_to_end_ms_per_token", "tokens_per_s"
 }
-_TIMING = {"identity", "warmup_ms", "repetition_ms", "outer_trials", "timer", "synchronized", "statistics"}
+_TIMING = {
+    "identity", "composition", "warmup_ms", "repetition_ms", "outer_trials", "timer", "synchronized",
+    "statistics"
+}
 _EXECUTION = {
     "status", "scheduler_clearance", "scientific_evidence", "synthetic_input", "transform_launches",
     "transform_copies", "total_launches"
@@ -135,7 +139,7 @@ def _validate_code(code, unexecuted: bool) -> None:
         raise ContractError("executed measurements must come from a clean commit")
 
 
-def _validate_transform(transform, timing_identity: str) -> None:
+def _validate_transform(transform) -> None:
     _require_exact_keys(transform, _TRANSFORM, "transform")
     if transform["id"] not in TRANSFORM_IDS:
         raise ContractError(f"transform.id must be one of {TRANSFORM_IDS}")
@@ -146,9 +150,8 @@ def _validate_transform(transform, timing_identity: str) -> None:
     }.items():
         if transform[key] != expected:
             raise ContractError(f"transform.{key} must be {expected!r}")
-    expected_fusion = "none" if timing_identity == "transform-only" else "quantize"
-    if transform["fusion"] != expected_fusion:
-        raise ContractError(f"transform.fusion must be {expected_fusion!r} for {timing_identity}")
+    if transform["fusion"] != "none":
+        raise ContractError("Phase A transform.fusion must be 'none'")
     _string(transform["implementation"], "transform.implementation")
 
     transform_id = transform["id"]
@@ -257,6 +260,12 @@ def validate_record(record) -> dict:
     timing = record["timing"]
     if timing["identity"] not in ("transform-only", "transform+quantize"):
         raise ContractError("timing.identity is invalid")
+    expected_composition = {
+        "transform-only": "transform-only",
+        "transform+quantize": "sequential-transform-then-quantize",
+    }[timing["identity"]]
+    if timing["composition"] != expected_composition:
+        raise ContractError(f"timing.composition must be {expected_composition!r}")
     for key in ("warmup_ms", "repetition_ms", "outer_trials"):
         _integer(timing[key], f"timing.{key}", minimum=1)
     if timing["timer"] != "device-events" or timing["statistics"] != "p10,p50,p90":
@@ -303,7 +312,9 @@ def validate_record(record) -> dict:
     if record["site"]["layer"] >= model["n_layers"]:
         raise ContractError("site.layer is outside the model")
 
-    _validate_transform(record["transform"], timing["identity"])
+    _validate_transform(record["transform"])
+    if not unexecuted and record["transform"]["id"] not in MEASUREMENT_TRANSFORM_IDS:
+        raise ContractError(f"Phase A measurements accept only transforms {MEASUREMENT_TRANSFORM_IDS}")
 
     _require_exact_keys(record["workload"], _WORKLOAD, "workload")
     workload = record["workload"]

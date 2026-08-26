@@ -25,6 +25,10 @@ The reference menu is:
 - `Hfull`: QuaRot-compatible `11008=172x64`, with the exact pinned `U_172`, a
   natural-order 64-point FHT, and one `1/sqrt(11008)` normalization.
 
+Only `I` and `Hfull` are valid Phase A measurement transforms. `H32` and
+`H128` remain CPU/reference specifications for later phases and the schema
+rejects measurement rows labeled with either one.
+
 There are no random signs, permutations, padding/truncation, or learned stages.
 The canonical pinned matrix identity is
 `sha256:int8-row-major:378ef12c7cc31f3ea558e1c66b9552a83128f8f732b0bc094b864c8e120d84bd`.
@@ -38,13 +42,14 @@ implementation mask only; it never pads or truncates the 11008-wide operator.
 The `I` branch returns before importing Torch or Triton.
 
 `profiler.py` keeps `transform-only` and `transform+quantize` as distinct timing
-identities. The latter requires the future owner to provide the frozen
-quantizer callback; this slice deliberately does not build an INT4 GEMM or
-claim W4A4/e2e evidence.
+identities. The latter is explicitly sequential transform-then-quantize
+timing, requires the future owner to provide the frozen quantizer callback,
+and records `fusion="none"`. It makes no fused-kernel claim. This slice
+deliberately does not build an INT4 GEMM or claim W4A4/e2e evidence.
 
 ## Record contract
 
-`schema.py` is the authoritative `rot-site-v1.phase-a.1` JSONL validator. It
+`schema.py` is the authoritative `rot-site-v1.phase-a.2` JSONL validator. It
 requires exact nested fields for code, model, quantization, site/transform,
 workload, hardware, metrics, timing, execution state, and artifact paths. It
 rejects unknown/missing fields, duplicate JSON keys, duplicate logical rows,
@@ -77,6 +82,7 @@ These commands are CPU/static only and must be run from the repository root:
 ```bash
 python3 -m compileall -q experiments/structured_hadamard/phase_a
 python3 -m unittest discover -s experiments/structured_hadamard/phase_a/tests -v
+python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_stage_repository -v
 python3 -m experiments.structured_hadamard.phase_a.oracle \
   --seed 0 --token-rows 2 --weight-rows 3
 python3 -m experiments.structured_hadamard.phase_a.preflight \
@@ -91,23 +97,31 @@ installation; they remain pytest-discoverable when pytest is available.
 ## Future experimental boundary
 
 Only a later, explicitly cleared GPU owner may activate profiling. Before any
-experimental command, that owner must copy the full repository—including
-`.git`, this branch, configs, and uncommitted inputs—then run entirely inside
-the staged copy:
+experimental command, that owner must use `stage_repository.py` to create a
+complete pinned repository—including an ordinary independent `.git`
+directory, the exact source `HEAD`, dirty tracked content, and non-ignored
+untracked inputs—and then run entirely inside the staged copy. The helper also
+handles linked-worktree sources by cloning independent metadata. It refuses
+existing/in-repository destinations, unmerged indexes, submodules it cannot
+prove independent, special input files, external Git object alternates, source
+changes during copying, or any failed post-copy verification.
+
+The bounded staging assertion used during preparation is:
 
 ```bash
-cd /path/to/source/triton
-/home/ubuntu/.codex/skills/research-reproducibility/scripts/stage_and_run.sh -- \
-  python3 -m experiments.structured_hadamard.phase_a.preflight \
-    --scheduler-clearance=false --execute \
-    --result-jsonl /data/scratch-fast/kwen1/structured-hadamard/phase-a/results/phase-a.jsonl
+python3 -m experiments.structured_hadamard.phase_a.stage_repository \
+  --source /path/to/source/triton \
+  --destination /data/scratch-fast/kwen1/structured-hadamard/staging/<timestamp>-<commit>-code \
+  -- git rev-parse --verify 'HEAD^{commit}'
 ```
 
-That exact command intentionally refuses today. The future owner must first
-land a new provenance commit containing an administrator-authenticated
-clearance record and an owner-only execution driver which consumes these
-validated rows and calls `profiler.profile_transform`. The transform semantics,
-matrix digest, timing identities, and JSONL contract do not need redesign.
-Submission and result paths must remain under `/data/scratch-fast/kwen1`, and
-submission must occur from the completed staged repository rather than this
-source worktree.
+That command only asserts the staged Git identity; it is not a benchmark or
+scientific workload. A future owner can place the explicitly cleared command
+after `--`, and the helper will run it only after all verification succeeds.
+The owner must first land a new provenance commit containing an
+administrator-authenticated clearance record and an owner-only execution
+driver which consumes these validated rows and calls
+`profiler.profile_transform`. The transform semantics, matrix digest, timing
+identities, and JSONL contract do not need redesign. Submission and result
+paths must remain under `/data/scratch-fast/kwen1`, and submission must occur
+from the completed staged repository rather than this source worktree.

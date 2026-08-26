@@ -155,11 +155,13 @@ def build_plan(*, head: str, dirty: bool, result_jsonl: str = DEFAULT_RESULT_JSO
                 "sign": spec.sign,
                 "permutation": spec.permutation,
                 "matrix_digest": spec.matrix_digest,
-                "fusion": "none" if timing_identity == "transform-only" else "quantize",
+                "fusion": "none",
                 "implementation": spec.implementation,
             }
             record["timing"] = {
                 "identity": timing_identity,
+                "composition": ("transform-only" if timing_identity == "transform-only"
+                                else "sequential-transform-then-quantize"),
                 "warmup_ms": 25,
                 "repetition_ms": 200,
                 "outer_trials": 5,

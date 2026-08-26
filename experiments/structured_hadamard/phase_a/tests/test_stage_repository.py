@@ -1,0 +1,89 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+import shutil
+import subprocess
+import tempfile
+import unittest
+
+from experiments.structured_hadamard.phase_a.stage_repository import StageError, stage_repository
+
+
+def _git(root: Path, *args: str) -> str:
+    return subprocess.check_output(("git", *args), cwd=root, text=True, stderr=subprocess.STDOUT).strip()
+
+
+def _init_repository(path: Path) -> str:
+    path.mkdir()
+    _git(path, "init", "--quiet")
+    _git(path, "config", "user.name", "Phase A Test")
+    _git(path, "config", "user.email", "phase-a-test@example.invalid")
+    (path / "tracked.txt").write_text("committed\n", encoding="utf-8")
+    _git(path, "add", "tracked.txt")
+    _git(path, "commit", "--quiet", "-m", "fixture")
+    return _git(path, "rev-parse", "HEAD")
+
+
+class RepositoryStageTest(unittest.TestCase):
+
+    def _assert_complete_stage(self, source: Path, stage: Path, expected_head: str) -> None:
+        staged, status = stage_repository(
+            source,
+            stage,
+            command=("git", "cat-file", "-e", "HEAD^{commit}"),
+        )
+        self.assertEqual(status, 0)
+        self.assertEqual(staged, stage)
+        self.assertTrue((stage / ".git").is_dir())
+        self.assertEqual(_git(stage, "rev-parse", "HEAD"), expected_head)
+        self.assertEqual(_git(stage, "rev-parse", "--git-dir"), ".git")
+        self.assertEqual(_git(stage, "rev-parse", "--git-common-dir"), ".git")
+        self.assertEqual((stage / "tracked.txt").read_text(encoding="utf-8"), "dirty tracked\n")
+        self.assertEqual((stage / "untracked.txt").read_text(encoding="utf-8"), "untracked input\n")
+        metadata = json.loads((stage / "REPRODUCIBILITY_METADATA.json").read_text(encoding="utf-8"))
+        self.assertEqual(metadata["source_head"], expected_head)
+        self.assertGreaterEqual(metadata["tracked_and_untracked_entries"], 2)
+
+    def test_stages_ordinary_repository_with_independent_git_and_dirty_inputs(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source"
+            stage = root / "stage"
+            head = _init_repository(source)
+            (source / "tracked.txt").write_text("dirty tracked\n", encoding="utf-8")
+            (source / "untracked.txt").write_text("untracked input\n", encoding="utf-8")
+
+            self._assert_complete_stage(source, stage, head)
+            shutil.rmtree(source)
+            self.assertEqual(_git(stage, "rev-parse", "HEAD"), head)
+            self.assertIn("tracked.txt", _git(stage, "status", "--short"))
+
+    def test_stages_linked_worktree_as_independent_ordinary_repository(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            primary = root / "primary"
+            linked = root / "linked"
+            stage = root / "stage"
+            head = _init_repository(primary)
+            _git(primary, "worktree", "add", "--quiet", "-b", "fixture-linked", str(linked), head)
+            self.assertTrue((linked / ".git").is_file())
+            (linked / "tracked.txt").write_text("dirty tracked\n", encoding="utf-8")
+            (linked / "untracked.txt").write_text("untracked input\n", encoding="utf-8")
+
+            self._assert_complete_stage(linked, stage, head)
+            shutil.rmtree(linked)
+            shutil.rmtree(primary)
+            self.assertEqual(_git(stage, "cat-file", "-t", head), "commit")
+            self.assertIn("untracked.txt", _git(stage, "status", "--short"))
+
+    def test_refuses_destination_inside_source(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "source"
+            _init_repository(source)
+            with self.assertRaisesRegex(StageError, "outside the source"):
+                stage_repository(source, source / "staging" / "bad")
+
+
+if __name__ == "__main__":
+    unittest.main()

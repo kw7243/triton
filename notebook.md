@@ -41,7 +41,7 @@ and detached. No old `fm/phase-a-*` branch is in this ancestry.
 - Pinned `U_172` digest:
   `sha256:int8-row-major:378ef12c7cc31f3ea558e1c66b9552a83128f8f732b0bc094b864c8e120d84bd`.
 - One fail-closed machine record contract:
-  `rot-site-v1.phase-a.1` in
+  `rot-site-v1.phase-a.2` in
   `experiments/structured_hadamard/phase_a/schema.py`.
 - CPU oracle: actual width 11008 with bounded token/weight rows, checking
   inverse and norm preservation, stored-weight fold orientation, local linear
@@ -95,3 +95,68 @@ staging was neither required nor performed in this task.
 
 Pending final code-review gate and branch commit/push. Only dependency-free
 static/unit/CPU checks are permitted in this task.
+
+## 2026-08-26 — Captain-approved contract corrections
+
+Resumed the existing `fm/structured-hadamard-phase-a` branch from verified
+remote tip `172261a73c58ff0ce2818c52f9f63c4d1676941f`. The remote had not
+drifted, the local branch matched it exactly, and
+`f893845b9b91599ebd3b7a9c7f28164f39c7ed94` remained the exact merge base.
+No branch recreation, reset, rebase, default-branch update, or ancestry change
+was performed.
+
+The corrected Phase A contract records `fusion="none"` for both timing
+identities. `transform+quantize` means sequential transform-then-quantize
+timing and makes no fused-kernel claim. Only `I` and `Hfull` measurement rows
+are accepted; `H32` and `H128` remain CPU/reference specifications only.
+
+Future experimental commands must use the repo-local
+`experiments/structured_hadamard/phase_a/stage_repository.py` helper. It
+materializes an ordinary, independent Git repository at the exact source
+`HEAD`, copies and hashes every tracked and non-ignored untracked working-tree
+input (including dirty tracked content), supports linked-worktree sources, and
+fails before running a command unless those properties are re-verified. Its
+preparation-time command is limited to a bounded Git assertion/no-op; no
+benchmark or scientific workload is used to validate staging.
+
+No experiment, benchmark, evaluation, GPU/CUDA/Slurm command, model use or
+download, PR, merge, or no-mistakes pipeline has run as part of these
+corrections. Final dependency-free test evidence and the delivery `HEAD` are
+recorded after validation; as above, the self-containing delivery identity is
+`HEAD` because a commit cannot include its own hash.
+
+Final CPU/static validation from the source worktree on 2026-08-26:
+
+```text
+python3 -m compileall -q experiments/structured_hadamard/phase_a
+  -> passed
+python3 -m unittest discover -s experiments/structured_hadamard/phase_a/tests -v
+  -> 26 tests passed in 1.895 seconds
+python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_stage_repository -v
+  -> 3 tests passed in 0.639 seconds; ordinary-repository and linked-worktree
+     fixtures each proved ordinary self-contained Git metadata, exact source
+     HEAD, dirty tracked content, untracked content, and usability after the
+     source metadata was removed; the optional command was only bounded
+     `git cat-file -e HEAD^{commit}`
+python3 -m experiments.structured_hadamard.phase_a.oracle \
+  --seed 0 --token-rows 2 --weight-rows 3
+  -> all I/H32/H128/Hfull CPU/reference checks passed at width 11008;
+     maximum absolute error 3.1086244689504383e-15; explicitly not scientific
+     evidence
+python3 -m experiments.structured_hadamard.phase_a.preflight \
+  --scheduler-clearance=false --format=jsonl \
+  --result-jsonl /data/scratch-fast/kwen1/structured-hadamard/phase-a/results/phase-a.jsonl
+  -> four unexecuted rows asserted: I/Hfull x transform-only/sequential
+     transform+quantize; every row fusion=none, scheduler_clearance=false,
+     scientific_evidence=false
+python3 -m experiments.structured_hadamard.phase_a.preflight \
+  --scheduler-clearance=false --execute
+  -> refused with exit status 2 as required
+git diff --check
+  -> passed
+```
+
+`make` was not run because these corrections modify only Python and
+documentation. No experimental command was run, so no actual research stage
+or GPU/scheduler boundary was entered. The final ancestry remains exactly
+`f893845b9b91599ebd3b7a9c7f28164f39c7ed94..HEAD` on the named branch.

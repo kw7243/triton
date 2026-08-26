@@ -30,7 +30,9 @@ class PreflightTest(unittest.TestCase):
             self.assertEqual(record["workload"]["seed"], 0)
             self.assertFalse(record["execution"]["scheduler_clearance"])
             self.assertFalse(record["execution"]["scientific_evidence"])
+            self.assertEqual(record["transform"]["fusion"], "none")
             self.assertEqual(record["artifacts"]["record_jsonl"], DEFAULT_RESULT_JSONL)
+        self.assertEqual(records[2]["timing"]["composition"], "sequential-transform-then-quantize")
         imported = set(sys.modules) - before
         self.assertNotIn("torch", imported)
         self.assertNotIn("triton", imported)

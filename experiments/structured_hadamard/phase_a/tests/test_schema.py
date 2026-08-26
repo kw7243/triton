@@ -5,8 +5,9 @@ import json
 import unittest
 
 from experiments.structured_hadamard.phase_a.preflight import build_plan
-from experiments.structured_hadamard.phase_a.schema import (BASE_COMMIT, ContractError, dumps_jsonl, loads_jsonl,
-                                                            validate_record, validate_records)
+from experiments.structured_hadamard.phase_a.reference import transform_spec
+from experiments.structured_hadamard.phase_a.schema import (BASE_COMMIT, ContractError, SCHEMA_VERSION, dumps_jsonl,
+                                                            loads_jsonl, validate_record, validate_records)
 
 
 class RecordContractTest(unittest.TestCase):
@@ -49,7 +50,7 @@ class RecordContractTest(unittest.TestCase):
 
     def test_duplicate_json_object_keys_are_rejected(self):
         encoded = json.dumps(self.records[0], allow_nan=False, separators=(",", ":"))
-        duplicated = '{"schema_version":"rot-site-v1.phase-a.1",' + encoded[1:]
+        duplicated = '{"schema_version":' + json.dumps(SCHEMA_VERSION) + ',' + encoded[1:]
         with self.assertRaisesRegex(ContractError, "duplicate JSON object key"):
             loads_jsonl(duplicated + "\n")
 
@@ -132,6 +133,35 @@ class RecordContractTest(unittest.TestCase):
     def test_resolved_measurement_provenance_validates(self):
         record = self._measurement_record()
         self.assertIs(validate_record(record), record)
+
+    def test_phase_a_measurements_reject_reference_only_transforms(self):
+        for transform_id in ("H32", "H128"):
+            with self.subTest(transform_id=transform_id):
+                record = self._measurement_record()
+                spec = transform_spec(transform_id)
+                record["transform"].update({
+                    "id": spec.id,
+                    "block_size": spec.block_size,
+                    "K": spec.K,
+                    "q": spec.q,
+                    "normalization": spec.normalization,
+                    "matrix_digest": spec.matrix_digest,
+                    "implementation": spec.implementation,
+                })
+                with self.assertRaisesRegex(ContractError, "measurements accept only"):
+                    validate_record(record)
+
+    def test_phase_a_never_claims_quantization_fusion(self):
+        record = self._measurement_record()
+        record["transform"]["fusion"] = "quantize"
+        with self.assertRaisesRegex(ContractError, "fusion must be 'none'"):
+            validate_record(record)
+
+        record = self._measurement_record()
+        record["timing"]["identity"] = "transform+quantize"
+        record["timing"]["composition"] = "fused-transform-quantize"
+        with self.assertRaisesRegex(ContractError, "sequential-transform-then-quantize"):
+            validate_record(record)
 
 
 if __name__ == "__main__":

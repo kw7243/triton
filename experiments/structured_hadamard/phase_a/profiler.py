@@ -1,8 +1,10 @@
-"""Transform-only and transform+quantize timing boundaries.
+"""Transform-only and sequential transform-plus-quantize timing boundaries.
 
 This is a library boundary, not a scheduler or experiment CLI. Importing it is
 CPU-safe. A caller must already own a prepared CUDA tensor and, for the future
-combined identity, a quantization callable.
+combined identity, a quantization callable. Phase A records ``fusion=none``:
+the combined boundary calls the transform and then the quantizer, and makes no
+fused-kernel claim.
 """
 
 from __future__ import annotations
@@ -68,6 +70,8 @@ def profile_transform(tensor, transform_id: str, timing_identity: str, *, quanti
     elif transform_id == "I":
         measured = lambda: quantize(tensor)
     else:
+        # This is deliberately sequential. Do not describe this boundary as a
+        # fused transform/quantization kernel in records or documentation.
         measured = lambda: quantize(apply_transform(tensor, transform_id, workspace=workspace))
 
     from triton.testing import do_bench
