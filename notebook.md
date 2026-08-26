@@ -322,3 +322,42 @@ not complete. This owner did not poll, wait on, inspect, cancel, requeue, or
 otherwise query or mutate the accepted job after submission, and will never
 submit another job for this task. A later Firstmate steer is required to append
 the event-captured terminal outcome here.
+
+### Event-owned terminal result and bounded conclusion
+
+Firstmate's sole terminal owner fired once, was handled once, and is retired.
+The actual existing deterministic adapter source was `when-slurm-1589782`
+(one condition poll; terminal action exit 0). This supersedes the pre-submit
+generic `slurm-1589782` source-id reservation with the exact source Firstmate
+registered; no competing source existed.
+
+The captured terminal allocation record for job `1589782` is `CANCELLED by
+UID 0` with `ExitCode=0:0`. It ran on `torralba-3090-3`; the supplied scheduler
+timestamps are start `2026-08-26T16:52:20`, end
+`2026-08-26T16:52:23`, and elapsed `00:00:03`. The exact allocation was
+`billing=1044,cpu=4,gres/gpu=1,mem=16G,node=1`. Its WorkDir was the exact stage
+recorded above, and StdOut/StdErr retained the established combined
+`slurm-%j.out` template.
+
+The concrete output
+`/data/scratch-fast/kwen1/compute-native-vq/triton/results/2026-08-20-hurwitz-decode-baseline/slurm-1589782.out`
+is missing. Therefore the marker script's first executable action produced no
+durable marker, and there is no evidence that user script execution began.
+
+This is scheduler-boundary evidence, not scientific evidence. Because the
+submitted script contained only the first-action marker write followed by
+`exit 0`, this counterfactual excludes Python, Triton, CUDA, model code,
+imports, benchmarks, and the Phase A scientific payload as necessary causes
+of this cancellation. A newly compliant full stage and absolute staged script
+did not avoid the same pre-output UID-0 cancellation class. The evidence does
+not distinguish working-directory entry, output opening, script exec,
+prolog/cgroup/GRES setup, daemon/controller behavior, or another privileged
+trigger; it does not identify an actor or root cause, prove the stage itself
+causal, provide scheduler clearance, or produce any Phase A measurement.
+
+The durable terminal record is
+`/data/scratch-fast/kwen1/structured-hadamard/rot-scheduler-marker-r1/run-state/submit-once.latch/terminal-event.txt`.
+It is owned by `kwen1`, mode 0600, with SHA-256
+`ec436b343676210a1c4dee0e1943b9418d3c40828da8704e1588df68ee8f9ece`.
+No scheduler query or mutation, second submission, retry, PR, or merge followed
+the event-owned result.
