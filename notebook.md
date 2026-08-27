@@ -361,3 +361,25 @@ It is owned by `kwen1`, mode 0600, with SHA-256
 `ec436b343676210a1c4dee0e1943b9418d3c40828da8704e1588df68ee8f9ece`.
 No scheduler query or mutation, second submission, retry, PR, or merge followed
 the event-owned result.
+
+## 2026-08-27 — three-origin marker experiment plan
+
+Branch `fm/gpu-submit-origin-maincrew-r1` starts exactly at completed marker
+lineage commit `d57acb60db2a4507bbff984fb3c9771e8a6ada3d`. One fresh, complete,
+self-contained repository stage will live below
+`/data/scratch-fast/kwen1/structured-hadamard/gpu-submit-origin-r1-20260827T072140Z/staging`,
+with all mutable evidence isolated in sibling `results`. The shared marker's
+first action prints fixed token `origin-control-marker-r1-6c6043979a4a4a32`,
+`SLURM_JOB_ID`, and `HOSTNAME`, then it exits 0; it contains no diagnostic or
+scientific payload.
+
+The `direct`, `main-crew`, and `secondmate-crew` origins must invoke the same
+absolute staged `submit-origin-once.sh`; only their isolated one-shot
+latch/ledger and resulting job id may differ. Every lane uses one identical
+`sbatch` vector: account `vision-torralba-urops-meng`, QoS
+`vision-torralba-interactive`, partition `vision-torralba-rtx3090`, one
+node/task/GPU, four CPUs, `16G`, `01:00:00`, fixed job name, `--export=NONE`,
+the staged work directory, absolute marker path, and one shared `%j` output
+template. Preparation stops before submission until Firstmate synchronously
+releases `origin-stage-ready`; this lane then owns only `main-crew`, one
+submission attempt, and one fixed-job terminal event source.

@@ -42,6 +42,8 @@ DEFAULT_EXCLUDED_DIRECTORY_NAMES = (
     ".venv",
     "venv",
 )
+STAGE_METADATA_NAME = "REPRODUCIBILITY_METADATA.json"
+STAGE_MANIFEST_NAME = "REPRODUCIBILITY_MANIFEST.json"
 
 
 class StageError(RuntimeError):
@@ -210,6 +212,58 @@ def _verify_stage(destination: Path, source_common_dir: Path, head: str,
     _git(destination, "status", "--porcelain=v1", "--untracked-files=all")
 
 
+def verify_existing_stage(destination: str | os.PathLike[str], *, expected_head: str = "",
+                          expected_manifest_sha256: str = "") -> dict[str, object]:
+    """Verify a previously created stage without consulting its source checkout."""
+
+    destination_path = Path(destination).resolve(strict=True)
+    if not destination_path.is_dir():
+        raise StageError("stage must be a repository directory")
+    metadata_path = destination_path / STAGE_METADATA_NAME
+    manifest_path = destination_path / STAGE_MANIFEST_NAME
+    try:
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise StageError(f"cannot read staged reproducibility evidence: {exc}") from exc
+    if metadata.get("schema_version") != "phase-a-repository-stage-v2":
+        raise StageError("staged metadata has an unsupported schema")
+    if not isinstance(manifest, dict) or not all(isinstance(path, str) for path in manifest):
+        raise StageError("staged working-tree manifest is malformed")
+    manifest_bytes = json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    manifest_sha256 = hashlib.sha256(manifest_bytes).hexdigest()
+    if manifest_sha256 != metadata.get("working_tree_manifest_sha256"):
+        raise StageError("staged manifest does not match its metadata digest")
+    if expected_manifest_sha256 and manifest_sha256 != expected_manifest_sha256:
+        raise StageError("staged manifest does not match the expected digest")
+    head = _git(destination_path, "rev-parse", "--verify", "HEAD^{commit}").strip()
+    if head != metadata.get("source_head"):
+        raise StageError("staged HEAD does not match its metadata")
+    if expected_head and head != expected_head:
+        raise StageError("staged HEAD does not match the expected commit")
+    if not (destination_path / ".git").is_dir():
+        raise StageError("staged .git must be an ordinary directory")
+    git_dir = _absolute_git_path(destination_path, _git(destination_path, "rev-parse", "--git-dir").strip())
+    common_dir = _absolute_git_path(destination_path,
+                                    _git(destination_path, "rev-parse", "--git-common-dir").strip())
+    if git_dir != destination_path / ".git" or common_dir != destination_path / ".git":
+        raise StageError("staged Git metadata is not self-contained")
+    alternates = destination_path / ".git" / "objects" / "info" / "alternates"
+    if alternates.exists() and alternates.read_text(encoding="utf-8").strip():
+        raise StageError("staged object database uses an external alternate")
+    _git(destination_path, "cat-file", "-e", f"{head}^{{commit}}")
+    _git(destination_path, "fsck", "--connectivity-only", "--no-dangling")
+    expected_paths = {Path(path) for path in manifest}
+    observed_paths = set(_source_paths(destination_path))
+    generated_paths = {Path(STAGE_METADATA_NAME), Path(STAGE_MANIFEST_NAME)}
+    if observed_paths != expected_paths | generated_paths:
+        raise StageError("staged working-tree path set drifted from its manifest")
+    observed = {path.as_posix(): _entry_identity(destination_path / path) for path in expected_paths}
+    if observed != manifest:
+        raise StageError("staged working-tree content drifted from its manifest")
+    return metadata
+
+
 def stage_repository(source: str | os.PathLike[str], destination: str | os.PathLike[str],
                      *, command: Sequence[str] = ()) -> tuple[Path, int]:
     """Create and verify an independent stage, then optionally run ``command``."""
@@ -243,6 +297,8 @@ def stage_repository(source: str | os.PathLike[str], destination: str | os.PathL
         if after_paths != paths or after != before:
             raise StageError("source working-tree inputs changed while staging")
         _verify_stage(destination_path, source_common_dir, head, before)
+        manifest_path = destination_path / STAGE_MANIFEST_NAME
+        manifest_path.write_text(json.dumps(before, indent=2, sort_keys=True) + "\n", encoding="utf-8")
         metadata = {
             "schema_version": "phase-a-repository-stage-v2",
             "source_head": head,
@@ -258,10 +314,12 @@ def stage_repository(source: str | os.PathLike[str], destination: str | os.PathL
             ).hexdigest(),
             "command": list(command),
         }
-        (destination_path / "REPRODUCIBILITY_METADATA.json").write_text(
+        (destination_path / STAGE_METADATA_NAME).write_text(
             json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )
         _verify_stage(destination_path, source_common_dir, head, before)
+        verify_existing_stage(destination_path, expected_head=head,
+                              expected_manifest_sha256=metadata["working_tree_manifest_sha256"])
         status = 0
         if command:
             status = subprocess.run(tuple(command), cwd=destination_path, check=False).returncode
@@ -275,7 +333,11 @@ def stage_repository(source: str | os.PathLike[str], destination: str | os.PathL
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Create a verified independent Phase A repository stage")
     parser.add_argument("--source", default=".", help="exact source repository top level")
-    parser.add_argument("--destination", required=True, help="new stage path outside the source repository")
+    parser.add_argument("--destination", help="new stage path outside the source repository")
+    parser.add_argument("--verify-existing", help="verify an existing independent stage and exit")
+    parser.add_argument("--expected-head", default="", help="required full HEAD for --verify-existing")
+    parser.add_argument("--expected-manifest-sha256", default="",
+                        help="required working-tree manifest digest for --verify-existing")
     parser.add_argument("command", nargs=argparse.REMAINDER,
                         help="optional bounded or future cleared command, preceded by --")
     return parser
@@ -283,6 +345,24 @@ def _parser() -> argparse.ArgumentParser:
 
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    if args.verify_existing:
+        if args.destination or args.command:
+            print("REFUSED: --verify-existing cannot create a stage or run a command", file=sys.stderr)
+            return 2
+        try:
+            metadata = verify_existing_stage(
+                args.verify_existing,
+                expected_head=args.expected_head,
+                expected_manifest_sha256=args.expected_manifest_sha256,
+            )
+        except (OSError, StageError) as exc:
+            print(f"REFUSED: {exc}", file=sys.stderr)
+            return 2
+        print(json.dumps(metadata, sort_keys=True))
+        return 0
+    if not args.destination:
+        print("REFUSED: --destination is required when creating a stage", file=sys.stderr)
+        return 2
     command = args.command[1:] if args.command[:1] == ["--"] else args.command
     try:
         destination, status = stage_repository(args.source, args.destination, command=command)

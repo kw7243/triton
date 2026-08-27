@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 from experiments.structured_hadamard.phase_a.stage_repository import (DEFAULT_EXCLUDED_ROOT_DIRECTORIES, StageError,
-                                                                      stage_repository)
+                                                                      stage_repository, verify_existing_stage)
 
 
 def _git(root: Path, *args: str) -> str:
@@ -52,11 +52,14 @@ class RepositoryStageTest(unittest.TestCase):
         self.assertFalse((stage / "outputs" / "generated.bin").exists())
         self.assertFalse((stage / "package" / "__pycache__").exists())
         metadata = json.loads((stage / "REPRODUCIBILITY_METADATA.json").read_text(encoding="utf-8"))
+        manifest = json.loads((stage / "REPRODUCIBILITY_MANIFEST.json").read_text(encoding="utf-8"))
         self.assertEqual(metadata["schema_version"], "phase-a-repository-stage-v2")
         self.assertEqual(metadata["source_head"], expected_head)
         self.assertGreaterEqual(metadata["tracked_and_untracked_entries"], 5)
         self.assertEqual(metadata["default_exclusions"]["root_directories"],
                          list(DEFAULT_EXCLUDED_ROOT_DIRECTORIES))
+        self.assertIn("ignored-input.cfg", manifest)
+        self.assertEqual(verify_existing_stage(stage, expected_head=expected_head), metadata)
 
     def _add_dirty_inputs(self, source: Path) -> None:
         (source / "tracked.txt").write_text("dirty tracked\n", encoding="utf-8")
@@ -108,6 +111,18 @@ class RepositoryStageTest(unittest.TestCase):
             _init_repository(source)
             with self.assertRaisesRegex(StageError, "outside the source"):
                 stage_repository(source, source / "staging" / "bad")
+
+    def test_existing_stage_verification_refuses_content_drift(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source"
+            stage = root / "stage"
+            head = _init_repository(source)
+            self._add_dirty_inputs(source)
+            stage_repository(source, stage)
+            (stage / "ignored-input.cfg").write_text("drifted\n", encoding="utf-8")
+            with self.assertRaisesRegex(StageError, "content drifted"):
+                verify_existing_stage(stage, expected_head=head)
 
 
 if __name__ == "__main__":
