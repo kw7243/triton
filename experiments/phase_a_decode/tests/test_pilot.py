@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import argparse
 import ast
+import csv
+import importlib.util
 import json
+import sys
 import tempfile
 import types
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from experiments.phase_a_decode import pilot
 
@@ -26,7 +30,7 @@ def complete_measurement_row(t_kv, *, speedup=1.30, stable=True):
            "chunks": 1, "output_bytes": 8, "warmup_ms": 25, "rep_ms": 200,
            "outer_trials": 5, "j_config": "b256-w4", "f_config": "b256-w4",
            "h_config": "b256-w4", "jh_hot_speedup": speedup, "jh_cold_speedup": speedup,
-           "stable": stable}
+           "stable": stable, "h_max_abs": 0.0, "h_relative_fro": 0.0}
     for variant in ("j", "f", "h"):
         for mode in ("cold", "hot"):
             row.update({f"{variant}_{mode}_p20_ms": 0.9,
@@ -38,6 +42,59 @@ def complete_measurement_row(t_kv, *, speedup=1.30, stable=True):
     row["j_hot_p50_ms"] = 1.0
     row["h_hot_p50_ms"] = 1.0 / speedup
     return row
+
+
+def load_benchmark_artifact_writer():
+    class Figure:
+        def tight_layout(self):
+            pass
+
+        def savefig(self, path, dpi):
+            Path(path).write_bytes(b"test-plot\n")
+
+    class Axes:
+        def plot(self, *args, **kwargs):
+            pass
+
+        def axhline(self, *args, **kwargs):
+            pass
+
+        def set(self, **kwargs):
+            pass
+
+        def set_xticks(self, *args):
+            pass
+
+        def grid(self, **kwargs):
+            pass
+
+        def legend(self, **kwargs):
+            pass
+
+    matplotlib = types.ModuleType("matplotlib")
+    matplotlib.__path__ = []
+    matplotlib.use = lambda *args, **kwargs: None
+    pyplot = types.ModuleType("matplotlib.pyplot")
+    pyplot.subplots = lambda **kwargs: (Figure(), Axes())
+    pyplot.close = lambda figure: None
+    matplotlib.pyplot = pyplot
+
+    triton = types.ModuleType("triton")
+    triton.__path__ = []
+    triton.jit = lambda function: function
+    language = types.ModuleType("triton.language")
+    language.constexpr = object()
+    triton.language = language
+
+    modules = {"matplotlib": matplotlib, "matplotlib.pyplot": pyplot,
+               "torch": types.ModuleType("torch"), "triton": triton,
+               "triton.language": language}
+    benchmark_path = Path(pilot.__file__).with_name("benchmark.py")
+    spec = importlib.util.spec_from_file_location("_pilot_artifact_benchmark", benchmark_path)
+    module = importlib.util.module_from_spec(spec)
+    with mock.patch.dict(sys.modules, modules):
+        spec.loader.exec_module(module)
+    return module.write_artifacts
 
 
 class FakeCuda:
@@ -162,6 +219,28 @@ class PilotDecisionTest(unittest.TestCase):
                 rows = decision_rows(1.40, short_stable=short_stable,
                                      primary_stable=primary_stable)
                 self.assertEqual(pilot.decide_pilot(rows), "UNSTABLE — DO NOT INTERPRET")
+
+    def test_mixed_stability_writes_complete_artifacts_without_interpretation(self):
+        write_artifacts = load_benchmark_artifact_writer()
+        unstable = "UNSTABLE — DO NOT INTERPRET"
+        for short_stable, primary_stable in ((False, True), (True, False)):
+            with self.subTest(short=short_stable, primary=primary_stable):
+                rows = [complete_measurement_row(4096, speedup=1.0,
+                                                 stable=short_stable),
+                        complete_measurement_row(32768, speedup=1.40,
+                                                 stable=primary_stable)]
+                self.assertEqual(pilot.decide_pilot(rows), unstable)
+                self.assertEqual([row["decision"] for row in rows],
+                                 [unstable, unstable])
+                with tempfile.TemporaryDirectory() as directory:
+                    output = Path(directory)
+                    write_artifacts(output, rows, {}, [], "passed", {}, unstable)
+                    self.assertEqual({path.name for path in output.iterdir()},
+                                     set(pilot.SCIENTIFIC_ARTIFACTS))
+                    with (output / "timings.csv").open(newline="") as handle:
+                        written = list(csv.DictReader(handle))
+                    self.assertEqual([row["decision"] for row in written],
+                                     [unstable, unstable])
 
     def test_exact_two_row_shape_is_required(self):
         with self.assertRaisesRegex(ValueError, "exactly"):

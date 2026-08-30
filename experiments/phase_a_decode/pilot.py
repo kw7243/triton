@@ -98,11 +98,9 @@ def decide_pilot(rows: Sequence[dict[str, Any]]) -> str:
     """Apply the retained thresholds after requiring both pilot rows stable."""
 
     by_tkv = _rows_by_tkv(rows)
-    for row in rows:
-        if not row.get("stable", False):
-            row["decision"] = "UNSTABLE — DO NOT INTERPRET"
-
     if not all(row.get("stable", False) for row in rows):
+        for row in rows:
+            row["decision"] = "UNSTABLE — DO NOT INTERPRET"
         return "UNSTABLE — DO NOT INTERPRET"
 
     short = by_tkv[4096]
