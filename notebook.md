@@ -508,3 +508,86 @@ its strict payload failed because `CUDA_VISIBLE_DEVICES` was empty and
 assigned-device count was zero. This run is scientifically distinct: it will
 not create or retry a generic visibility smoke and will accept only the
 SM86/RTX 3090 target.
+
+### Immutable stage, clearance, and pre-allocation terminal result
+
+The clean pre-run/source/stage commit is
+`ddb738a07a098df48e62e84f397f023721c2f55a`, tree
+`c953b2829cdc2d6a703cc8292392aa217c6a80db`, with exact direct parent
+`21ea761c61a5e3062cea28cabda43ac04bd5278b`; accepted Phase A commit
+`d57acb60db2a4507bbff984fb3c9771e8a6ada3d` remains its ancestor. The full
+source bundle SHA-256 is
+`7e1d885ac7a80500e84a78af8b20cf865131ef71758f64498af0da58b077aa13`.
+Bundle verification ran successfully both locally and remotely from inside
+real disposable Git repositories. The source clone is clean with zero dirty,
+ordinary-untracked, or ignored entries.
+
+The one fresh complete stage is:
+
+```text
+/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-kernel-profile-r1/attempt-20260831T162141Z-ddb738a07a09/stage/20260831T162141Z-ddb738a07a09-code
+```
+
+It has one ordinary self-contained worktree and stage-local `.git`, no
+alternates/promisor/shallow dependency, successful connectivity verification,
+exact source/stage commit and tree, and exactly the two declared untracked
+control files. Its 1,756-entry canonical manifest digest is
+`0f1243905034afbc6028324ca90bf9aaa50dd2f98f68131ff9cf72bca44a4169`;
+the manifest file SHA-256 is
+`518d8348eafdbc9f73c02ff799f7bb75b1ec936f22142573151739aec024aabc`
+and metadata SHA-256 is
+`e423c819eadf28b72d089823cb9ee628140e85e9954d997acc4f56cb9c290567`.
+The staged helper and driver SHA-256 values are respectively
+`212bc2ddd82ee2f098314140e9ec62032b3dbf350f421d61a658c812a08f7a08`
+and `a2f968b1f6efa1bc1838520802a8da9fc577ec14df5326b792c36048c6bff659`;
+each matches its exact Git blob. The final independent static stage audit is
+mode 0600, SHA-256
+`41154764fcc6d40f8b185506ee5b76dd943fee16054b493bbc2164428864e3aa`,
+and proves that neither Torch nor Triton was imported. Two earlier audit-tool
+failures (nested-shell quote loss and an explicit external-script import-path
+miss) remain preserved rather than overwritten; neither changed stage bytes.
+
+The driver-validated owner-only clearance is
+`.../attempt-20260831T162141Z-ddb738a07a09/run-state/clearance.json`, owned by
+UID 28131 at mode 0600 with SHA-256
+`d6bc3e622b602949008dd1fbe64429443eeb078cea1bc24bf88c1cdbd68c5b09`.
+It binds the exact stage/commit/manifest, `cuda:0`, nonexistent output
+`.../outputs/phase-a-ddb738a07a09-sm86`, synthetic `[1,11008]` seed-0
+workload, 25 ms warmup, 200 ms repetition, five outer trials, resolved W4A4
+metadata, model repository pin
+`01c7f73d771dfac7d292323805ebc428287df4f9`, and Salesforce/wikitext pin
+`b08601e04326c79dfdd32d625aee71d232d685c3`. No model or dataset bytes were
+downloaded. Its static audit SHA-256 is
+`3834547c1caaa8953f38decfda65746ea036b2102f57bbefe7057d0eae84d80a`.
+
+The read-only scheduler snapshot at `2026-08-31T16:33:15Z` confirmed account
+`vision-torralba-urops-meng` and QoS `vision-torralba-interactive`, then
+reported every compatible node unavailable:
+
+```text
+torralba-3090-1  Gres=gpu:rtx_3090:7  GresUsed=gpu:rtx_3090:7(IDX:0-6)
+torralba-3090-2  Gres=gpu:rtx_3090:7  GresUsed=gpu:rtx_3090:7(IDX:0-6)
+torralba-3090-3  Gres=gpu:rtx_3090:7  GresUsed=gpu:rtx_3090:7(IDX:0-6)
+```
+
+The snapshot SHA-256 is
+`8dbf3d3f32c8d10e56baef0decb46d1a0892bbd4860671a2f1b26b1949ceb4f4`.
+Because the accepted target requires SM86/RTX 3090, V100 was not substituted
+and H100/H200 were not preferred. The contract therefore stopped before
+mutation: `salloc_attempts=0`, `srun_attempts=0`, no persistent allocation
+owner or process-event source was armed, and no GPU/CUDA/Triton kernel,
+correctness invocation, timed row, output row, or important-kernel overhead
+gate ran. This is a faithful pre-allocation `blocked` result, not synthetic
+kernel evidence.
+
+All retained attempt evidence is rooted at:
+
+```text
+/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-kernel-profile-r1/attempt-20260831T162141Z-ddb738a07a09
+```
+
+The 62-entry evidence checksum manifest is mode 0600 with SHA-256
+`fc3ed7ad445f56d72cb3862e1edff6168a220cbbc2227b9498ef32f7dfe0cc40`.
+No scheduler job, protected job `1579631`, active CNVQ owner/job, push, PR,
+merge, force, retry, cancellation, requeue, model/PPL/end-to-end path, Phase
+B/C path, or H32/H128 GPU path was touched.
