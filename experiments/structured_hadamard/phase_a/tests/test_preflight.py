@@ -4,12 +4,28 @@ import contextlib
 import io
 import sys
 import unittest
+from unittest import mock
 
-from experiments.structured_hadamard.phase_a.preflight import DEFAULT_RESULT_JSONL, build_plan, main
+from experiments.structured_hadamard.phase_a.preflight import (
+    DEFAULT_RESULT_JSONL,
+    build_plan,
+    discover_code_identity,
+    main,
+)
 from experiments.structured_hadamard.phase_a.schema import BASE_COMMIT
 
 
 class PreflightTest(unittest.TestCase):
+
+    @mock.patch("experiments.structured_hadamard.phase_a.preflight.subprocess.run")
+    @mock.patch("experiments.structured_hadamard.phase_a.preflight._git")
+    def test_kernel_profile_branch_discovers_clean_pinned_identity(self, git, run):
+        head = "a" * 40
+        git.side_effect = ["fm/structured-hadamard-phase-a-kernel-profile-r1", head, ""]
+        run.return_value.returncode = 0
+
+        self.assertEqual(discover_code_identity(), {"head": head, "dirty": False})
+        run.assert_called_once_with(("git", "merge-base", "--is-ancestor", BASE_COMMIT, head), check=False)
 
     def test_build_plan_requires_explicit_git_provenance(self):
         with self.assertRaises(TypeError):

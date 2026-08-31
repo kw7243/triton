@@ -445,3 +445,66 @@ durable experimental stage was created. No GPU was allocated, no CUDA command
 or kernel ran, no Slurm operation occurred, no model/checkpoint was downloaded
 or used, and no benchmark, PPL evaluation, scientific experiment, push, PR,
 merge, or no-mistakes pipeline ran.
+
+## 2026-08-31 — Phase A compatible-GPU kernel microprofile preflight
+
+Task `rot-phasea-kernel-profile-r1` began in the isolated task worktree on the
+new local-only branch `fm/structured-hadamard-phase-a-kernel-profile-r1`,
+created directly at exact parent
+`21ea761c61a5e3062cea28cabda43ac04bd5278b`. That parent has exact parent
+`d57acb60db2a4507bbff984fb3c9771e8a6ada3d`, the accepted Phase A commit, and
+`git merge-base --is-ancestor` returned 0. The accepted execution contract
+measures only `I` and `Hfull`; `H32`/`H128` remain CPU/reference-only;
+`transform+quantize` is sequential transform-then-quantize with
+`fusion="none"`; and every output remains synthetic, non-model, non-PPL,
+non-end-to-end evidence with `scientific_evidence=false`.
+
+The required branch initially exposed one bounded preflight defect: the exact
+parent's `SOURCE_BRANCHES` allowlist did not include this task's required branch,
+so otherwise-valid CPU preflight exited 1 before producing its matrix. The
+repair adds only the required branch and an executable identity-discovery test;
+it does not modify the CUDA execution driver or scientific boundary. A separate
+environment divergence showed that `/data` is not mounted on this local task
+host. This is not a Phase A failure: durable scratch work must use the proven
+persistent SSH route to CSAIL, and no scheduler mutation occurred.
+
+Bounded local CPU/static validation after the repair:
+
+```text
+python3 -m compileall -q experiments/structured_hadamard/phase_a
+  -> passed
+python3 -m unittest discover -s experiments/structured_hadamard/phase_a/tests -v
+  -> 37 tests passed in 4.891 seconds
+python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_execute -v
+  -> 7 tests passed in 2.300 seconds
+python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_stage_repository -v
+  -> 3 tests passed in 1.117 seconds
+python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_schema -v
+  -> 13 tests passed in 0.024 seconds
+python3 -m experiments.structured_hadamard.phase_a.oracle --seed 0 --token-rows 2 --weight-rows 3
+  -> all I/H32/H128/Hfull CPU/reference checks passed; maximum absolute error
+     3.1086244689504383e-15; not scientific evidence
+python3 -m experiments.structured_hadamard.phase_a.preflight --scheduler-clearance=false --format=jsonl \
+  --result-jsonl /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-kernel-profile-r1/outputs/phase-a.jsonl
+  -> exactly four I/Hfull unexecuted rows validated
+python3 -m experiments.structured_hadamard.phase_a.preflight --scheduler-clearance=false --execute
+  -> refused with exit status 2
+python3 -m experiments.structured_hadamard.phase_a.execute \
+  --scheduler-clearance-file /tmp/rot-phasea-kernel-profile-r1-clearance-missing
+  -> refused with exit status 2 before Torch/Triton import
+git diff --check
+  -> passed
+```
+
+`make` was not run because this preflight changes only Python/tests/notebook.
+Torch and Triton were not imported and no GPU code ran on a login node. Before
+staging, these changes will be committed so the source branch is clean. The
+fresh remote source/stage identity and exact commit will be recorded after the
+commit exists.
+
+This task preserves the r3 conclusion exactly: allocation `1638476` reached
+`torralba-v100-1` and exposed one V100 through successful `nvidia-smi`, while
+its strict payload failed because `CUDA_VISIBLE_DEVICES` was empty and
+assigned-device count was zero. This run is scientifically distinct: it will
+not create or retry a generic visibility smoke and will accept only the
+SM86/RTX 3090 target.
