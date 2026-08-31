@@ -42,6 +42,10 @@ DEFAULT_EXCLUDED_DIRECTORY_NAMES = (
     ".venv",
     "venv",
 )
+STAGE_SCHEMA_VERSION = "phase-a-repository-stage-v3"
+STAGE_MANIFEST_SCHEMA_VERSION = "phase-a-working-tree-manifest-v1"
+STAGE_METADATA_NAME = "REPRODUCIBILITY_METADATA.json"
+STAGE_MANIFEST_NAME = "REPRODUCIBILITY_MANIFEST.json"
 
 
 class StageError(RuntimeError):
@@ -159,6 +163,11 @@ def _manifest(source: Path, paths: tuple[Path, ...]) -> dict[str, dict[str, obje
     return {path.as_posix(): _entry_identity(source / path) for path in paths}
 
 
+def _canonical_json_sha256(value: object) -> str:
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def _clear_worktree(destination: Path) -> None:
     for entry in destination.iterdir():
         if entry.name == ".git":
@@ -243,8 +252,17 @@ def stage_repository(source: str | os.PathLike[str], destination: str | os.PathL
         if after_paths != paths or after != before:
             raise StageError("source working-tree inputs changed while staging")
         _verify_stage(destination_path, source_common_dir, head, before)
+        for control_name in (STAGE_METADATA_NAME, STAGE_MANIFEST_NAME):
+            if control_name in before:
+                raise StageError(f"source collides with reserved stage control file {control_name}")
+        manifest_payload = {
+            "schema_version": STAGE_MANIFEST_SCHEMA_VERSION,
+            "entries": before,
+        }
+        manifest_text = json.dumps(manifest_payload, indent=2, sort_keys=True) + "\n"
+        (destination_path / STAGE_MANIFEST_NAME).write_text(manifest_text, encoding="utf-8")
         metadata = {
-            "schema_version": "phase-a-repository-stage-v2",
+            "schema_version": STAGE_SCHEMA_VERSION,
             "source_head": head,
             "source_git_common_dir": str(source_common_dir),
             "staged_git_common_dir": str(destination_path / ".git"),
@@ -253,12 +271,12 @@ def stage_repository(source: str | os.PathLike[str], destination: str | os.PathL
                 "root_directories": list(DEFAULT_EXCLUDED_ROOT_DIRECTORIES),
                 "directory_names_at_any_depth": list(DEFAULT_EXCLUDED_DIRECTORY_NAMES),
             },
-            "working_tree_manifest_sha256": hashlib.sha256(
-                json.dumps(before, sort_keys=True, separators=(",", ":")).encode("utf-8")
-            ).hexdigest(),
+            "working_tree_manifest": STAGE_MANIFEST_NAME,
+            "working_tree_manifest_sha256": _canonical_json_sha256(before),
+            "working_tree_manifest_file_sha256": hashlib.sha256(manifest_text.encode("utf-8")).hexdigest(),
             "command": list(command),
         }
-        (destination_path / "REPRODUCIBILITY_METADATA.json").write_text(
+        (destination_path / STAGE_METADATA_NAME).write_text(
             json.dumps(metadata, indent=2, sort_keys=True) + "\n", encoding="utf-8"
         )
         _verify_stage(destination_path, source_common_dir, head, before)

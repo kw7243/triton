@@ -47,6 +47,12 @@ timing, requires the future owner to provide the frozen quantizer callback,
 and records `fusion="none"`. It makes no fused-kernel claim. This slice
 deliberately does not build an INT4 GEMM or claim W4A4/e2e evidence.
 
+`activation_quantizer.py` now supplies that one narrow callback: one Triton
+launch implementing deterministic round-to-nearest-even, dynamic per-row,
+symmetric signed A4 (`[-7, 7]`) and writing a dequantized fp16 tensor plus fp32
+row scales. It is compatible with a later W4A4 linear boundary, but it does
+not pack nibbles, convert weights, execute a GEMM, or fuse with `Hfull`.
+
 ## Record contract
 
 `schema.py` is the authoritative `rot-site-v1.phase-a.2` JSONL validator. It
@@ -82,6 +88,7 @@ These commands are CPU/static only and must be run from the repository root:
 ```bash
 python3 -m compileall -q experiments/structured_hadamard/phase_a
 python3 -m unittest discover -s experiments/structured_hadamard/phase_a/tests -v
+python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_execute -v
 python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_stage_repository -v
 python3 -m experiments.structured_hadamard.phase_a.oracle \
   --seed 0 --token-rows 2 --weight-rows 3
@@ -101,16 +108,21 @@ experimental command, that owner must use `stage_repository.py` to create a
 complete pinned repository—including an ordinary independent `.git`
 directory, the exact source `HEAD`, dirty tracked content, and all untracked
 inputs, including Git-ignored repo-local configs/scripts/inputs—and then run
-entirely inside the staged copy. The only default working-tree exclusions are
-the recursively excluded root trees `staging`, `out`, `outputs`,
-`eval_outputs`, `slurm_outputs`, and `wandb`; cache/virtualenv directory names
-`.cache`, `__pycache__`, `.pytest_cache`, `.mypy_cache`, `.ruff_cache`,
-`.venv`, and `venv` are excluded at any depth. Tracked files always override
-these exclusions. Source `.git` metadata is handled separately by the
-independent clone. The helper supports linked-worktree sources and refuses
-existing/in-repository destinations, unmerged indexes, submodules it cannot
-prove independent, special included input files, external Git object
-alternates, source changes during copying, or any failed post-copy
+entirely inside the staged copy. In addition to
+`REPRODUCIBILITY_METADATA.json`, the v3 stage now materializes
+`REPRODUCIBILITY_MANIFEST.json`, containing every copied input identity; the
+metadata binds that file and its canonical entry digest.
+
+The only default working-tree exclusions are the recursively excluded root
+trees `staging`, `out`, `outputs`, `eval_outputs`, `slurm_outputs`, and
+`wandb`; cache/virtualenv directory names `.cache`, `__pycache__`,
+`.pytest_cache`, `.mypy_cache`, `.ruff_cache`, `.venv`, and `venv` are
+excluded at any depth. Tracked files always override these exclusions. Source
+`.git` metadata is handled separately by the independent clone. The helper
+supports linked-worktree sources and refuses existing/in-repository
+destinations, unmerged indexes, submodules it cannot prove independent,
+special included input files, reserved control-file collisions, external Git
+object alternates, source changes during copying, or any failed post-copy
 verification.
 
 The bounded staging assertion used during preparation is:
@@ -123,12 +135,73 @@ python3 -m experiments.structured_hadamard.phase_a.stage_repository \
 ```
 
 That command only asserts the staged Git identity; it is not a benchmark or
-scientific workload. A future owner can place the explicitly cleared command
-after `--`, and the helper will run it only after all verification succeeds.
-The owner must first land a new provenance commit containing an
-administrator-authenticated clearance record and an owner-only execution
-driver which consumes these validated rows and calls
-`profiler.profile_transform`. The transform semantics, matrix digest, timing
-identities, and JSONL contract do not need redesign. Submission and result
-paths must remain under `/data/scratch-fast/kwen1`, and submission must occur
-from the completed staged repository rather than this source worktree.
+scientific workload. The existing `preflight.py --execute` refusal remains
+unchanged and cannot activate profiling.
+
+`execute.py` is the separate owner-only boundary. It accepts only an absolute,
+non-symlink clearance JSON owned by the executing uid at mode 0600 and located
+outside the stage. The exact `phase-a-scheduler-clearance-v1` keys are:
+
+```json
+{
+  "schema_version": "phase-a-scheduler-clearance-v1",
+  "scheduler_clearance": true,
+  "clearance_id": "OWNER-SUPPLIED-ID",
+  "owner": "OWNER-NAME",
+  "owner_uid": 28131,
+  "stage_root": "/absolute/complete/stage",
+  "source_commit": "40-HEX-STAGED-HEAD",
+  "driver_commit": "40-HEX-STAGED-HEAD",
+  "transform_commit": "40-HEX-STAGED-HEAD",
+  "stage_manifest_sha256": "64-HEX-MANIFEST-DIGEST",
+  "device": "cuda:0",
+  "output_directory": "/absolute/new/durable/output-directory",
+  "model_revision": "40-HEX-MODEL-REVISION",
+  "site_layer": 0,
+  "quant": {
+    "w_bits": 4,
+    "a_bits": 4,
+    "w_group_size": "128",
+    "a_group_size": "per-row",
+    "w_symmetric": true,
+    "a_symmetric": true,
+    "scale_granularity": "per-group-W4;dynamic-per-row-A4",
+    "clip": "none",
+    "calibration_dataset": "DATASET-NAME@40-HEX-REVISION",
+    "calibration_seed": 0,
+    "calibration_rows": 8192
+  },
+  "timing": {"warmup_ms": 25, "repetition_ms": 200, "outer_trials": 5},
+  "clock_policy": "OWNER-OBSERVED-POLICY"
+}
+```
+
+Every commit field must equal the clean staged `HEAD`; the manifest digest
+must equal the stage metadata. The model and calibration revisions must be
+immutable 40-hex pins. The device must include one explicit CUDA index, and
+the canonical output directory must not exist and must be outside the stage.
+The driver re-hashes the entire stage before any Torch/Triton import or input
+creation and rejects source/untracked changes, incomplete Git metadata,
+reference-only transform measurements, unresolved pins, non-finite/partial
+samples, and output overwrite.
+
+Only after those checks does it run the existing full-width oracle, create the
+fixed-seed `[1,11008]` fp16 tensor on the clearance-selected device, check the
+GPU `I`/`Hfull` and A4 callback against the CPU specifications, and profile the
+four accepted rows through `profiler.profile_transform`. A later cleared owner
+runs, from the stage root:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 -m experiments.structured_hadamard.phase_a.execute \
+  --scheduler-clearance-file /absolute/owner-clearance.json
+```
+
+The new durable output directory contains validated
+`rot-site-v1.phase-a.2` `phase-a.jsonl`, `phase-a.raw-samples.jsonl`, and a
+digest-bearing `phase-a.execution.json`. The main JSONL file is committed
+last, all files use atomic writes, and any caught failure removes only files
+created by that invocation. Every record remains visibly synthetic,
+non-model, non-PPL, and `scientific_evidence=false`. The execution driver has
+no resource-acquisition, remote-access, job-control, retry, or lifecycle
+ownership behavior; those decisions remain entirely outside this repository
+boundary.

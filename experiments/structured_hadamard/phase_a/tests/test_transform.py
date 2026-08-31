@@ -5,6 +5,8 @@ import struct
 import sys
 import unittest
 
+from experiments.structured_hadamard.phase_a.activation_quantizer import (A4_QMAX, A4_QMIN,
+                                                                          quantize_row_reference)
 from experiments.structured_hadamard.phase_a.reference import D_FF, forward_rows, inverse_rows, transform_spec
 from experiments.structured_hadamard.phase_a.triton_transform import (HFullWorkspace, _allocate_intermediate,
                                                                       apply_transform)
@@ -121,6 +123,26 @@ class TransformContractTest(unittest.TestCase):
             self.assertEqual(spec.permutation, "identity")
             self.assertEqual(spec.channel_order, "contiguous-natural")
         self.assertEqual((transform_spec("Hfull").K, transform_spec("Hfull").q), (172, 64))
+
+    def test_dynamic_per_row_signed_a4_reference_semantics(self):
+        row = [7.0, -7.0, 3.5, -3.5, 2.5, -2.5] + [0.0] * (D_FF - 6)
+        quantized, scale = quantize_row_reference(row)
+        self.assertEqual((A4_QMIN, A4_QMAX, scale), (-7, 7, 1.0))
+        self.assertEqual(quantized[:6], [7.0, -7.0, 4.0, -4.0, 2.0, -2.0])
+        self.assertTrue(all(A4_QMIN * scale <= value <= A4_QMAX * scale for value in quantized))
+
+    def test_dynamic_per_row_signed_a4_zero_row_is_deterministic(self):
+        quantized, scale = quantize_row_reference([0.0] * D_FF)
+        self.assertEqual(scale, 1.0)
+        self.assertEqual(quantized, [0.0] * D_FF)
+
+    def test_dynamic_per_row_signed_a4_rejects_nonfinite_and_wrong_width(self):
+        with self.assertRaisesRegex(ValueError, "width"):
+            quantize_row_reference([0.0])
+        row = [0.0] * D_FF
+        row[17] = float("nan")
+        with self.assertRaisesRegex(ValueError, "finite"):
+            quantize_row_reference(row)
 
 
 if __name__ == "__main__":

@@ -361,3 +361,87 @@ It is owned by `kwen1`, mode 0600, with SHA-256
 `ec436b343676210a1c4dee0e1943b9418d3c40828da8704e1588df68ee8f9ece`.
 No scheduler query or mutation, second submission, retry, PR, or merge followed
 the event-owned result.
+
+## 2026-08-31 — Submission-free Phase A execution driver preparation
+
+The accepted remote source `origin/fm/structured-hadamard-phase-a` was fetched
+and its tip was verified unchanged at
+`d57acb60db2a4507bbff984fb3c9771e8a6ada3d` before branching. The isolated
+worktree was clean and detached. The sole new local research branch is
+`fm/structured-hadamard-phase-a-exec-r1`, created directly from that exact
+commit without reset, rebase, or ancestry substitution. This intake commit is
+the exact base of the delivery `HEAD`; the final hexadecimal `HEAD` is reported
+after commit because a commit cannot embed its own identity.
+
+The new `execute.py` boundary is runnable only from a clean, ordinary,
+self-contained stage descended from the accepted intake. It verifies the
+executed `HEAD`, Git object connectivity/independence, the stage metadata,
+the complete working-tree manifest, and exact committed contents both before
+and after the CPU correctness oracle. A mode-0600 owner clearance outside the
+stage must bind the stage/source/driver/transform commit, manifest digest,
+explicit `cuda:N` device, immutable model and calibration revisions, resolved
+W4A4 settings, fixed timing config, and a new canonical durable output
+directory. The driver owns no resource acquisition, remote access, job
+control, retry, or lifecycle behavior. The existing submission-free
+`preflight.py --execute` refusal remains active.
+
+`stage_repository.py` now emits `phase-a-repository-stage-v3` metadata plus an
+explicit `phase-a-working-tree-manifest-v1`
+`REPRODUCIBILITY_MANIFEST.json`; the metadata binds both its file digest and
+canonical entry digest. Execution additionally requires that this manifest
+contain exactly committed tracked paths, thereby refusing dirty or untracked
+executed inputs even though the general staging helper continues to preserve
+such inputs for other reproducibility uses.
+
+The only added quantization callback is a one-launch deterministic dynamic
+per-row symmetric signed-A4 fake-quantize/dequantize operation with
+round-to-nearest-even and range `[-7,7]`. It supplies the sequential
+`transform+quantize` timing boundary and does not implement weight conversion,
+nibble packing, an INT4 GEMM, a model/checkpoint path, or fusion. Measurement
+assembly remains exactly `I`/`Hfull` crossed with `transform-only`/sequential
+`transform+quantize`; `I` remains a host alias with zero transform launch/copy,
+`Hfull` remains the exact two-launch `11008=172x64` transform, and every row
+records `fusion="none"`. The output writer validates four complete finite
+`rot-site-v1.phase-a.2` rows and four raw-sample rows before atomic durable
+writes. It records observed runtime identities, commit/config/clearance
+digests, launch counts, correctness/error/outlier metrics, and raw samples;
+all rows are visibly synthetic, non-model, non-PPL, and
+`scientific_evidence=false`.
+
+Final CPU/static validation from the source worktree:
+
+```text
+python3 -m compileall -q experiments/structured_hadamard/phase_a
+  -> passed
+python3 -m unittest discover -s experiments/structured_hadamard/phase_a/tests -v
+  -> 36 tests passed in 4.130 seconds
+python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_execute -v
+  -> 7 focused execution/provenance/refusal/assembly tests passed in 2.245 seconds
+python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_stage_repository -v
+  -> 3 temporary ordinary/linked-worktree staging tests passed in 0.896 seconds
+python3 -m experiments.structured_hadamard.phase_a.oracle \
+  --seed 0 --token-rows 2 --weight-rows 3
+  -> all I/H32/H128/Hfull CPU/reference checks passed at width 11008;
+     maximum absolute error 3.1086244689504383e-15; not scientific evidence
+python3 -m experiments.structured_hadamard.phase_a.preflight \
+  --scheduler-clearance=false --format=jsonl \
+  --result-jsonl /data/scratch-fast/kwen1/structured-hadamard/phase-a/results/phase-a.jsonl
+  -> exactly four unexecuted I/Hfull rows validated
+python3 -m experiments.structured_hadamard.phase_a.preflight \
+  --scheduler-clearance=false --execute
+  -> refused with exit status 2
+python3 -m experiments.structured_hadamard.phase_a.execute \
+  --scheduler-clearance-file /tmp/phase-a-clearance-does-not-exist
+  -> refused outside an independent stage with exit status 2, before reading
+     clearance or importing Torch/Triton
+git diff --check
+  -> passed
+```
+
+Pytest was unavailable and no dependency was installed. `make` was not run
+because the changes are Python, tests, and documentation only. The staging
+tests created and removed only bounded temporary fixture repositories; no
+durable experimental stage was created. No GPU was allocated, no CUDA command
+or kernel ran, no Slurm operation occurred, no model/checkpoint was downloaded
+or used, and no benchmark, PPL evaluation, scientific experiment, push, PR,
+merge, or no-mistakes pipeline ran.

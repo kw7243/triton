@@ -17,7 +17,7 @@ from pathlib import PurePosixPath
 from .reference import D_FF, D_MODEL, transform_spec
 from .schema import BASE_COMMIT, ORACLE_COMMIT, SCHEMA_VERSION, dumps_jsonl, validate_records
 
-BRANCH = "fm/structured-hadamard-phase-a"
+SOURCE_BRANCHES = ("fm/structured-hadamard-phase-a", "fm/structured-hadamard-phase-a-exec-r1")
 ACTIVE_ROOT = "/data/scratch-fast/kwen1"
 DEFAULT_RESULT_JSONL = f"{ACTIVE_ROOT}/structured-hadamard/phase-a/results/phase-a.jsonl"
 RUN_ID = "phase-a-llama2-7b-decode-seed0"
@@ -30,8 +30,8 @@ def _git(*args: str) -> str:
 
 def discover_code_identity() -> dict:
     branch = _git("branch", "--show-current")
-    if branch != BRANCH:
-        raise RuntimeError(f"preflight requires branch {BRANCH!r}, got {branch!r}")
+    if branch not in SOURCE_BRANCHES:
+        raise RuntimeError(f"preflight requires one of {SOURCE_BRANCHES!r}, got {branch!r}")
     head = _git("rev-parse", "HEAD")
     ancestor = subprocess.run(("git", "merge-base", "--is-ancestor", BASE_COMMIT, head), check=False)
     if ancestor.returncode != 0:

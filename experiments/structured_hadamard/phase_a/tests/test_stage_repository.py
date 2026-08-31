@@ -8,7 +8,9 @@ import tempfile
 import unittest
 
 from experiments.structured_hadamard.phase_a.stage_repository import (DEFAULT_EXCLUDED_ROOT_DIRECTORIES, StageError,
-                                                                      stage_repository)
+                                                                      STAGE_MANIFEST_NAME,
+                                                                      STAGE_MANIFEST_SCHEMA_VERSION,
+                                                                      STAGE_SCHEMA_VERSION, stage_repository)
 
 
 def _git(root: Path, *args: str) -> str:
@@ -52,9 +54,14 @@ class RepositoryStageTest(unittest.TestCase):
         self.assertFalse((stage / "outputs" / "generated.bin").exists())
         self.assertFalse((stage / "package" / "__pycache__").exists())
         metadata = json.loads((stage / "REPRODUCIBILITY_METADATA.json").read_text(encoding="utf-8"))
-        self.assertEqual(metadata["schema_version"], "phase-a-repository-stage-v2")
+        manifest = json.loads((stage / STAGE_MANIFEST_NAME).read_text(encoding="utf-8"))
+        self.assertEqual(metadata["schema_version"], STAGE_SCHEMA_VERSION)
+        self.assertEqual(manifest["schema_version"], STAGE_MANIFEST_SCHEMA_VERSION)
         self.assertEqual(metadata["source_head"], expected_head)
         self.assertGreaterEqual(metadata["tracked_and_untracked_entries"], 5)
+        self.assertEqual(set(manifest["entries"]), {
+            ".gitignore", "ignored-input.cfg", "outputs/tracked-input.cfg", "tracked.txt", "untracked.txt"
+        })
         self.assertEqual(metadata["default_exclusions"]["root_directories"],
                          list(DEFAULT_EXCLUDED_ROOT_DIRECTORIES))
 
