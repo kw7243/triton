@@ -48,6 +48,8 @@ def quantize_rows_reference(rows: Sequence[Sequence[float]]) -> tuple[list[list[
 def _kernel_bundle():
     import triton
     import triton.language as tl
+    # Triton 3.4 does not prebind libdevice on ``tl.extra``.  The supported
+    # explicit import lets JIT dependency discovery resolve ``rint``.
     from triton.language.extra import libdevice
 
     @triton.jit

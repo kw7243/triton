@@ -62,10 +62,10 @@ not pack nibbles, convert weights, execute a GEMM, or fuse with `Hfull`.
 requires exact nested fields for code, model, quantization, site/transform,
 workload, hardware, metrics, timing, execution state, and artifact paths. It
 rejects unknown/missing fields, duplicate JSON keys, duplicate logical rows,
-non-finite values, dimension/factorization mismatches, wrong `U_172` digests,
-and identity rows that claim transform work. Planned rows must have every
-metric set to null, `scheduler_clearance=false`, and
-`scientific_evidence=false`.
+non-finite values, wrong JSON types for integral fields,
+dimension/factorization mismatches, wrong `U_172` digests, and identity rows
+that claim transform work. Planned rows must have every metric set to null,
+`scheduler_clearance=false`, and `scientific_evidence=false`.
 
 Print the exact four-row Phase A matrix (`I` and `Hfull`, each with the two
 separate timing identities) without touching CUDA:
@@ -124,9 +124,10 @@ excluded at any depth. Tracked files always override these exclusions. Source
 `.git` metadata is handled separately by the independent clone. The helper
 supports linked-worktree sources and refuses existing/in-repository
 destinations, unmerged indexes, submodules it cannot prove independent,
-special included input files, reserved control-file collisions, external Git
-object alternates, source changes during copying, or any failed post-copy
-verification.
+special included input files, included paths with symlink ancestors, symlinks
+that are absolute, escape the source, or traverse content absent from the
+copied closure, reserved control-file collisions, external Git object
+alternates, source changes during copying, or any failed post-copy verification.
 
 The bounded staging assertion used during preparation is:
 
@@ -179,6 +180,9 @@ outside the stage. The exact `phase-a-scheduler-clearance-v1` keys are:
 }
 ```
 
+Quantization and timing counts must be non-boolean JSON integers. Activation
+metadata must select symmetric dynamic-per-row A4 through `a_group_size`,
+`a_symmetric`, and exactly one `dynamic-per-row-A4` granularity component.
 Every commit field must equal the clean staged `HEAD`; the manifest digest
 must equal the stage metadata. The model and calibration revisions must be
 immutable 40-hex pins. The device must include one explicit CUDA index, and

@@ -192,7 +192,8 @@ def _parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.execute:
-        print("REFUSED: scheduler_clearance=false; this preparation CLI cannot execute or submit work.", file=sys.stderr)
+        print("REFUSED: scheduler_clearance=false; this preparation CLI cannot execute or submit work.",
+              file=sys.stderr)
         return 2
     identity = discover_code_identity()
     records = build_plan(result_jsonl=args.result_jsonl, head=identity["head"], dirty=identity["dirty"])

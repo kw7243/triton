@@ -412,8 +412,11 @@ def loads_jsonl(text: str) -> list[dict]:
         if not line.strip():
             raise ContractError(f"blank JSONL line {line_number} is not allowed")
         try:
-            record = json.loads(line, object_pairs_hook=_object_no_duplicates, parse_constant=lambda value: (_ for _ in ()).throw(
-                ContractError(f"non-finite JSON constant {value}")))
+            record = json.loads(
+                line,
+                object_pairs_hook=_object_no_duplicates,
+                parse_constant=lambda value: (_ for _ in ()).throw(
+                    ContractError(f"non-finite JSON constant {value}")))
         except (json.JSONDecodeError, ContractError) as exc:
             raise ContractError(f"invalid JSONL line {line_number}: {exc}") from exc
         records.append(record)
