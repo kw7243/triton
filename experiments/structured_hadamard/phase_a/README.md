@@ -1,8 +1,11 @@
 # Phase A structured-Hadamard slice
 
 This directory is the smallest code-and-validation slice for the first
-Llama-2-7B FFN `down_proj` input. It has not run a GPU benchmark, model,
-quantizer, CUDA command, or scheduler job. All emitted preflight rows are
+Llama-2-7B FFN `down_proj` input. It has not produced a completed GPU benchmark,
+driver output, or measurement rows. The preserved notebook records earlier
+scheduler allocations, CUDA visibility and basic-operation checks, and an
+untimed A4 correctness attempt that failed during Triton compilation; the final
+r2 owner attempt failed before SSH or Slurm. All emitted preflight rows remain
 `UNEXECUTED` and are not scientific evidence.
 
 ## Fixed semantics
