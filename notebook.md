@@ -933,3 +933,145 @@ commit because this isolated worktree had no configured author identity. The
 staged bytes were unchanged. The retry uses the exact author and committer
 identity from immutable evidence commit `095cafd663` through command-local Git
 environment variables, without changing shared or system Git configuration.
+
+### Fresh r2 stage and terminal result
+
+Status: **FAILED before SSH or Slurm.** The compatibility fix, CPU/static
+validation, immutable stage, clearance, and dynamic scheduler selection all
+passed. The one fresh tmux owner then exited 126 because its local owner script
+was mode 0664 and was invoked as an executable. No persistent SSH route began,
+no `salloc` or `srun` command ran, no job or GPU existed, and the accepted
+driver was not invoked. The terminal contract forbids a replacement owner or
+retry, so the task stopped.
+
+The clean pre-run fix commit is
+`03124276829a2ba8ea96166a1583b58c909dd1ff`, tree
+`3c6e3772bc8ab0ecc68b46064bb107c4e22f07a1`, with exact failed-evidence
+commit `095cafd6637238c53223f44d48b36b6f5211186b` and both required accepted
+commits as ancestors. The full source bundle SHA-256 is
+`f8984783020029ed56d304526aab568a550cddb97773b600b90e6e5b5560c23a`.
+It verified from a real independent Git repository and records complete
+history.
+
+The fresh full independent stage is:
+
+```text
+/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2/attempt-20260901T173043Z-03124276829a/stage/20260901T173043Z-03124276829a-code
+```
+
+It has an ordinary self-contained `.git`, no alternates/promisor/shallow
+dependency, full connectivity, exact commit/tree/ancestry, and exactly its two
+declared control files untracked. Its 1,757-entry canonical manifest SHA-256 is
+`254cd9613dfea1c90c226559c2cce2f26ae26689ae362955e5406d4c82a734d1`;
+manifest-file SHA-256 is
+`db5c7de4090c5e14bcdd5b90b20d6541fdb1a9011a76edd8dc1ca63ba938215a`;
+metadata SHA-256 is
+`56f4d675adfe7b3ee83daff6bbf73b42450b271f7f0023205ed57e608b4af335`.
+The staged fix, driver, and stage helper match their Git blobs, with SHA-256
+values respectively
+`eef070b590beced9772f4b58aab4f3419a66c51b8c9d499fde7f27dcffb6bee3`,
+`a2f968b1f6efa1bc1838520802a8da9fc577ec14df5326b792c36048c6bff659`,
+and `212bc2ddd82ee2f098314140e9ec62032b3dbf350f421d61a658c812a08f7a08`.
+
+One external audit failed after the stage had already passed the driver's
+verifier because the checker hard-coded obsolete `.phase-a-stage-*` control
+names. The accepted names are `REPRODUCIBILITY_METADATA.json` and
+`REPRODUCIBILITY_MANIFEST.json`. The failure is preserved in
+`logs/stage-audit.log`; the corrected independent audit passed in
+`logs/stage-audit-r2.log` without recreating or changing the stage.
+
+The driver-validated owner-only clearance is mode 0600, UID 28131, SHA-256
+`ca51742c5ec4b054dac58930d11e6523c45cbc6851d03cf9a4f0b71fdd8f4ea4`.
+It binds the exact stage/commit/manifest, task-local Python path and binary
+SHA-256, Triton 3.4.0 environment, absent output, `cuda:0`, fixed synthetic
+`[1,11008]` seed-0 float16 workload, nearest-even A4 semantics, sequential
+`fusion="none"`, 25 ms warmup, 200 ms repetition, five outer trials, model
+pin `01c7f73d771dfac7d292323805ebc428287df4f9`, and Salesforce/wikitext pin
+`b08601e04326c79dfdd32d625aee71d232d685c3`. Its execution-config SHA-256 is
+`d9b0171c40414616dff003cd407677a4d0e71bca38b32f10d8e847a9ca6cc26c`.
+The exact sole-attempt contract SHA-256 is
+`4c82c54aa3b549dc302b77f22d7176e765a7e1b7c2310fcb8377af62ec8dadab`.
+
+The read-only scheduler snapshot at `2026-09-01T17:38:08Z`, SHA-256
+`4eff2bec9d637d005f2b165610f17fde4cd08623b1fa1ce4e3f74dfc5f3b4792`,
+confirmed the required account and QoS. The dedicated account/QoS-allowed
+Torralba capacity was: RTX 3090 12/21 free, V100 0/16 free, H100 3/8 free,
+and H200 2/8 free. `vision-torralba-rtx3090` was selected without a node pin
+because 24 GiB was the smallest adequate memory, V100 was full, and H100/H200
+were larger and scarcer. Shared smaller-device partitions did not allow
+`vision-torralba-interactive`.
+
+Before mutation, the exact persistent owner, SSH route, `salloc` and one
+`srun --pty` argv, stage, output, environment, account/QoS/partition, resources,
+event token, scripts, clearance, and all-zero ledgers were recorded. The
+intended request was exactly one node/task/GPU, two CPUs, 8 GiB, and ten
+minutes. `sbatch`, retry, cancellation, requeue, and a second owner were not
+authorized.
+
+The registered event wait was active before tmux creation. At
+`2026-09-01T17:45:22Z`, the sole tmux command used `script -qefc` to invoke
+`/tmp/rot-phasea-libdevice-fix-gpu-r2-control.GOtjCa/local-owner.sh`. That file
+was mode 0664 rather than executable, so the shell returned `Permission denied`
+and exit 126 before the local script, its finalizer, or SSH could start. The
+declared terminal event therefore could not fire. After this terminal defect
+was identified, the registered wait was retired with one manual tmux signal;
+it returned 1 because its declared event file was absent. No second owner was
+created.
+
+Final ledgers are:
+
+```text
+salloc_attempts=0
+srun_attempts=0
+driver_invocations=0
+terminal_events_fired=0
+terminal_events_handled=1
+```
+
+The tmux owner is absent and the registered wait is retired. There is no job
+ID, partition assignment, node, CUDA visibility record, GPU identity, untimed
+A4 hardware result, driver output, raw sample, or timing summary. All four rows
+are unproduced:
+
+| Timing identity | Transform | Samples | Summary |
+|---|---|---:|---|
+| transform-only | I | not produced | not produced |
+| transform-only | Hfull | not produced | not produced |
+| transform+quantize | I | not produced | not produced |
+| transform+quantize | Hfull | not produced | not produced |
+
+The same-device `Hfull` versus `I` sequential transform-plus-quantize overhead
+and the plan's `>=5%` important-kernel gate are **not evaluated**. The identity
+transform-only no-op has no denominator. This attempt establishes no RTX-3090
+or other-accelerator latency/cost and makes no cross-architecture claim.
+
+The task remains synthetic-kernel work with `scientific_evidence=false`. It
+produced no model, PPL, end-to-end, Phase B/C, H32/H128-GPU, or fused-kernel
+evidence. Protected job `1579631`, CNVQ owners/jobs, prior stages/owners/jobs,
+other worktrees, pushes, PRs, merges, force operations, cancellations, and
+requeues were untouched.
+
+All durable attempt evidence is rooted at:
+
+```text
+/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2/attempt-20260901T173043Z-03124276829a
+```
+
+The mode-0600 20-entry evidence manifest is `EVIDENCE_SHA256SUMS`, SHA-256
+`e976828d4535acdfe870730520dc7323c5c2ed48a5e8c0103f0ef38cb3ae7d82`.
+Key exact hashes are:
+
+```text
+local tmux pane log      af5d03f502a2a293d98171e2d2161e9de73b2ed23f29f02955d430a5822d9ec0
+event-wait error         5d0917d60e69368677f052e209aa4b83083ba06ae32c43c6fbacfdc69f525580
+terminal retirement     9acd45e402a2aa970f3c8fa9847ef6c53c3c6a3093dbcd69e5b7b6ba1391f5c3
+task status             bef48445937e3ea09e29d076dbc2e307f05c49802d355f1e57b316d25685ac67
+final ledgers           ba9e2b92719d9bc06a38e1033fddaf047a2ab8162428499676459bb57ea9f43f
+stage creation log      d0acb9c9355ea8c69bc086589c2b1b3506c531519514ac819e337d222b558e50
+corrected stage audit   13f314d2cdfc155082a6b13dc04c20cd5ef605e4fb1219ca2066b447d32fb933
+scheduler snapshot      4eff2bec9d637d005f2b165610f17fde4cd08623b1fa1ce4e3f74dfc5f3b4792
+```
+
+The strict outcome is failure. The libdevice remedy is validated and retained,
+but this task has no remaining retry authority and did not obtain the requested
+fresh Phase A GPU evidence.
