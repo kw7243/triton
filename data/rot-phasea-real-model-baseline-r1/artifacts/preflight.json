@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "status": "blocked_pre_scheduler",
+  "recorded_at_utc": "2026-09-01T23:17:50Z",
+  "delivery_mode": "local-only",
+  "source": {
+    "branch": "fm/rot-phasea-real-model-baseline-r1",
+    "required_ancestor": "0c4aaf075d929be2474fd271ffb8bc1244206d99",
+    "preflight_head": "0c4aaf075d929be2474fd271ffb8bc1244206d99",
+    "preflight_tree": "8728dfa6d4fd17027e0660c1156b6aa47700094e",
+    "required_ancestor_verified": true,
+    "worktree_clean_before_preflight_record": true
+  },
+  "plan": {
+    "path": "/home/ubuntu/firstmate/data/research-plans/hardware_aware_structured_rotation_experimental_plan.md",
+    "sha256": "4c0f16b28a8c92aa2a70e163df36d2e5a6e98bdcd9c4aac77a0969491f307d45"
+  },
+  "candidate_model": {
+    "used_for_scientific_results": false,
+    "repository": "NousResearch/Meta-Llama-3-8B",
+    "snapshot_revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+    "cache_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/snapshots/315b20096dc791d381d514deb5f8bd9c8d6d3061",
+    "selection_reason": "It is the first-priority Llama-3 8B family and the first complete authorized local 7B-8B cache found. It was not promoted to a run because the packed W4A4 runtime preflight failed.",
+    "config": {
+      "architecture": "LlamaForCausalLM",
+      "torch_dtype": "bfloat16",
+      "hidden_size": 4096,
+      "intermediate_size": 14336,
+      "num_hidden_layers": 32,
+      "num_attention_heads": 32,
+      "num_key_value_heads": 8,
+      "vocab_size": 128256
+    },
+    "metadata_sha256": {
+      "config.json": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441",
+      "model.safetensors.index.json": "146776fce3f6db1103aa6f249e65ee5544c5923ce6f971b092eee79aa6e5d37b",
+      "tokenizer.json": "e134af98b985517b4f068e3755ae90d4e9cd2d45d328325dc503f1c6b2d06cc7"
+    },
+    "weight_blobs": [
+      {
+        "file": "model-00001-of-00004.safetensors",
+        "bytes": 4976698672,
+        "cache_blob_sha256": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33"
+      },
+      {
+        "file": "model-00002-of-00004.safetensors",
+        "bytes": 4999802720,
+        "cache_blob_sha256": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c"
+      },
+      {
+        "file": "model-00003-of-00004.safetensors",
+        "bytes": 4915916176,
+        "cache_blob_sha256": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc"
+      },
+      {
+        "file": "model-00004-of-00004.safetensors",
+        "bytes": 1168138808,
+        "cache_blob_sha256": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"
+      }
+    ]
+  },
+  "candidate_data": {
+    "used_for_scientific_results": false,
+    "dataset": "Salesforce/wikitext",
+    "configuration": "wikitext-2-raw-v1",
+    "cache_revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "cache_path": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3",
+    "test_arrow_sha256": "2b8a3efac7b468cbe6432edba5f55c21e435d93873acc6727431f08d5ed328ea",
+    "dataset_info_sha256": "47ce56e8a2ca0183a37850cbce75cec29f64a1f61da978386c2a0598da4a6f66"
+  },
+  "packed_w4a4_candidate": {
+    "repository": "https://github.com/kw7243/QuaRot.git",
+    "commit": "5008669b08c1f11f9b64d52d16fddd47ca754c5a",
+    "scratch_source": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/deps/QuaRot-5008669b08c1",
+    "submodules": {
+      "third-party/cutlass": "ffa34e70756b0bc744e1dfcc115b5a991a68f132",
+      "third-party/fast-hadamard-transform": "4ea722e434e3d4f2a14522341959ebdbe62be2de",
+      "third-party/nvbench": "d8dced8a64d9ce305add92fa6d274fd49b569b7e"
+    },
+    "source_sha256": {
+      "quarot/kernels/gemm.cu": "a351529098342c4e92d2a773ea33a08436e03b4bffb5efdd84b7542d95d7eabd",
+      "quarot/kernels/quant.cu": "6f50ba4127380713e386b4bb2a7f78b936405db801e0eac19b1d6870f91e967e",
+      "quarot/kernels/bindings.cpp": "9c1ecbe5fe80327aa81d7b896b70230a6ba7ef38edcb5c95f0b102b7f9d7488f",
+      "setup.py": "d96760b779b042f5d1063268b7396c2b7a04f9043bfaf9676651b37281e6f829"
+    },
+    "arithmetic_proof": {
+      "activation_storage": "signed int4, two values packed per uint8",
+      "weight_storage": "signed int4, two values packed per uint8",
+      "gemm": "CUTLASS int4b_t x int4b_t tensor-core GEMM with int32 accumulation",
+      "target_architecture": "SM80 kernel code with an explicit SM86 build target",
+      "sequential_fusion_label_required": "none"
+    },
+    "cpu_reference": {
+      "seed": 20260901,
+      "activation_shape": [3, 32],
+      "weight_shape": [5, 32],
+      "quantized_range": [-8, 7],
+      "packed_activation_shape": [3, 16],
+      "activation_pack_roundtrip_equal": true,
+      "weight_pack_roundtrip_equal": true,
+      "int4_matmul_equal": true,
+      "scale_dequant_equal": true,
+      "int32_output_checksum": -679
+    },
+    "accepted_as_executable_runtime": false
+  },
+  "rejected_surrogates": [
+    "torch._int_mm with int8 storage, even when values are restricted to four-bit ranges",
+    "the repository MLIR example that unpacks nibbles to fp16 before tt.dot",
+    "TorchAO A16W4, DA8W4, float8-activation/W4, and weight-only int4 paths",
+    "QuaRot fake-quantization quality alone",
+    "QuaRot's uninitialized e2e timing model"
+  ],
+  "environment": {
+    "login_host": "slurm-login-0.csail.mit.edu",
+    "base_prefix": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing",
+    "overlay_prefix": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/quarot-torch28-cu128-v1",
+    "compiler_prefix": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93",
+    "python": "3.10.20",
+    "torch": "2.8.0+cu128",
+    "triton": "3.4.0",
+    "transformers": "5.12.1",
+    "accelerate": "1.14.0",
+    "datasets": "4.0.0",
+    "cmake": "4.1.0",
+    "ninja": "1.13.0",
+    "cuda_nvcc": "12.8.93",
+    "cuda_cudart": "12.8.90",
+    "gcc": "13.4.0",
+    "gxx": "13.4.0",
+    "sysroot": "linux-64 2.34",
+    "quarot_importable": false,
+    "fast_hadamard_transform_extension_present": false
+  },
+  "blocker": {
+    "summary": "No importable, validated packed W4A4 execution runtime could be established before the immutable-stage and scheduler boundary.",
+    "details": [
+      "The verified installed environments contain no supported packed W4A4 kernel.",
+      "Pinned QuaRot has suitable kernel source, but no compiled extension or wheel was present.",
+      "QuaRot's actual-weight checkpoint and e2e scripts officially enumerate only Llama-2; its Llama-3 GQA cache construction computes head_dim from num_key_value_heads and is not valid for the cached 8B configuration without adaptation.",
+      "The stock e2e timing script constructs an uninitialized quantized model, so it cannot supply the required comparable real-model row.",
+      "The first scratch-source build blocked in rpc_wait_bit_killable during CMake and was retired after evidence capture.",
+      "A fresh local temporary clone passed CMake. The first compile exposed the conda CUDA include-layout mismatch; supplying the exact target include/library paths resolved it.",
+      "The corrected single-worker compile then remained in mem_cgroup_handle_over_high at about 1015676 KiB RSS for more than six minutes without producing the first bindings object. It was retired rather than consume unbounded login-node resources.",
+      "Moving the unvalidated build into the one authorized GPU allocation would violate the required pre-scheduler environment and runtime proof and would risk spending the sole attempt on toolchain work."
+    ]
+  },
+  "stage": {
+    "created": false,
+    "reason": "Preflight failed before the immutable-stage boundary."
+  },
+  "scheduler_ledger": {
+    "scheduler_queries": 0,
+    "persistent_ssh_routes": 0,
+    "tmux_owners": 0,
+    "salloc": 0,
+    "srun": 0,
+    "sbatch": 0,
+    "scientific_drivers": 0,
+    "retries": 0,
+    "requeues": 0,
+    "cancellations": 0,
+    "terminal_events": 0
+  },
+  "scientific_results": {
+    "fp16_or_bf16_wikitext2_perplexity": null,
+    "w4a4_no_rotation_wikitext2_perplexity": null,
+    "w4a4_full_hadamard_wikitext2_perplexity": null,
+    "rotation_kernel_latency": null,
+    "affected_quantized_layer_latency": null,
+    "end_to_end_decode": null,
+    "valid_baseline": false
+  },
+  "decision_gates": {
+    "A1": "not evaluated",
+    "A2": "not evaluated",
+    "A3": "not evaluated; this run could not establish A3 even if it had executed"
+  }
+}

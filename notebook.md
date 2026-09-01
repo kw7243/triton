@@ -1221,3 +1221,63 @@ accounting, and corrected result-audit SHA-256 values are respectively
 and `e19516943c61886d31418fbd3de7bba71d2ed18e14e4dc149a2bb7dfa7e69e33`.
 The concise report and exact local artifact copies are under
 `data/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/`.
+
+## 2026-09-01 — Phase A real-model W4A4 preflight
+
+Status: `blocked-pre-scheduler`. The local-only branch
+`fm/rot-phasea-real-model-baseline-r1` began clean at required source commit
+`0c4aaf075d929be2474fd271ffb8bc1244206d99`, tree
+`8728dfa6d4fd17027e0660c1156b6aa47700094e`. Git strict ancestry verification
+passed. The result-evidence commit is recorded by the immediately following
+provenance-only notebook entry.
+
+The authoritative plan SHA-256 is
+`4c0f16b28a8c92aa2a70e163df36d2e5a6e98bdcd9c4aac77a0969491f307d45`.
+Its Phase A comparison rows and literal A1/A2/A3 rules were preserved. The
+earlier accepted synthetic RTX 3090 kernel experiment was not rerun.
+
+The first-priority cached model candidate was
+`NousResearch/Meta-Llama-3-8B` snapshot
+`315b20096dc791d381d514deb5f8bd9c8d6d3061`, selected because it is the first
+complete authorized 7B-8B cache in the requested model order. Its exact config,
+metadata hashes, four weight-blob identities, and WikiText-2 raw-v1 cache
+revision `b08601e04326c79dfdd32d625aee71d232d685c3` are in the preflight artifact.
+It was not used for a scientific row because executable W4A4 preflight failed.
+
+The bounded installed-path audit found no packed W4A4 runtime. Int8-container
+`torch._int_mm`, fp16-unpacking Triton MLIR, TorchAO A16W4/DA8W4/float8-W4,
+fake quantization, and QuaRot's uninitialized timing model were explicitly
+rejected as substitutes. Pinned QuaRot commit
+`5008669b08c1f11f9b64d52d16fddd47ca754c5a` does contain signed packed-int4
+activation and weight quantization plus a CUTLASS `int4b_t × int4b_t` GEMM with
+int32 accumulation. A deterministic seed-20260901 CPU audit passed both pack
+round trips, independent int32 matmul equality, and scale-dequant equality.
+
+No compiled QuaRot or fast-Hadamard extension was present. An isolated scratch
+overlay retained Python 3.10.20, Torch 2.8.0+cu128, Triton 3.4.0, Transformers
+5.12.1, Datasets 4.0.0, CMake 4.1.0, and Ninja 1.13.0. A separate compiler
+prefix retained CUDA NVCC 12.8.93/runtime 12.8.90, GCC/G++ 13.4.0, and sysroot
+2.34. The first source build and one scratch-to-local copy entered
+`rpc_wait_bit_killable` and were retired. A fresh temporary clone at the same
+exact parent and submodule commits passed CMake. After the exact conda CUDA
+header path corrected the first compile error, the single-worker bindings
+compile remained in `mem_cgroup_handle_over_high` at 1,015,676 KiB RSS for
+more than six minutes without producing the object. It was retired; all
+related PIDs are gone, and no importable extension exists.
+
+The unchanged real-model code also fails the requested support proof: QuaRot's
+actual-weight checkpoint and e2e paths enumerate Llama-2 only, the cached
+Llama-3 GQA configuration exposes a 512-versus-128 cache head-dimension error,
+and the stock timing model is uninitialized. Moving toolchain work into the
+single authorized allocation would violate the required pre-stage/runtime
+boundary. No replacement kernel was implemented.
+
+The immutable stage was therefore not created. Scheduler-query, persistent
+route, tmux-owner, `salloc`, `srun`, `sbatch`, scientific-driver, retry,
+requeue, cancellation, and terminal-event counts are all exactly zero. No
+scheduler or protected-job state was inspected.
+
+All required scientific rows are absent, so this is not a valid baseline. A1,
+A2, and A3 are each `not evaluated`; this task cannot establish A3. The exact
+local report and machine-readable preflight artifact are under
+`data/rot-phasea-real-model-baseline-r1/`.
