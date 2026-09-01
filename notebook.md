@@ -657,3 +657,105 @@ git diff --check
 
 `make` was not run because the relaunch changes only this notebook. No CUDA,
 GPU, model, dataset, or scheduler operation was performed by these gates.
+
+### Fresh stage, sole hardware attempt, and terminal failure
+
+The clean pre-run commit is
+`11c6d87772de27d97a7d5b1f1f9577d70b4b41ca`, tree
+`385c334f319c7069c1d81c2ce8db85e03e13731f`, descended through the preserved
+task history from exact required parent
+`21ea761c61a5e3062cea28cabda43ac04bd5278b`; the accepted Phase A commit remains
+an ancestor. The full bundle SHA-256 is
+`95ec5964c3776fc6e44debbcb251504623bf6b5c1ea3bf138deffb46e5d53686`.
+It verified locally and remotely from real disposable Git repositories.
+
+The fresh full independent stage is:
+
+```text
+/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-kernel-profile-r1/attempt-20260901T164930Z-11c6d87772de/stage/20260901T164930Z-11c6d87772de-code
+```
+
+Its ordinary stage-local `.git`, connectivity, exact commit/tree, source
+stability, and manifest all passed the final independent audit. The manifest
+has 1,756 committed entries with canonical digest
+`ec8e4c6f926bef98441b13678bcd6024b4ded27287f8ba96865889215c44045b`;
+the manifest file SHA-256 is
+`365307bac05af7c7af7707a275118efc0b653910270a2d3e895d7e1f38d80d85`
+and metadata SHA-256 is
+`83e1d7e600680dcd685a1c609e59f92a03374aa91b4c2f122b630e2f914a62cc`.
+Only the two declared stage control files are untracked. The source clone was
+clean with zero ordinary-untracked inputs; six helper-generated pycache files
+were within the declared excluded cache policy. Two earlier external audit
+failures are preserved: one wrapper used the AFS cwd and failed before helper
+import/execution, and two audit assertions incorrectly resolved relative Git
+paths and required zero excluded pycache files. The successful helper and
+stage bytes were not rerun or mutated by those checker corrections.
+
+The new clearance is mode 0600, owned by UID 28131, and has SHA-256
+`48fb5cb360d57de604ea725318a43f878f2a797013a97b34b39f6af33c72318c`.
+It passed the staged driver's static authorization path without Torch/Triton
+import and bound the exact commit/stage/manifest, `cuda:0`, nonexistent output,
+fixed `[1,11008]` seed-0 synthetic input, 25 ms warmup, 200 ms repetition,
+five outer trials, immutable model/dataset metadata pins, and resolved W4A4
+metadata. No model or dataset bytes were downloaded.
+
+The read-only scheduler snapshot at `2026-09-01T16:57:49Z`, SHA-256
+`458cb15065dc91b222704df7f0c3b7a506acaa2efc49127e3ac766e4f2dee6cd`,
+found six free 24 GiB RTX 3090 devices on `torralba-3090-2`.
+`vision-torralba-rtx3090` was selected without a node pin because it was the
+smallest-memory suitable Torralba partition allowed by both the required
+account and interactive QoS. V100/H100/H200 had more memory; shared smaller
+devices did not allow that QoS.
+
+One local-tmux-owned SSH route made exactly one `salloc` and one `srun --pty`
+attempt. Allocation `1659613` was granted on `torralba-3090-2` with the exact
+requested one node/task/GPU, two CPUs, 8 GiB, and ten minutes.
+`CUDA_VISIBLE_DEVICES` was non-empty (`0`), and `nvidia-smi` recorded one
+NVIDIA GeForce RTX 3090 (Ampere/SM86), UUID
+`GPU-82e6108f-1eeb-47f3-d820-ad67a7a6bb15`, 24,576 MiB VRAM, and driver
+`580.178.04`. The runtime was Torch `2.8.0+cu128`, CUDA `12.8`, and Triton
+`3.4.0`. Control flow reached the correctness call only after exactly-one-device
+Torch validation and a synchronized real CUDA tensor operation. The final
+hardware JSON was emitted only on complete preflight success, so the observed
+compute-capability tuple was not serialized before the later failure.
+
+The one untimed Triton correctness invocation failed on the first A4
+quantizer compilation, before `Hfull` correctness and before the accepted
+driver invocation:
+
+```text
+AttributeError: module 'triton.language.extra' has no attribute 'libdevice'
+```
+
+The exact staged callback calls `tl.extra.libdevice.rint`; installed Triton
+3.4.0 exposes the CUDA implementation containing `rint` under
+`tl.extra.cuda.libdevice`. This is a driver/runtime API compatibility failure,
+not the r3 visibility failure. The authorized attempt is consumed with
+`salloc_attempts=1` and `srun_attempts=1`. The output directory is absent;
+there are no raw samples or summaries for any of the four rows, and the
+same-device transform-plus-quantize `Hfull` versus `I` overhead and `>=5%`
+important-kernel gate are not evaluated. The identity transform-only no-op is
+not used as a denominator. No RTX-3090 latency/overhead or cross-architecture
+hardware-gate conclusion exists.
+
+The single terminal marker fired once, was handled once, and was retired at
+`2026-09-01T17:04:58Z`; the persistent owner then closed. No retry, Slurm
+poll/query, cancellation, requeue, second owner, `sbatch`, protected job
+inspection, CNVQ work, model/PPL/end-to-end path, Phase B/C, or H32/H128 GPU
+path followed. The terminal event SHA-256 is
+`fb209cb7b997a71da58e05a1d0ea8a4e3fe405cd1b9fd3c4e8473200dad6c131`;
+GPU log SHA-256 is
+`1c76caa84094792e5622999ed5629d84e914700f6e3f3d74b4cfa86aed3e4284`;
+tmux log SHA-256 is
+`0aa39af6506f1873d52a208a62fcb7a2a67dba674cccd6e2bf3dad0c8905cb86`.
+The 55-entry evidence manifest is mode 0600 with SHA-256
+`db23c4288c03b5420d04800f6aadcd01e620e66d1df01bc1caf7a41b3aed1594`.
+The concise report is `data/rot-phasea-kernel-profile-r1/report.md`, SHA-256
+`b9fc99a82c88d88c03850d99c27437650db35671fc6b6ecfbfdeba85e030a427`;
+its final reporting commit is `HEAD` because a commit cannot embed its own
+hash.
+
+This task preserves the r3 conclusion exactly: allocation `1638476` reached
+`torralba-v100-1` and exposed one V100 through successful `nvidia-smi`, while
+its strict payload failed because `CUDA_VISIBLE_DEVICES` was empty and
+assigned-device count was zero.
