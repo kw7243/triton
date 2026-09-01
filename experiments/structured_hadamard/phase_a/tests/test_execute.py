@@ -222,6 +222,12 @@ class ExecutionProvenanceTest(unittest.TestCase):
             float_timing = copy.deepcopy(base)
             float_timing["timing"]["outer_trials"] = 5.0
             cases.append((float_timing, "timing.outer_trials must be an integer"))
+            float_bits = copy.deepcopy(base)
+            float_bits["quant"]["w_bits"] = 4.0
+            cases.append((float_bits, "quant.w_bits must be an integer"))
+            boolean_seed = copy.deepcopy(base)
+            boolean_seed["quant"]["calibration_seed"] = False
+            cases.append((boolean_seed, "quant.calibration_seed must be an integer"))
             for value, message in cases:
                 with self.subTest(message=message):
                     _write_clearance(path, value)

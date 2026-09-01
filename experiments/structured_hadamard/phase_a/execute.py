@@ -240,6 +240,9 @@ def _validate_quant(quant: object) -> dict:
     if not isinstance(quant, dict):
         raise ExecutionRefusal("clearance quant must be an object")
     _exact_keys(quant, _QUANT_KEYS, "clearance quant")
+    for key in ("w_bits", "a_bits", "calibration_seed", "calibration_rows"):
+        if type(quant[key]) is not int:
+            raise ExecutionRefusal(f"clearance quant.{key} must be an integer")
     if quant["w_bits"] != 4 or quant["a_bits"] != 4:
         raise ExecutionRefusal("clearance quantization must be W4A4")
     if quant["a_group_size"] != "per-row" or quant["a_symmetric"] is not True:
@@ -254,8 +257,7 @@ def _validate_quant(quant: object) -> dict:
         raise ExecutionRefusal("calibration_dataset must be name@40-character-commit")
     if quant["calibration_seed"] != 0:
         raise ExecutionRefusal("calibration_seed must remain 0")
-    if isinstance(quant["calibration_rows"], bool) or not isinstance(quant["calibration_rows"], int) \
-            or quant["calibration_rows"] <= 0:
+    if quant["calibration_rows"] <= 0:
         raise ExecutionRefusal("calibration_rows must be a positive integer")
     return copy.deepcopy(quant)
 
