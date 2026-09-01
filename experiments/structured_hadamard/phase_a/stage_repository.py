@@ -70,6 +70,14 @@ def _absolute_git_path(root: Path, value: str) -> Path:
     return (path if path.is_absolute() else root / path).resolve()
 
 
+def _is_excluded_path(relative: Path) -> bool:
+    if not relative.parts:
+        return False
+    return (relative.parts[0] == ".git"
+            or relative.parts[0] in DEFAULT_EXCLUDED_ROOT_DIRECTORIES
+            or any(part in DEFAULT_EXCLUDED_DIRECTORY_NAMES for part in relative.parts))
+
+
 def _validate_source(source: Path) -> tuple[Path, str, Path]:
     source = source.resolve(strict=True)
     if not source.is_dir():
@@ -154,6 +162,27 @@ def _source_paths(source: Path) -> tuple[Path, ...]:
                 raise StageError(f"repository path has a symlink ancestor: {relative}")
             if not stat.S_ISDIR(mode):
                 raise StageError(f"repository path has a non-directory ancestor: {relative}")
+    for relative in paths:
+        source_path = source / relative
+        try:
+            mode = source_path.lstat().st_mode
+        except FileNotFoundError:
+            continue
+        if not stat.S_ISLNK(mode):
+            continue
+        target = Path(os.readlink(source_path))
+        if target.is_absolute():
+            raise StageError(f"repository symlink must use a relative target: {relative}")
+        try:
+            resolved_target = (source_path.parent / target).resolve(strict=True)
+        except (OSError, RuntimeError) as exc:
+            raise StageError(f"repository symlink target cannot be resolved: {relative}") from exc
+        try:
+            resolved_relative = resolved_target.relative_to(source)
+        except ValueError as exc:
+            raise StageError(f"repository symlink target escapes the source: {relative}") from exc
+        if _is_excluded_path(resolved_relative) and resolved_relative not in paths:
+            raise StageError(f"repository symlink target is excluded from the stage: {relative}")
     return tuple(sorted(paths, key=lambda path: os.fsencode(path.as_posix())))
 
 

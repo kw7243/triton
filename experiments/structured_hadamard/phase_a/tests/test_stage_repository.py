@@ -144,6 +144,47 @@ class RepositoryStageTest(unittest.TestCase):
             self.assertFalse(stage.exists())
             self.assertEqual(list(outside_stage.iterdir()), [])
 
+    def test_stages_relative_symlink_to_included_content_without_source_dependency(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source"
+            stage = root / "stage"
+            _init_repository(source)
+            (source / "config-data").write_text("staged config\n", encoding="utf-8")
+            (source / "config").symlink_to("config-data")
+
+            stage_repository(source, stage)
+            shutil.rmtree(source)
+
+            self.assertTrue((stage / "config").is_symlink())
+            self.assertEqual((stage / "config").readlink(), Path("config-data"))
+            self.assertEqual((stage / "config").read_text(encoding="utf-8"), "staged config\n")
+
+    def test_refuses_symlink_to_external_or_excluded_content(self):
+        for target_kind in ("absolute-external", "relative-external", "excluded"):
+            with self.subTest(target_kind=target_kind), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary)
+                source = root / "source"
+                stage = root / "stage"
+                _init_repository(source)
+                if target_kind == "absolute-external":
+                    target = root / "external-config"
+                    target.write_text("mutable external config\n", encoding="utf-8")
+                elif target_kind == "relative-external":
+                    (root / "external-config").write_text("mutable external config\n", encoding="utf-8")
+                    target = Path("../external-config")
+                else:
+                    (source / ".cache").mkdir()
+                    target = source / ".cache" / "excluded-config"
+                    target.write_text("excluded config\n", encoding="utf-8")
+                    target = Path(".cache/excluded-config")
+                (source / "config").symlink_to(target)
+
+                with self.assertRaisesRegex(StageError, "relative target|escapes the source|excluded from the stage"):
+                    stage_repository(source, stage)
+
+                self.assertFalse(stage.exists())
+
 
 if __name__ == "__main__":
     unittest.main()
