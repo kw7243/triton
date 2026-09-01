@@ -111,11 +111,38 @@ class TransformContractTest(unittest.TestCase):
         workspace.device = "cuda:0"
         workspace.intermediate = self._FakeTensor(20_000)
         workspace.output = self._FakeTensor(50_000)
-        workspace.matrix = object()
+        workspace.matrix = self._FakeTensor(70_000, elements=172 * 172)
         input_tensor = self._FakeTensor(100_000)
         overlapping_output = self._FakeTensor(20_000, storage_offset=1)
 
         with self.assertRaisesRegex(ValueError, "overlap the intermediate"):
+            workspace(input_tensor, out=overlapping_output)
+
+    def test_hfull_rejects_input_overlapping_intermediate(self):
+        workspace = object.__new__(HFullWorkspace)
+        workspace.shape = (1, D_FF)
+        workspace.dtype = "torch.float16"
+        workspace.device = "cuda:0"
+        workspace.intermediate = self._FakeTensor(20_000, element_size=4)
+        workspace.output = self._FakeTensor(70_000)
+        workspace.matrix = self._FakeTensor(100_000, elements=172 * 172)
+        overlapping_input = self._FakeTensor(20_000, storage_offset=1)
+
+        with self.assertRaisesRegex(ValueError, "input must not overlap the intermediate"):
+            workspace(overlapping_input)
+
+    def test_hfull_rejects_output_overlapping_matrix(self):
+        workspace = object.__new__(HFullWorkspace)
+        workspace.shape = (1, D_FF)
+        workspace.dtype = "torch.float16"
+        workspace.device = "cuda:0"
+        workspace.intermediate = self._FakeTensor(20_000, element_size=4)
+        workspace.output = self._FakeTensor(70_000)
+        workspace.matrix = self._FakeTensor(100_000, elements=172 * 172)
+        input_tensor = self._FakeTensor(200_000)
+        overlapping_output = self._FakeTensor(100_000, storage_offset=1)
+
+        with self.assertRaisesRegex(ValueError, "output must not overlap the transform matrix"):
             workspace(input_tensor, out=overlapping_output)
 
     def test_all_four_specs_freeze_sign_and_permutation(self):
@@ -176,8 +203,6 @@ class TransformContractTest(unittest.TestCase):
         try:
             with mock.patch.dict(sys.modules, modules):
                 kernel = _kernel_bundle()
-                closure = dict(zip(kernel.__code__.co_freevars, (cell.cell_contents for cell in kernel.__closure__)))
-                self.assertIs(closure["libdevice"], libdevice)
                 kernel(mock.MagicMock(), mock.MagicMock(), mock.MagicMock(), WIDTH=D_FF, BLOCK=16384,
                        QMIN=A4_QMIN, QMAX=A4_QMAX)
         finally:

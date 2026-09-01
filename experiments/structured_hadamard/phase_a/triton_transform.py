@@ -128,8 +128,12 @@ class HFullWorkspace:
             raise ValueError("output must match the workspace and be contiguous")
         if _tensors_overlap(out, tensor):
             raise ValueError("Hfull requires distinct input and output buffers")
+        if _tensors_overlap(tensor, self.intermediate):
+            raise ValueError("Hfull input must not overlap the intermediate workspace")
         if _tensors_overlap(out, self.intermediate):
             raise ValueError("Hfull output must not overlap the intermediate workspace")
+        if _tensors_overlap(out, self.matrix):
+            raise ValueError("Hfull output must not overlap the transform matrix")
 
         triton, fht64_kernel, u172_kernel = _kernel_bundle()
         fht64_kernel[(self.shape[0] * FULL_K, )](tensor, self.intermediate, num_warps=1)

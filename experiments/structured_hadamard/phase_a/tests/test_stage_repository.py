@@ -116,6 +116,34 @@ class RepositoryStageTest(unittest.TestCase):
             with self.assertRaisesRegex(StageError, "outside the source"):
                 stage_repository(source, source / "staging" / "bad")
 
+    def test_refuses_tracked_path_beneath_symlink_without_writing_outside_stage(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source_parent = root / "source-parent"
+            stage_parent = root / "stage-parent"
+            source_parent.mkdir()
+            stage_parent.mkdir()
+            source = source_parent / "source"
+            stage = stage_parent / "stage"
+            _init_repository(source)
+            (source / "nested").mkdir()
+            (source / "nested" / "tracked.txt").write_text("committed nested input\n", encoding="utf-8")
+            _git(source, "add", "nested/tracked.txt")
+            _git(source, "commit", "--quiet", "-m", "nested fixture")
+            shutil.rmtree(source / "nested")
+            source_target = source_parent / "link-target"
+            source_target.mkdir()
+            (source_target / "tracked.txt").write_text("dirty linked input\n", encoding="utf-8")
+            (source / "nested").symlink_to("../link-target")
+            outside_stage = stage_parent / "link-target"
+            outside_stage.mkdir()
+
+            with self.assertRaisesRegex(StageError, "symlink ancestor"):
+                stage_repository(source, stage)
+
+            self.assertFalse(stage.exists())
+            self.assertEqual(list(outside_stage.iterdir()), [])
+
 
 if __name__ == "__main__":
     unittest.main()

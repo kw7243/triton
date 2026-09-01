@@ -140,6 +140,20 @@ def _source_paths(source: Path) -> tuple[Path, ...]:
                 filesystem_paths.add(relative)
 
     paths = tracked_paths | filesystem_paths
+    for relative in paths:
+        ancestor = source
+        for part in relative.parts[:-1]:
+            ancestor /= part
+            try:
+                mode = ancestor.lstat().st_mode
+            except FileNotFoundError:
+                break
+            except OSError as exc:
+                raise StageError(f"cannot inspect source ancestor {ancestor}: {exc}") from exc
+            if stat.S_ISLNK(mode):
+                raise StageError(f"repository path has a symlink ancestor: {relative}")
+            if not stat.S_ISDIR(mode):
+                raise StageError(f"repository path has a non-directory ancestor: {relative}")
     return tuple(sorted(paths, key=lambda path: os.fsencode(path.as_posix())))
 
 
