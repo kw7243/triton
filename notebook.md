@@ -1081,3 +1081,46 @@ With the compatibility fix, the explicit supported import binds the interface,
 the invocation calls `libdevice.rint` once, and both kernel stores execute.
 This correction does not change the strict failed r2 outcome or authorize a
 retry.
+
+## 2026-09-01 — Local validation recovery closeout
+
+Status: `branch-sync-complete`. Recovery only; no corrected owner, SSH, Slurm,
+CUDA, GPU, or experimental command ran.
+
+No-mistakes run `01M1F317YT96Y6ZHVF15AKPQY6` is terminal
+`completed/passed` at exact pipeline head
+`9ab3c7cb76198350ee0aae29e568bbd020b27074`, tree
+`0fc73c78474e764ccb108e38402b4d98b53ac709`. Its final status reports all
+nine phases completed and no remaining findings. The test phase passed 47
+focused Phase A `unittest` cases plus compileall, the CPU oracle, executable
+parent-versus-target Triton 3.4/A4 behavior, independent staging, plan/schema,
+and fail-closed execution checks. `pytest` could not start because it was not
+installed in the isolated gate environment. The CI monitor observed no
+registered checks and became terminal when PR #4 was closed; `passed` is the
+pipeline outcome, not evidence of green remote CI checks.
+
+Captain-authorized cleanup matched PR #4 and remote head `9ab3c7cb` exactly.
+PR #4 was closed unmerged and only remote branch
+`fm/structured-hadamard-phase-a-libdevice-fix-gpu-r2` was deleted. The closure
+made the pipeline terminal before the approved abort was reached, so no abort
+was issued. A read-only remote check then found the deleted branch absent and
+the retained `refs/pull/4/head` still pinned to exact `9ab3c7cb`.
+
+The clean local branch began recovery at
+`fd00cd568e8ff63e15b2cc0213e26c9d72014b8e`, tree
+`29e08ef6c8bf3c0a3238afdc7faf44735a7f2a7a`. Because guarded
+`no-mistakes axi sync --recover` could not use the intentionally deleted remote
+branch, the exact closed-PR head was fetched into local preservation ref
+`refs/no-mistakes/recover/01M1F317YT96Y6ZHVF15AKPQY6`. Connectivity passed,
+and Git proved `fd00cd568e` was an ancestor of `9ab3c7cb` with exactly nine
+linear intervening commits. The checked-out research branch then advanced by
+strict fast-forward, without reset, rebase, merge commit, force, discard, or
+loss of the pre-recovery history.
+
+Git also proved exact failed-run evidence commit
+`095cafd6637238c53223f44d48b36b6f5211186b`, accepted Phase A commit
+`d57acb60db2a4507bbff984fb3c9771e8a6ada3d`, and execution-driver commit
+`21ea761c61a5e3062cea28cabda43ac04bd5278b` are all ancestors of the
+validated head. This closeout entry is the only post-validation repository
+change and is committed locally on top of `9ab3c7cb`; it does not alter the
+validated source or authorize the corrected GPU attempt.
