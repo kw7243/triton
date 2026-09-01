@@ -1,0 +1,126 @@
+{
+  "schema_version": "phase-a-w4a4-minimal-binding-recovery-v1",
+  "status": "terminally_blocked_pre_scheduler",
+  "recorded_at_utc": "2026-09-01T23:36:40Z",
+  "authorization": "Bind only unchanged, CPU-audited QuaRot packed W4A4 GEMM/quant sources; exclude KV-cache and FlashInfer; stop if the minimal path fails.",
+  "scope": {
+    "replacement_kernel": false,
+    "surrogate_arithmetic": false,
+    "kv_cache_bound": false,
+    "flashinfer_bound": false,
+    "unchanged_quarot_cuda_sources": [
+      "quarot/kernels/gemm.cu",
+      "quarot/kernels/quant.cu"
+    ],
+    "binding_only": true
+  },
+  "source": {
+    "quarot_commit": "5008669b08c1f11f9b64d52d16fddd47ca754c5a",
+    "cutlass_commit": "ffa34e70756b0bc744e1dfcc115b5a991a68f132",
+    "quarot_source_sha256": {
+      "quarot/kernels/gemm.cu": "a351529098342c4e92d2a773ea33a08436e03b4bffb5efdd84b7542d95d7eabd",
+      "quarot/kernels/quant.cu": "6f50ba4127380713e386b4bb2a7f78b936405db801e0eac19b1d6870f91e967e",
+      "quarot/kernels/include/common.h": "7698f99d691fc342353b86896e36ed3efe7bb1fd2332d887f55fe9dd6b7ee91d",
+      "quarot/kernels/include/int4.h": "02a8334f25a18eade476fe740520edd510c562f9a4c60c42bcd26e7f4cc7b22d",
+      "quarot/kernels/include/gemm.h": "790e7cd9ddeb92752f959604c44957d36c7539be509aa1fd843beaaa2dac9bdc",
+      "quarot/kernels/include/quant.h": "9826d20b9a058a03cecd98fbafb437c632f42892005e228d6efd4d836eb576e0"
+    },
+    "helper_sha256": {
+      "experiments/structured_hadamard/phase_a/real_model/__init__.py": "57ebf825108ace1707a6970ef93bad340683d9a330cedd48e425df374517d30c",
+      "experiments/structured_hadamard/phase_a/real_model/w4a4_bindings.cpp": "3b1020fc530ccc934f3cb04d10410a95dda99d2c1b8fc5643fc34979ec7a763f",
+      "experiments/structured_hadamard/phase_a/real_model/build_w4a4_extension.py": "cb20719c1746287c4d63ffb7088bb0f74b4df9998f54c698d913f0934aac2df6"
+    },
+    "verified_scratch_helper_root": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/preflight/minimal-binding-v2/real_model",
+    "helper_owner_group": "kwen1:nogroup",
+    "helper_mode": "0644"
+  },
+  "compile_envelope": {
+    "host": "slurm-login-0.csail.mit.edu",
+    "timeout_seconds": 600,
+    "virtual_memory_limit_kib": 6291456,
+    "max_jobs": 1,
+    "nice": 10,
+    "ionice_class": "idle",
+    "host_optimization": "-O0",
+    "cuda_optimization": "-O2",
+    "torch_cuda_arch_list": "8.6",
+    "cuda_gencode": "arch=compute_86,code=sm_86",
+    "python": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/quarot-torch28-cu128-v1/bin/python",
+    "cuda_home": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93",
+    "cxx": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/bin/x86_64-conda-linux-gnu-g++",
+    "nvcc": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/bin/nvcc",
+    "build_directory": "/tmp/quarot-phasea-build.nEC7U4/minimal-build-v2"
+  },
+  "precompile_corrections": [
+    {
+      "compiled": false,
+      "error": "/usr/bin/time was absent",
+      "disposition": "Removed the optional metrics wrapper; all safety limits remained unchanged."
+    },
+    {
+      "compiled": false,
+      "error": "PyTorch extension arch inference produced an empty list because the login node has no visible GPU",
+      "disposition": "Pinned TORCH_CUDA_ARCH_LIST=8.6, matching the already-declared SM86 NVCC target."
+    }
+  ],
+  "compile_samples": [
+    {
+      "elapsed": "00:01:46",
+      "pid": 2498557,
+      "state": "R",
+      "rss_kib": 1048028,
+      "wait_channel": "-"
+    },
+    {
+      "elapsed": "00:03:15",
+      "pid": 2498557,
+      "state": "D",
+      "rss_kib": 1048512,
+      "wait_channel": "mem_cgroup_handle_over_high"
+    },
+    {
+      "elapsed": "00:06:38",
+      "pid": 2498557,
+      "state": "D",
+      "rss_kib": 1047300,
+      "wait_channel": "mem_cgroup_handle_over_high"
+    },
+    {
+      "elapsed": "00:08:30",
+      "pid": 2498557,
+      "state": "D",
+      "rss_kib": 1047940,
+      "wait_channel": "mem_cgroup_handle_over_high"
+    }
+  ],
+  "terminal": {
+    "condition": "timeout",
+    "reported_exit_code": null,
+    "coreutils_timeout_expected_exit_code": 124,
+    "binding_object_present": false,
+    "gemm_object_present": false,
+    "quant_object_present": false,
+    "extension_present": false,
+    "all_related_pids_retired": true,
+    "build_directory_files": [
+      {
+        "path": "build.ninja",
+        "bytes": 3735,
+        "sha256": "102f04f4d3fb2765fc5e7a18b5d888d815856a94f66985ae6c11ff8b9ca7803e"
+      },
+      {
+        "path": "lock",
+        "bytes": 0
+      }
+    ]
+  },
+  "required_pre_stage_proofs": {
+    "compile_import": false,
+    "real_model_call_path": false,
+    "gpu_pack_scale_correctness": false,
+    "transform_folding_smoke": false
+  },
+  "stage_created": false,
+  "scheduler_attempts": 0,
+  "terminal_reason": "The sole accepted minimal unchanged-kernel recovery did not compile within the fixed login-safe envelope. Broader kernel work, another alternative, staging, and GPU consumption are prohibited."
+}

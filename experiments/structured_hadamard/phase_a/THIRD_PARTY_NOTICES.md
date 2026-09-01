@@ -8,3 +8,11 @@ Apache License 2.0.
 
 The Phase A code uses only that fixed sign matrix and independently implements
 the transform and Triton boundary. No HARP source was used or copied.
+
+`real_model/build_w4a4_extension.py` verifies and requests compilation of the
+unchanged QuaRot `quarot/kernels/gemm.cu` and `quarot/kernels/quant.cu` files
+and their interfaces at the same immutable commit. Those third-party source
+files and CUTLASS are not copied into this repository. The local
+`real_model/w4a4_bindings.cpp` file is a minimal PyTorch compatibility binding
+for that Apache-2.0 code; it deliberately excludes QuaRot's KV-cache and
+FlashInfer bindings.

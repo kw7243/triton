@@ -1,0 +1,40 @@
+ninja_required_version = 1.3
+cxx = /data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/bin/x86_64-conda-linux-gnu-g++
+nvcc = /data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/bin/nvcc
+
+cflags = -DTORCH_EXTENSION_NAME=phase_a_w4a4_cuda -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1018\" -I/tmp/quarot-phasea-build.nEC7U4/network-src/quarot/kernels/include -I/tmp/quarot-phasea-build.nEC7U4/network-src/third-party/cutlass/include -I/tmp/quarot-phasea-build.nEC7U4/network-src/third-party/cutlass/tools/util/include -isystem /data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages/torch/include -isystem /data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages/torch/include/torch/csrc/api/include -isystem /data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/include -isystem /data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/include/python3.10 -fPIC -std=c++17 -O0
+post_cflags = 
+cuda_cflags = -ccbin /data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/bin/x86_64-conda-linux-gnu-gcc -DTORCH_EXTENSION_NAME=phase_a_w4a4_cuda -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1018\" -I/tmp/quarot-phasea-build.nEC7U4/network-src/quarot/kernels/include -I/tmp/quarot-phasea-build.nEC7U4/network-src/third-party/cutlass/include -I/tmp/quarot-phasea-build.nEC7U4/network-src/third-party/cutlass/tools/util/include -isystem /data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages/torch/include -isystem /data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages/torch/include/torch/csrc/api/include -isystem /data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/include -isystem /data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/include/python3.10 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ --expt-relaxed-constexpr -gencode=arch=compute_86,code=sm_86 --compiler-options '-fPIC' -O2 -U__CUDA_NO_HALF_OPERATORS__ -U__CUDA_NO_HALF_CONVERSIONS__ -U__CUDA_NO_BFLOAT16_CONVERSIONS__ -U__CUDA_NO_HALF2_OPERATORS__ -gencode=arch=compute_86,code=sm_86 -std=c++17
+cuda_post_cflags = 
+cuda_dlink_post_cflags = 
+sycl_dlink_post_cflags = 
+ldflags = -shared -L/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages/torch/lib -lc10 -lc10_cuda -ltorch_cpu -ltorch_cuda -ltorch -ltorch_python -L/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/lib -lcudart
+
+rule compile
+  command = $cxx -MMD -MF $out.d $cflags -c $in -o $out $post_cflags
+  depfile = $out.d
+  deps = gcc
+
+rule cuda_compile
+  depfile = $out.d
+  deps = gcc
+  command = $nvcc --generate-dependencies-with-compile --dependency-output $out.d $cuda_cflags -c $in -o $out $cuda_post_cflags
+
+
+
+
+
+rule link
+  command = $cxx $in $ldflags -o $out
+
+build w4a4_bindings.o: compile /data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/preflight/minimal-binding-v2/real_model/w4a4_bindings.cpp
+build gemm.cuda.o: cuda_compile /tmp/quarot-phasea-build.nEC7U4/network-src/quarot/kernels/gemm.cu
+build quant.cuda.o: cuda_compile /tmp/quarot-phasea-build.nEC7U4/network-src/quarot/kernels/quant.cu
+
+
+
+
+
+build phase_a_w4a4_cuda.so: link w4a4_bindings.o gemm.cuda.o quant.cuda.o
+
+default phase_a_w4a4_cuda.so

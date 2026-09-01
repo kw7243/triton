@@ -95,3 +95,37 @@ push, PR, merge, or remote branch was performed. The earlier synthetic RTX
 3090 experiment was not rerun.
 
 Machine-readable evidence is in `artifacts/preflight.json`.
+
+## Final bounded minimal-binding recovery
+
+The captain subsequently authorized one final recovery: bind only the
+unchanged, already CPU-audited QuaRot `gemm.cu` and `quant.cu` sources, with a
+small PyTorch compatibility binding and no KV-cache or FlashInfer code. A
+replacement kernel, surrogate arithmetic, another implementation path, stage,
+or GPU attempt remained prohibited.
+
+The helper and binding bytes were independently SHA-256 matched between this
+repository and a fresh scratch preflight directory. The build reverified exact
+QuaRot commit `5008669b08c1f11f9b64d52d16fddd47ca754c5a`, CUTLASS commit
+`ffa34e70756b0bc744e1dfcc115b5a991a68f132`, and every consumed QuaRot kernel
+and interface file digest before invoking the compiler.
+
+The only compiling attempt used one Ninja job, SM86 only, `-O0` for the host
+binding, low CPU and idle I/O priority, a 6 GiB virtual-memory limit, and an
+immutable 600-second timeout. Two preceding wrapper/configuration exits did
+not invoke a compiler: the login node lacks optional `/usr/bin/time`, and
+PyTorch required an explicit `TORCH_CUDA_ARCH_LIST=8.6` when no GPU was visible.
+
+The corrected compile invoked only `w4a4_bindings.cpp` first. Its compiler
+process reached 1,048,028 KiB RSS while runnable, then remained in the login
+node's `mem_cgroup_handle_over_high`/page wait near 1.05 GiB. The 600-second
+limit expired before `w4a4_bindings.o` was produced. No QuaRot CUDA source was
+compiled, no shared object was linked, no import was possible, and all related
+processes were retired. The exact generated Ninja file is preserved locally.
+
+Therefore compile/import, real-model call-path, GPU pack/scale correctness, and
+transform/folding smoke were not proven. Per the bounded-recovery instruction,
+this is the terminal blocker. No alternative was searched, no stage was
+created, and scheduler attempts remain exactly zero. Detailed evidence is in
+`artifacts/minimal-binding-recovery.json` and
+`artifacts/minimal-build-v2.ninja`.

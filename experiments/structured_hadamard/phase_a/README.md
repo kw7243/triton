@@ -104,6 +104,22 @@ No `make` is needed because this slice changes only Python and documentation.
 The tests use `unittest` so the clean pinned checkout needs no dependency
 installation; they remain pytest-discoverable when pytest is available.
 
+## Real-model W4A4 recovery status
+
+`real_model/` preserves the final bounded preflight helper for a genuine
+packed W4A4 path. It binds only QuaRot's unchanged signed-int4 quantization,
+CUTLASS int4-by-int4 GEMM, and int32 dequantization sources. It does not bind
+KV-cache/FlashInfer code, implement a replacement kernel, or use an int8
+container surrogate.
+
+That extension did not compile within the fixed login-safe envelope: the
+single `-O0` binding compile remained under the login-node memory throttle
+until its 600-second timeout, before any object or shared library existed.
+Consequently it has no accepted import, model-call, GPU correctness, quality,
+layer-timing, or end-to-end evidence. It must not be treated as an executable
+baseline. Exact failure evidence is under
+`data/rot-phasea-real-model-baseline-r1/`.
+
 ## Future experimental boundary
 
 Only a later, explicitly cleared GPU owner may activate profiling. Before any

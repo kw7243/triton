@@ -1292,3 +1292,46 @@ result-evidence commit is
 blocked-pre-scheduler notebook entry, concise report, machine-readable
 preflight artifact, and verified SHA-256 manifest. This follow-up changes only
 the notebook provenance pointer.
+
+## 2026-09-01 — Final bounded W4A4 minimal-binding recovery
+
+Status: `terminally-blocked-pre-scheduler`. The captain authorized exactly one
+bounded recovery after result commit
+`64621d4379911be6036b54e5b792a83bdd901e02`: bind only the unchanged,
+CPU-audited QuaRot packed W4A4 `gemm.cu` and `quant.cu` sources, exclude
+KV-cache and FlashInfer, and stop if this minimal path failed. No replacement
+kernel or surrogate was implemented.
+
+The local helper bytes and scratch copies matched exactly. Binding, builder,
+and package-marker SHA-256 values were respectively
+`3b1020fc530ccc934f3cb04d10410a95dda99d2c1b8fc5643fc34979ec7a763f`,
+`cb20719c1746287c4d63ffb7088bb0f74b4df9998f54c698d913f0934aac2df6`,
+and `57ebf825108ace1707a6970ef93bad340683d9a330cedd48e425df374517d30c`.
+The builder reverified exact QuaRot commit
+`5008669b08c1f11f9b64d52d16fddd47ca754c5a`, CUTLASS commit
+`ffa34e70756b0bc744e1dfcc115b5a991a68f132`, and all six consumed QuaRot
+source/header hashes before compilation.
+
+The sole compiling attempt ran on `slurm-login-0.csail.mit.edu` with a
+600-second timeout, 6,291,456 KiB virtual-memory ceiling, one Ninja worker,
+nice level 10, idle I/O class, host `-O0`, CUDA `-O2`, and only SM86. Two prior
+precompile exits produced no object: optional `/usr/bin/time` was absent, then
+PyTorch required explicit `TORCH_CUDA_ARCH_LIST=8.6` because the login node had
+no visible GPU. Both were bounded helper corrections on the same path.
+
+The corrected compile began only the minimal `w4a4_bindings.cpp`. PID 2498557
+was initially runnable at 1,048,028 KiB RSS, then remained in
+`mem_cgroup_handle_over_high`/page waits near 1.05 GiB. The fixed timeout fired
+before `w4a4_bindings.o` existed. `gemm.cu` and `quant.cu` never began, no
+extension was linked, and import could not be tested. All related PIDs are
+gone. The only build-directory files are the empty lock and generated
+`build.ninja`; the latter is 3,735 bytes with SHA-256
+`102f04f4d3fb2765fc5e7a18b5d888d815856a94f66985ae6c11ff8b9ca7803e`.
+
+Compile/import, real-model call-path, GPU pack/scale correctness, and the
+transform/folding smoke therefore remain unproven. Per the final recovery
+boundary, no other alternative, full stage, scheduler query, owner,
+allocation, or GPU attempt is authorized. Scheduler attempts remain exactly
+zero. The local evidence is in
+`data/rot-phasea-real-model-baseline-r1/artifacts/minimal-binding-recovery.json`
+and `minimal-build-v2.ninja`.
