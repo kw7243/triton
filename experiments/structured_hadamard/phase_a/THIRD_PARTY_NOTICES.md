@@ -16,3 +16,9 @@ files and CUTLASS are not copied into this repository. The local
 `real_model/w4a4_bindings.cpp` file is a minimal PyTorch compatibility binding
 for that Apache-2.0 code; it deliberately excludes QuaRot's KV-cache and
 FlashInfer bindings.
+
+`real_model/runtime.py` reads the exact unchanged
+`quarot/functional/hadamard.py` from the independently staged QuaRot commit to
+obtain the Llama-3 `14336 = 28 x 512` full-Hadamard outer matrix. That source
+is not copied here. The runtime applies the factorization independently with
+ordinary Torch operations at the FFN down-projection boundary only.

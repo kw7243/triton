@@ -12,6 +12,9 @@ import sys
 
 QUAROT_COMMIT = "5008669b08c1f11f9b64d52d16fddd47ca754c5a"
 CUTLASS_COMMIT = "ffa34e70756b0bc744e1dfcc115b5a991a68f132"
+TORCH_CUDA_ARCH_LIST = "8.0+PTX;8.6"
+SASS_TARGETS = ("sm_80", "sm_86")
+PTX_TARGETS = ("compute_80",)
 SOURCE_SHA256 = {
     "quarot/kernels/gemm.cu": "a351529098342c4e92d2a773ea33a08436e03b4bffb5efdd84b7542d95d7eabd",
     "quarot/kernels/quant.cu": "6f50ba4127380713e386b4bb2a7f78b936405db801e0eac19b1d6870f91e967e",
@@ -66,6 +69,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--quarot-root", type=Path, required=True)
     parser.add_argument("--build-directory", type=Path, required=True)
     parser.add_argument("--cuda-home", type=Path, required=True)
+    parser.add_argument("--cxx", type=Path, required=True)
     return parser
 
 
@@ -78,6 +82,9 @@ def main(argv: list[str] | None = None) -> int:
     target_library = cuda_home / "targets" / "x86_64-linux" / "lib"
     if not nvcc.is_file() or not target_include.is_dir() or not target_library.is_dir():
         raise BuildRefusal("CUDA home lacks the pinned compiler target layout")
+    cxx = args.cxx.resolve(strict=True)
+    if not cxx.is_file() or not os.access(cxx, os.X_OK):
+        raise BuildRefusal("C++ compiler must be an executable regular file")
     build_directory = args.build_directory.resolve()
     build_directory.mkdir(parents=True, exist_ok=True)
     if any(build_directory.iterdir()):
@@ -86,8 +93,9 @@ def main(argv: list[str] | None = None) -> int:
     os.environ["CUDA_HOME"] = str(cuda_home)
     os.environ["CPATH"] = str(target_include)
     os.environ["LIBRARY_PATH"] = str(target_library)
+    os.environ["CXX"] = str(cxx)
     os.environ["MAX_JOBS"] = "1"
-    os.environ["TORCH_CUDA_ARCH_LIST"] = "8.6"
+    os.environ["TORCH_CUDA_ARCH_LIST"] = TORCH_CUDA_ARCH_LIST
 
     import torch
     from torch.utils.cpp_extension import load
@@ -113,7 +121,6 @@ def main(argv: list[str] | None = None) -> int:
             "-U__CUDA_NO_HALF_CONVERSIONS__",
             "-U__CUDA_NO_BFLOAT16_CONVERSIONS__",
             "-U__CUDA_NO_HALF2_OPERATORS__",
-            "-gencode=arch=compute_86,code=sm_86",
         ],
         build_directory=str(build_directory),
         with_cuda=True,
@@ -135,9 +142,16 @@ def main(argv: list[str] | None = None) -> int:
         "torch_cuda": torch.version.cuda,
         "cuda_home": str(cuda_home),
         "nvcc": str(nvcc),
-        "arch": "sm_86",
-        "torch_cuda_arch_list": "8.6",
+        "sass_targets": list(SASS_TARGETS),
+        "ptx_targets": list(PTX_TARGETS),
+        "minimum_compute_capability": "8.0",
+        "hardware_boundary": (
+            "native SASS only for SM80/SM86; newer compatible devices require "
+            "successful compute_80 PTX JIT validation before use; SM70 is unsupported"
+        ),
+        "torch_cuda_arch_list": TORCH_CUDA_ARCH_LIST,
         "max_jobs": 1,
+        "cxx": str(cxx),
         "kv_cache_or_flashinfer_bound": False,
     }
     print(json.dumps(result, sort_keys=True))

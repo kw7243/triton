@@ -104,21 +104,28 @@ No `make` is needed because this slice changes only Python and documentation.
 The tests use `unittest` so the clean pinned checkout needs no dependency
 installation; they remain pytest-discoverable when pytest is available.
 
-## Real-model W4A4 recovery status
+## Real-model W4A4 preparation
 
-`real_model/` preserves the final bounded preflight helper for a genuine
-packed W4A4 path. It binds only QuaRot's unchanged signed-int4 quantization,
-CUTLASS int4-by-int4 GEMM, and int32 dequantization sources. It does not bind
-KV-cache/FlashInfer code, implement a replacement kernel, or use an int8
-container surrogate.
+`real_model/` contains the bounded helper for a genuine packed W4A4 path. It
+binds only QuaRot's unchanged signed-int4 quantization, CUTLASS int4-by-int4
+GEMM, and int32 dequantization sources. It does not bind KV-cache/FlashInfer
+code, implement a replacement kernel, or use an int8-container surrogate.
+Native code is limited to verified SM80/SM86 SASS plus compute-80 PTX; SM70 is
+unsupported, and any newer device requires a later PTX-JIT compatibility
+check.
 
-That extension did not compile within the fixed login-safe envelope: the
-single `-O0` binding compile remained under the login-node memory throttle
-until its 600-second timeout, before any object or shared library existed.
-Consequently it has no accepted import, model-call, GPU correctness, quality,
-layer-timing, or end-to-end evidence. It must not be treated as an executable
-baseline. Exact failure evidence is under
-`data/rot-phasea-real-model-baseline-r1/`.
+The real-model loader verifies and loads the exact cached Llama-3 checkpoint
+through standard Transformers eager attention, derives GQA head dimension as
+`hidden_size / num_attention_heads = 128`, and rejects uninitialized meta
+tensors or a state-dict/index mismatch. It replaces only explicitly selected
+`model.layers[*].mlp.down_proj` modules. The selected real weight is folded by
+the same exact QuaRot full-Hadamard factorization applied online before packed
+W4A4 quantization, GEMM, and row/column dequantization.
+
+The earlier login-safe build did not produce an artifact; its preserved
+failure evidence remains under `data/rot-phasea-real-model-baseline-r1/`.
+Acceptance of any later CPU-allocation artifact is recorded in its separate
+task report and must not be inferred from the presence of these helpers.
 
 ## Future experimental boundary
 
