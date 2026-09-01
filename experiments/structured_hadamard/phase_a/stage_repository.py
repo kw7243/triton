@@ -70,14 +70,6 @@ def _absolute_git_path(root: Path, value: str) -> Path:
     return (path if path.is_absolute() else root / path).resolve()
 
 
-def _is_excluded_path(relative: Path) -> bool:
-    if not relative.parts:
-        return False
-    return (relative.parts[0] == ".git"
-            or relative.parts[0] in DEFAULT_EXCLUDED_ROOT_DIRECTORIES
-            or any(part in DEFAULT_EXCLUDED_DIRECTORY_NAMES for part in relative.parts))
-
-
 def _validate_source(source: Path) -> tuple[Path, str, Path]:
     source = source.resolve(strict=True)
     if not source.is_dir():
@@ -147,7 +139,11 @@ def _source_paths(source: Path) -> tuple[Path, ...]:
                 # silently omitting an input it cannot reproduce.
                 filesystem_paths.add(relative)
 
-    paths = tracked_paths | filesystem_paths
+    paths = tuple(sorted(tracked_paths | filesystem_paths, key=lambda path: os.fsencode(path.as_posix())))
+    included_closure = {Path()}
+    for relative in paths:
+        included_closure.add(relative)
+        included_closure.update(relative.parents)
     for relative in paths:
         ancestor = source
         for part in relative.parts[:-1]:
@@ -173,17 +169,38 @@ def _source_paths(source: Path) -> tuple[Path, ...]:
         target = Path(os.readlink(source_path))
         if target.is_absolute():
             raise StageError(f"repository symlink must use a relative target: {relative}")
+        lexical_parts = list(relative.parent.parts)
+        target_parts = target.parts
+        for index, part in enumerate(target_parts):
+            if part == "..":
+                if not lexical_parts:
+                    raise StageError(f"repository symlink target escapes the source: {relative}")
+                lexical_parts.pop()
+            else:
+                lexical_parts.append(part)
+            if index == len(target_parts) - 1:
+                continue
+            candidate = Path(*lexical_parts)
+            try:
+                resolved_candidate = (source / candidate).resolve(strict=True)
+                resolved_relative = resolved_candidate.relative_to(source)
+            except ValueError as exc:
+                raise StageError(f"repository symlink target escapes the source: {relative}") from exc
+            except (OSError, RuntimeError) as exc:
+                raise StageError(f"repository symlink target cannot be resolved: {relative}") from exc
+            if resolved_relative not in included_closure:
+                raise StageError(f"repository symlink target is excluded from the stage: {relative}")
+        lexical_target = Path(*lexical_parts)
         try:
-            resolved_target = (source_path.parent / target).resolve(strict=True)
-        except (OSError, RuntimeError) as exc:
-            raise StageError(f"repository symlink target cannot be resolved: {relative}") from exc
-        try:
+            resolved_target = (source / lexical_target).resolve(strict=True)
             resolved_relative = resolved_target.relative_to(source)
         except ValueError as exc:
             raise StageError(f"repository symlink target escapes the source: {relative}") from exc
-        if _is_excluded_path(resolved_relative) and resolved_relative not in paths:
+        except (OSError, RuntimeError) as exc:
+            raise StageError(f"repository symlink target cannot be resolved: {relative}") from exc
+        if resolved_relative not in included_closure:
             raise StageError(f"repository symlink target is excluded from the stage: {relative}")
-    return tuple(sorted(paths, key=lambda path: os.fsencode(path.as_posix())))
+    return paths
 
 
 def _entry_identity(path: Path) -> dict[str, object]:

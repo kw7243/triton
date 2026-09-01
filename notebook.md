@@ -1075,3 +1075,16 @@ scheduler snapshot      4eff2bec9d637d005f2b165610f17fde4cd08623b1fa1ce4e3f74dfc
 The strict outcome is failure. The libdevice remedy is validated and retained,
 but this task has no remaining retry authority and did not obtain the requested
 fresh Phase A GPU evidence.
+
+### 2026-09-01 review correction — executable libdevice regression
+
+The Gate 2 closure/`KeyError` paragraph above is preserved as historical audit
+text but is superseded as regression evidence. The final GPU-free regression no
+longer inspects `co_freevars`; it invokes the synthetic executable kernel body.
+With the exact parent implementation, that invocation reaches
+`tl.extra.libdevice.rint` while the synthetic Triton 3.4 `extra` namespace has
+no `libdevice` attribute and fails with the original recorded `AttributeError`.
+With the compatibility fix, the explicit supported import binds the interface,
+the invocation calls `libdevice.rint` once, and both kernel stores execute.
+This correction does not change the strict failed r2 outcome or authorize a
+retry.

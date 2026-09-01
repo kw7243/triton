@@ -185,6 +185,21 @@ class RepositoryStageTest(unittest.TestCase):
 
                 self.assertFalse(stage.exists())
 
+    def test_refuses_symlink_that_leaves_and_reenters_source(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source"
+            stage = root / "stage"
+            _init_repository(source)
+            (source / "config-data").write_text("source config\n", encoding="utf-8")
+            (root / "bridge").symlink_to("source/config-data")
+            (source / "config").symlink_to("../bridge")
+
+            with self.assertRaisesRegex(StageError, "escapes the source"):
+                stage_repository(source, stage)
+
+            self.assertFalse(stage.exists())
+
 
 if __name__ == "__main__":
     unittest.main()
