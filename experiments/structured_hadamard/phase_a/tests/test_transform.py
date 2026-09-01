@@ -160,7 +160,34 @@ class TransformContractTest(unittest.TestCase):
         self.assertEqual(quantized[:6], [7.0, -7.0, 4.0, -4.0, 2.0, -2.0])
         self.assertTrue(all(A4_QMIN * scale <= value <= A4_QMAX * scale for value in quantized))
 
-    def test_triton_34_libdevice_import_contract_without_gpu(self):
+        tie_row = [1.0, 0.5] + [0.0] * (D_FF - 2)
+        tie_quantized, tie_scale = quantize_row_reference(tie_row)
+        self.assertEqual(tie_quantized[1], 4 * tie_scale)
+
+    def test_triton_34_libdevice_import_and_tie_rounding_without_gpu(self):
+        class Float32:
+
+            def __init__(self, value):
+                self.value = struct.unpack("f", struct.pack("f", float(value)))[0]
+
+            def __float__(self):
+                return self.value
+
+            def __abs__(self):
+                return Float32(abs(self.value))
+
+            def __gt__(self, other):
+                return self.value > float(other)
+
+            def __mul__(self, other):
+                return Float32(self.value * float(other))
+
+            def __rmul__(self, other):
+                return Float32(float(other) * self.value)
+
+            def __truediv__(self, other):
+                return Float32(self.value / float(other))
+
         triton = types.ModuleType("triton")
         language = types.ModuleType("triton.language")
         extra = types.ModuleType("triton.language.extra")
@@ -174,23 +201,23 @@ class TransformContractTest(unittest.TestCase):
 
         offsets = mock.MagicMock()
         offsets.__lt__.return_value = object()
-        values = mock.MagicMock()
-        absmax = mock.MagicMock()
-        absmax.__gt__.return_value = object()
-        scale = mock.MagicMock()
+        values = Float32(0.5)
         language.constexpr = object()
         language.float32 = object()
         language.program_id = mock.Mock(return_value=0)
         language.arange = mock.Mock(return_value=offsets)
         language.load = mock.Mock()
         language.load.return_value.to.return_value = values
-        language.abs = mock.Mock(return_value=mock.MagicMock())
-        language.max = mock.Mock(return_value=absmax)
-        language.where = mock.Mock(return_value=scale)
-        language.minimum = mock.Mock(return_value=mock.MagicMock())
-        language.maximum = mock.Mock(return_value=mock.MagicMock())
+        language.abs = mock.Mock(side_effect=abs)
+        language.max = mock.Mock(return_value=Float32(1.0))
+        language.where = mock.Mock(side_effect=lambda condition, when_true, when_false:
+                                   when_true if condition else when_false)
+        language.minimum = mock.Mock(side_effect=lambda left, right:
+                                     left if float(left) <= float(right) else right)
+        language.maximum = mock.Mock(side_effect=lambda left, right:
+                                     left if float(left) >= float(right) else right)
         language.store = mock.Mock()
-        libdevice.rint = mock.Mock(return_value=mock.MagicMock())
+        libdevice.rint = mock.Mock(side_effect=lambda value: Float32(round(float(value))))
 
         modules = {
             "triton": triton,
@@ -208,6 +235,8 @@ class TransformContractTest(unittest.TestCase):
         finally:
             _kernel_bundle.cache_clear()
         libdevice.rint.assert_called_once()
+        self.assertEqual(float(libdevice.rint.call_args.args[0]), 3.5)
+        self.assertAlmostEqual(float(language.store.call_args_list[0].args[1]), 4.0 / 7.0, places=7)
         self.assertEqual(language.store.call_count, 2)
 
     def test_dynamic_per_row_signed_a4_zero_row_is_deterministic(self):

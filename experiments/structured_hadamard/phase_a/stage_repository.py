@@ -78,6 +78,12 @@ def _validate_symlink_target(source: Path, source_path: Path, target: Path,
             raise StageError(f"repository symlink target cannot be resolved: {relative}")
         candidate = current.parent if part == ".." else current / part
         try:
+            candidate_relative = candidate.relative_to(source)
+        except ValueError as exc:
+            raise StageError(f"repository symlink target escapes the source: {relative}") from exc
+        if candidate_relative not in included_closure:
+            raise StageError(f"repository symlink target is excluded from the stage: {relative}")
+        try:
             current = candidate.resolve(strict=True)
             resolved_relative = current.relative_to(source)
         except ValueError as exc:

@@ -252,6 +252,10 @@ def _validate_quant(quant: object) -> dict:
     for key in ("w_group_size", "scale_granularity", "clip", "calibration_dataset"):
         if not isinstance(quant[key], str) or not quant[key] or "UNRESOLVED" in quant[key].upper():
             raise ExecutionRefusal(f"clearance quant.{key} must be resolved")
+    activation_granularities = [component for component in quant["scale_granularity"].split(";")
+                                if component.endswith("-A4")]
+    if activation_granularities != ["dynamic-per-row-A4"]:
+        raise ExecutionRefusal("clearance scale_granularity must select dynamic per-row A4")
     dataset, separator, revision = quant["calibration_dataset"].rpartition("@")
     if not dataset or separator != "@" or not _HEX40.fullmatch(revision):
         raise ExecutionRefusal("calibration_dataset must be name@40-character-commit")

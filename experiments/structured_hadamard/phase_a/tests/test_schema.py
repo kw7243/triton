@@ -32,6 +32,21 @@ class RecordContractTest(unittest.TestCase):
         with self.assertRaisesRegex(ContractError, "non-finite"):
             validate_record(record)
 
+    def test_fixed_integral_fields_require_json_integers(self):
+        cases = (
+            ("model", "d_model", 4096.0),
+            ("quant", "w_bits", 4.0),
+            ("transform", "d", 11008.0),
+            ("workload", "batch", True),
+            ("workload", "input_shape", [True, 11008]),
+        )
+        for section, key, value in cases:
+            with self.subTest(path=f"{section}.{key}"):
+                record = copy.deepcopy(self.records[0])
+                record[section][key] = value
+                with self.assertRaisesRegex(ContractError, "must be an integer"):
+                    validate_record(record)
+
     def test_inconsistent_hfull_factorization_is_rejected(self):
         record = copy.deepcopy(self.records[1])
         record["transform"]["q"] = 128

@@ -219,6 +219,9 @@ class ExecutionProvenanceTest(unittest.TestCase):
             unresolved_calibration = copy.deepcopy(base)
             unresolved_calibration["quant"]["calibration_dataset"] = "UNRESOLVED"
             cases.append((unresolved_calibration, "calibration_dataset|resolved"))
+            static_activation_scale = copy.deepcopy(base)
+            static_activation_scale["quant"]["scale_granularity"] = "per-group-W4;static-per-tensor-A4"
+            cases.append((static_activation_scale, "dynamic per-row A4"))
             float_timing = copy.deepcopy(base)
             float_timing["timing"]["outer_trials"] = 5.0
             cases.append((float_timing, "timing.outer_trials must be an integer"))

@@ -90,6 +90,13 @@ def _integer(value, path: str, *, minimum: int = 0) -> None:
         raise ContractError(f"{path} must be an integer >= {minimum}")
 
 
+def _integer_list(value, path: str, *, length: int) -> None:
+    if not isinstance(value, list) or len(value) != length:
+        raise ContractError(f"{path} must be an integer list of length {length}")
+    for index, item in enumerate(value):
+        _integer(item, f"{path}[{index}]", minimum=1)
+
+
 def _boolean(value, path: str) -> None:
     if type(value) is not bool:
         raise ContractError(f"{path} must be a boolean")
@@ -143,6 +150,7 @@ def _validate_transform(transform) -> None:
     _require_exact_keys(transform, _TRANSFORM, "transform")
     if transform["id"] not in TRANSFORM_IDS:
         raise ContractError(f"transform.id must be one of {TRANSFORM_IDS}")
+    _integer(transform["d"], "transform.d", minimum=1)
     if transform["d"] != D_FF:
         raise ContractError(f"transform.d must be {D_FF}")
     for key, expected in {
@@ -162,6 +170,7 @@ def _validate_transform(transform) -> None:
             raise ContractError("identity must be labeled as host-no-launch with identity normalization")
     elif transform_id in ("H32", "H128"):
         block_size = int(transform_id[1:])
+        _integer(transform["block_size"], "transform.block_size", minimum=1)
         if transform["block_size"] != block_size or D_FF % block_size:
             raise ContractError(f"{transform_id} requires exact contiguous blocks dividing {D_FF}")
         if any(transform[key] is not None for key in ("K", "q", "matrix_digest")):
@@ -171,6 +180,8 @@ def _validate_transform(transform) -> None:
     else:
         if transform["block_size"] is not None:
             raise ContractError("Hfull must not be labeled as a block transform")
+        _integer(transform["K"], "transform.K", minimum=1)
+        _integer(transform["q"], "transform.q", minimum=1)
         if transform["K"] != FULL_K or transform["q"] != FULL_Q or transform["K"] * transform["q"] != D_FF:
             raise ContractError("Hfull must use the exact 11008=172x64 factorization")
         if transform["q"] & (transform["q"] - 1):
@@ -280,6 +291,8 @@ def validate_record(record) -> dict:
     model = record["model"]
     for key in ("id", "revision"):
         _string(model[key], f"model.{key}")
+    for key in ("d_model", "d_ff", "n_layers"):
+        _integer(model[key], f"model.{key}", minimum=1)
     if model["id"] != "meta-llama/Llama-2-7b-hf" or model["d_model"] != D_MODEL or model["d_ff"] != D_FF:
         raise ContractError("model identity/dimensions do not match the first-model contract")
     if model["n_layers"] != 32:
@@ -289,6 +302,8 @@ def validate_record(record) -> dict:
 
     _require_exact_keys(record["quant"], _QUANT, "quant")
     quant = record["quant"]
+    _integer(quant["w_bits"], "quant.w_bits", minimum=1)
+    _integer(quant["a_bits"], "quant.a_bits", minimum=1)
     if quant["w_bits"] != 4 or quant["a_bits"] != 4:
         raise ContractError("Phase A quant identity must be W4A4")
     for key in ("w_group_size", "a_group_size", "scale_granularity", "clip", "calibration_dataset"):
@@ -318,6 +333,11 @@ def validate_record(record) -> dict:
 
     _require_exact_keys(record["workload"], _WORKLOAD, "workload")
     workload = record["workload"]
+    _integer_list(workload["input_shape"], "workload.input_shape", length=2)
+    _integer_list(workload["weight_shape"], "workload.weight_shape", length=2)
+    for key in ("batch", "prompt_tokens", "output_tokens"):
+        _integer(workload[key], f"workload.{key}", minimum=1)
+    _integer(workload["seed"], "workload.seed")
     if workload["mode"] != "decode" or workload["input_shape"] != [1, D_FF]:
         raise ContractError("Phase A starts with the exact batch-1 decode shape [1, 11008]")
     if workload["weight_shape"] != [D_MODEL, D_FF]:

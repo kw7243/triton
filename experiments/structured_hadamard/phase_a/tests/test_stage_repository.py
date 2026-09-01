@@ -185,6 +185,22 @@ class RepositoryStageTest(unittest.TestCase):
 
                 self.assertFalse(stage.exists())
 
+    def test_refuses_symlink_through_excluded_component(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source"
+            stage = root / "stage"
+            _init_repository(source)
+            (source / "data").mkdir()
+            (source / "data" / "config").write_text("included config\n", encoding="utf-8")
+            (source / "outputs" / "bridge").symlink_to("../data/config")
+            (source / "config").symlink_to("outputs/bridge")
+
+            with self.assertRaisesRegex(StageError, "excluded from the stage"):
+                stage_repository(source, stage)
+
+            self.assertFalse(stage.exists())
+
     def test_refuses_symlink_that_leaves_and_reenters_source(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
