@@ -239,6 +239,10 @@ class ExecutionProvenanceTest(unittest.TestCase):
             with self.assertRaisesRegex(ExecutionRefusal, "mode 0600"):
                 load_authorization(path, stage)
             path.chmod(0o600)
+            symlink_path = root / "clearance-link.json"
+            symlink_path.symlink_to(path)
+            with self.assertRaisesRegex(ExecutionRefusal, "regular non-symlink"):
+                load_authorization(symlink_path, stage)
             output.mkdir()
             with self.assertRaisesRegex(ExecutionRefusal, "overwrite"):
                 load_authorization(path, stage)

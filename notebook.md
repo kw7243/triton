@@ -1030,15 +1030,8 @@ terminal_events_handled=1
 
 The tmux owner is absent and the registered wait is retired. There is no job
 ID, partition assignment, node, CUDA visibility record, GPU identity, untimed
-A4 hardware result, driver output, raw sample, or timing summary. All four rows
-are unproduced:
-
-| Timing identity | Transform | Samples | Summary |
-|---|---|---:|---|
-| transform-only | I | not produced | not produced |
-| transform-only | Hfull | not produced | not produced |
-| transform+quantize | I | not produced | not produced |
-| transform+quantize | Hfull | not produced | not produced |
+A4 hardware result, driver output, raw sample, or timing summary. No timing rows
+were produced.
 
 The same-device `Hfull` versus `I` sequential transform-plus-quantize overhead
 and the plan's `>=5%` important-kernel gate are **not evaluated**. The identity

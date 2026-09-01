@@ -279,15 +279,34 @@ def load_authorization(path: str | os.PathLike[str], stage: StageIdentity) -> Au
     clearance_path = Path(path)
     if not clearance_path.is_absolute():
         raise ExecutionRefusal("scheduler clearance file path must be absolute")
-    clearance_path = clearance_path.resolve(strict=True)
-    if _inside(clearance_path, stage.root):
-        raise ExecutionRefusal("scheduler clearance must be outside the immutable stage")
-    mode = clearance_path.lstat().st_mode
-    if not stat.S_ISREG(mode) or clearance_path.is_symlink():
+    try:
+        submitted_status = clearance_path.lstat()
+    except OSError as error:
+        raise ExecutionRefusal("scheduler clearance file is not accessible") from error
+    if not stat.S_ISREG(submitted_status.st_mode):
         raise ExecutionRefusal("scheduler clearance must be a regular non-symlink file")
-    if clearance_path.stat().st_uid != os.geteuid() or stat.S_IMODE(mode) != 0o600:
-        raise ExecutionRefusal("scheduler clearance must be owned by the executing uid with mode 0600")
-    clearance_bytes = clearance_path.read_bytes()
+    try:
+        descriptor = os.open(clearance_path, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW)
+    except OSError as error:
+        raise ExecutionRefusal("scheduler clearance must be a regular non-symlink file") from error
+    with os.fdopen(descriptor, "rb") as clearance_file:
+        opened_status = os.fstat(clearance_file.fileno())
+        submitted_identity = (submitted_status.st_dev, submitted_status.st_ino)
+        opened_identity = (opened_status.st_dev, opened_status.st_ino)
+        if not stat.S_ISREG(opened_status.st_mode) or opened_identity != submitted_identity:
+            raise ExecutionRefusal("scheduler clearance changed while being opened")
+        try:
+            resolved_path = clearance_path.resolve(strict=True)
+            resolved_status = resolved_path.stat()
+        except (OSError, RuntimeError) as error:
+            raise ExecutionRefusal("scheduler clearance changed while being opened") from error
+        if (resolved_status.st_dev, resolved_status.st_ino) != opened_identity:
+            raise ExecutionRefusal("scheduler clearance changed while being opened")
+        if _inside(resolved_path, stage.root):
+            raise ExecutionRefusal("scheduler clearance must be outside the immutable stage")
+        if opened_status.st_uid != os.geteuid() or stat.S_IMODE(opened_status.st_mode) != 0o600:
+            raise ExecutionRefusal("scheduler clearance must be owned by the executing uid with mode 0600")
+        clearance_bytes = clearance_file.read()
     value = _load_json_bytes(clearance_bytes, "scheduler clearance")
     _exact_keys(value, _CLEARANCE_KEYS, "scheduler clearance")
     if value["schema_version"] != CLEARANCE_SCHEMA_VERSION or value["scheduler_clearance"] is not True:
