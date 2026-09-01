@@ -591,3 +591,69 @@ The 62-entry evidence checksum manifest is mode 0600 with SHA-256
 No scheduler job, protected job `1579631`, active CNVQ owner/job, push, PR,
 merge, force, retry, cancellation, requeue, model/PPL/end-to-end path, Phase
 B/C path, or H32/H128 GPU path was touched.
+
+## 2026-09-01 — Compatible-GPU relaunch
+
+The captain revised `rot-phasea-kernel-profile-r1` to accept any currently
+available suitable Torralba GPU, dynamically choosing the smallest adequate
+and least scarce compatible accelerator. The required branch remains
+`fm/structured-hadamard-phase-a-kernel-profile-r1`; its exact intake parent is
+`21ea761c61a5e3062cea28cabda43ac04bd5278b`, and
+`d57acb60db2a4507bbff984fb3c9771e8a6ada3d` is an ancestor of that parent.
+The prior RTX-3090-only availability source fired, was handled, and retired;
+both allocation ledgers remain `salloc_attempts=0` and `srun_attempts=0`.
+
+The prior immutable stage and clearance remain preserved evidence but are not
+eligible for this relaunch: their output identity and clearance were bound to
+SM86 before the actual accelerator could be selected. The relaunch therefore
+requires a new clean commit, a fresh full independent repository stage, a new
+owner-only clearance bound to the selected GPU request and output, and a new
+single persistent owner/process-event source. The accepted driver itself is
+architecture-generic at its boundary: it selects an explicit `cuda:N`, records
+the observed device compute capability, and contains no RTX-3090/SM86
+assertion. Actual compatibility still must be proved inside the sole
+allocation before the one driver invocation.
+
+The scientific boundary is unchanged: measure exactly `I` and `Hfull` for
+`transform-only` and sequential `transform+quantize`, with `fusion="none"`.
+`H32` and `H128` remain CPU/reference-only. The result, if obtained, is
+synthetic kernel evidence with `scientific_evidence=false`, not model, PPL, or
+end-to-end evidence. The important-kernel gate applies only to same-device
+`Hfull` versus `I` transform-plus-quantize overhead. A non-RTX-3090 result
+cannot establish RTX-3090-specific latency or generalize the cost gate across
+architectures.
+
+Bounded CPU/static validation for the revised pre-run contract completed from
+the source worktree before staging:
+
+```text
+PYTHONDONTWRITEBYTECODE=1 python3 -m compileall -q experiments/structured_hadamard/phase_a
+  -> passed
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s experiments/structured_hadamard/phase_a/tests -v
+  -> 37 tests passed in 3.224 seconds
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_execute -v
+  -> 7 tests passed in 1.444 seconds
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_stage_repository -v
+  -> 3 tests passed in 0.688 seconds
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_schema -v
+  -> 13 tests passed in 0.032 seconds
+PYTHONDONTWRITEBYTECODE=1 python3 -m experiments.structured_hadamard.phase_a.oracle \
+  --seed 0 --token-rows 2 --weight-rows 3
+  -> all I/H32/H128/Hfull CPU/reference checks passed; maximum absolute error
+     3.1086244689504383e-15; not scientific evidence
+PYTHONDONTWRITEBYTECODE=1 python3 -m experiments.structured_hadamard.phase_a.preflight \
+  --scheduler-clearance=false --format=jsonl \
+  --result-jsonl /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-kernel-profile-r1/outputs/phase-a.jsonl
+  -> exactly four I/Hfull rows; no CUDA import or GPU work
+PYTHONDONTWRITEBYTECODE=1 python3 -m experiments.structured_hadamard.phase_a.preflight \
+  --scheduler-clearance=false --execute
+  -> refused with exit status 2
+PYTHONDONTWRITEBYTECODE=1 python3 -m experiments.structured_hadamard.phase_a.execute \
+  --scheduler-clearance-file /tmp/rot-phasea-kernel-profile-r1-clearance-missing
+  -> refused with exit status 2 before Torch/Triton import
+git diff --check
+  -> passed
+```
+
+`make` was not run because the relaunch changes only this notebook. No CUDA,
+GPU, model, dataset, or scheduler operation was performed by these gates.
