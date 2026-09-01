@@ -1,0 +1,57 @@
+recorded_at_utc=2026-09-01T22:04:49Z
+stage_audit.py: OK
+ledger.py: OK
+gpu_preflight.py: OK
+gpu-payload.sh: OK
+srun-owner.sh: OK
+allocation-owner.sh: OK
+remote-attempt.sh: OK
+700 28131 kwen1 nogroup 7358 stage_audit.py
+700 28131 kwen1 nogroup 795 ledger.py
+700 28131 kwen1 nogroup 4794 gpu_preflight.py
+700 28131 kwen1 nogroup 4022 gpu-payload.sh
+700 28131 kwen1 nogroup 428 srun-owner.sh
+700 28131 kwen1 nogroup 641 allocation-owner.sh
+700 28131 kwen1 nogroup 1499 remote-attempt.sh
+600 28131 kwen1 nogroup 571 helper-sha256sums.txt
+600 28131 kwen1 nogroup 5585 launch-contract.md
+600 28131 kwen1 nogroup 1539 clearance.json
+600 28131 kwen1 nogroup 138 ledgers.json
+700 28131 kwen1 nogroup 38 /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/stage/20260901T214700Z-48a972220979-code
+700 28131 kwen1 nogroup 2 /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/outputs
+{"driver_invocations": 0, "salloc_attempts": 0, "srun_attempts": 0, "terminal_events_fired": 0, "terminal_events_handled": 0}
+{
+  "entry_count": 1757,
+  "git_dir": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/stage/20260901T214700Z-48a972220979-code/.git",
+  "head": "48a972220979197359a324ab102eb8de24ce321f",
+  "key_files": {
+    "experiments/structured_hadamard/phase_a/activation_quantizer.py": {
+      "mode": "0o600",
+      "sha256": "e97278b3588e2fc6a48c873156e02efee2336d8077a19085ddba4cc57710e93a",
+      "size": 4505
+    },
+    "experiments/structured_hadamard/phase_a/execute.py": {
+      "mode": "0o600",
+      "sha256": "d70ad3ea54c127fbd717ed0886adbbf20d03840264ae98fcf10ef8991a0937d7",
+      "size": 37753
+    },
+    "experiments/structured_hadamard/phase_a/stage_repository.py": {
+      "mode": "0o600",
+      "sha256": "73eb9ec4060fb0a71211984642a749e423ec541dd8a44f261e4ca075ddaa2c40",
+      "size": 17271
+    }
+  },
+  "manifest_file_sha256": "d5096b74326048d4ddb84607ffe43552a4372fdd715aa7ff4d1de75346c2a233",
+  "manifest_sha256": "e54ce37b0f14838731f6458631801e9e2130b66589e6beca27b5a1d615ce903e",
+  "metadata_sha256": "d446d626eaea2ba6b03ee0963d19e7bde87c413a8155b62c32394b97b3fc95da",
+  "schema_version": "rot-phasea-corrected-stage-audit-v1",
+  "stage": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/stage/20260901T214700Z-48a972220979-code",
+  "status": [
+    "?? REPRODUCIBILITY_MANIFEST.json",
+    "?? REPRODUCIBILITY_METADATA.json"
+  ],
+  "tree": "ba5f873fb9c2defa7b3af15b971cf5fb8d3092fb"
+}
+/usr/bin/salloc
+/usr/bin/srun
+PRELAUNCH_AUDIT=PASS

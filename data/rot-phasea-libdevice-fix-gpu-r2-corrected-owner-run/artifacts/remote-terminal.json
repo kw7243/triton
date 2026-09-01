@@ -1,0 +1,12 @@
+{
+  "ledgers": {
+    "driver_invocations": 1,
+    "salloc_attempts": 1,
+    "srun_attempts": 1,
+    "terminal_events_fired": 1,
+    "terminal_events_handled": 0
+  },
+  "recorded_at_utc": "2026-09-01T22:06:20.401919+00:00",
+  "remote_attempt_exit": 0,
+  "schema_version": "rot-phasea-corrected-terminal-event-v1"
+}

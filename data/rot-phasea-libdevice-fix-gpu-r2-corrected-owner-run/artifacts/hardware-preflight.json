@@ -1,0 +1,70 @@
+{
+  "clearance_sha256": "fec5407404af09cfad8eb3eabb5ff7fb5b62bc20adf92da7d45d7bc7f3c1f402",
+  "cuda_visible_devices": "0",
+  "fixed_input": {
+    "dtype": "torch.float16",
+    "seed": 0,
+    "shape": [
+      1,
+      11008
+    ]
+  },
+  "gpu": {
+    "compute_capability": [
+      8,
+      6
+    ],
+    "multiprocessor_count": 82,
+    "name": "NVIDIA GeForce RTX 3090",
+    "total_memory_bytes": 25296044032
+  },
+  "modules": {
+    "activation_quantizer": {
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/stage/20260901T214700Z-48a972220979-code/experiments/structured_hadamard/phase_a/activation_quantizer.py",
+      "sha256": "e97278b3588e2fc6a48c873156e02efee2336d8077a19085ddba4cc57710e93a",
+      "size": 4505
+    },
+    "python": {
+      "path": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+      "sha256": "fa10ee8f4c18e62cbd1e467c156a228be45138bd537b9949e66fc8e5937a018e",
+      "size": 17331920
+    },
+    "torch": {
+      "path": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages/torch/__init__.py",
+      "sha256": "2f0deb66d5dff6b9c02a62832c3bf3824c2ee031c462a3afeb9ca170466da5bf",
+      "size": 102960
+    },
+    "triton": {
+      "path": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages/triton/__init__.py",
+      "sha256": "08441d399eb32c7b84546a09ee497663071f04120f064390cf30e31ebea26ce3",
+      "size": 1464
+    }
+  },
+  "recorded_at_utc": "2026-09-01T22:06:07.718856+00:00",
+  "schema_version": "rot-phasea-corrected-gpu-preflight-v1",
+  "slurm": {
+    "account": "vision-torralba-urops-meng",
+    "cpus_per_task": "2",
+    "job_id": "1660871",
+    "mem_per_node": "8192",
+    "partition": "vision-torralba-rtx3090",
+    "qos": "vision-torralba-interactive"
+  },
+  "stage_head": "48a972220979197359a324ab102eb8de24ce321f",
+  "stage_manifest_sha256": "e54ce37b0f14838731f6458631801e9e2130b66589e6beca27b5a1d615ce903e",
+  "synchronized_cuda_tensor_value": 2.0,
+  "torch_cuda_device_count": 1,
+  "untimed_a4_correctness": {
+    "max_abs_error": 0.0008370535714283811,
+    "passed": true,
+    "reference_scale": 0.6043526785714286,
+    "relative_error": 0.00022564938232343555,
+    "rounding": "nearest-even"
+  },
+  "versions": {
+    "python": "3.10.20 | packaged by conda-forge | (main, Jun 11 2026, 03:31:56) [GCC 14.3.0]",
+    "torch": "2.8.0+cu128",
+    "torch_cuda": "12.8",
+    "triton": "3.4.0"
+  }
+}

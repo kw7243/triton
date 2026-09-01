@@ -1124,3 +1124,100 @@ Git also proved exact failed-run evidence commit
 validated head. This closeout entry is the only post-validation repository
 change and is committed locally on top of `9ab3c7cb`; it does not alter the
 validated source or authorize the corrected GPU attempt.
+
+## 2026-09-01 — Corrected Phase A GPU owner attempt
+
+Status: `completed`. Local-only branch
+`fm/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run` began clean at
+`f893845b9b91599ebd3b7a9c7f28164f39c7ed94` and advanced by strict
+fast-forward to validated source/driver/transform commit
+`48a972220979197359a324ab102eb8de24ce321f`, tree
+`ba5f873fb9c2defa7b3af15b971cf5fb8d3092fb`. The source bundle SHA-256 is
+`878cf8e836c37dced945677daaf3b1f33a3ecd38ab50f1d47c3c74a87860d5ae`.
+
+The GPU-free Triton 3.4.0 remedy reconfirmation passed on
+`slurm-login-0.csail.mit.edu`: the unsupported root attribute remained absent,
+the explicit supported libdevice import exposed `rint`, the focused executable
+test and real fixed-kernel dependency cache key passed, and Torch/CUDA runtime
+modules remained unimported. The log SHA-256 is
+`84fa6036177c14dcc94c838618eb922ebca61da691a2d9f1fa19e841d2e920d3`.
+
+The fresh complete stage is:
+
+```text
+/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/stage/20260901T214700Z-48a972220979-code
+```
+
+Its ordinary independent `.git`, exact head/tree, full connectivity, 1,757
+input identities, and only-two-control-file status passed independent and
+driver verification. Canonical manifest, manifest-file, and metadata SHA-256
+values are respectively
+`e54ce37b0f14838731f6458631801e9e2130b66589e6beca27b5a1d615ce903e`,
+`d5096b74326048d4ddb84607ffe43552a4372fdd715aa7ff4d1de75346c2a233`,
+and `d446d626eaea2ba6b03ee0963d19e7bde87c413a8155b62c32394b97b3fc95da`.
+Clearance and execution-config SHA-256 values are
+`fec5407404af09cfad8eb3eabb5ff7fb5b62bc20adf92da7d45d7bc7f3c1f402`
+and `d9b0171c40414616dff003cd407677a4d0e71bca38b32f10d8e847a9ca6cc26c`.
+
+All pre-scheduler audit errors failed closed with zero ledgers and unchanged
+stage/helper bytes. Preserved logs cover the initial bundle-verification cwd
+error, two static-authorization snippet errors, and three launch-audit count or
+`grep` errors. The final prelaunch audit passed at `2026-09-01T22:04:49Z`.
+The dynamic allowed-Torralba snapshot found free 24 GiB RTX 3090 and 32 GiB
+V100 capacity while H100/H200 GPUs were fully allocated, so RTX 3090 was the
+smallest adequate available class. The request estimated eight active minutes
+and used a 20-minute limit for a 12-minute buffer.
+
+One tmux-owned ControlMaster, one allocation/run owner, one `salloc`, one
+`srun --pty`, one scientific driver invocation, and one terminal event source
+produced job `1660871`. It ran on `torralba-3090-1`, partition
+`vision-torralba-rtx3090`, with one task/GPU, two CPUs, 8 GiB, account
+`vision-torralba-urops-meng`, and QoS `vision-torralba-interactive`. The one
+visible device was NVIDIA GeForce RTX 3090, SM86, UUID
+`GPU-a8af9c30-bfc9-01c8-4e1d-f0ddbc789706`, 24,576 MiB, driver `580.178.04`,
+with `CUDA_VISIBLE_DEVICES=0`, Torch `2.8.0+cu128`, CUDA 12.8, and Triton 3.4.0.
+Untimed fixed A4 correctness passed before the driver. Final accounting is
+`COMPLETED`, `ExitCode=0:0`, elapsed 22 seconds.
+
+The four synchronized rows use 25 ms warmup, 200 ms repetition, and five
+outer trials:
+
+```text
+transform-only I       p10=0.0000 us   median=0.0000 us   p90=0.0000 us
+transform-only Hfull   p10=9.4144 us   median=10.2400 us  p90=11.2640 us
+sequential T+Q I       p10=4.0960 us   median=5.1200 us   p90=5.1200 us
+sequential T+Q Hfull   p10=12.5760 us  median=13.3120 us  p90=13.4080 us
+```
+
+The same-device sequential `Hfull` versus `I` overhead is
+`160.0000036379789%`, so the plan's `>=5%` important-kernel threshold is met
+on this exact RTX 3090 stack. All rows record `fusion="none"`;
+`H32`/`H128` remain CPU/reference-only. This is synthetic non-model/non-PPL
+evidence with `scientific_evidence=false` and no fused, model, PPL, end-to-end,
+Phase B/C, or cross-architecture claim.
+
+Final one-shot ledgers are `salloc=1`, `srun=1`, `driver=1`,
+`terminal_fired=1`, and `terminal_handled=1`. The event was consumed, and the
+route/tmux session retired at `2026-09-01T22:11:36Z`. No `sbatch`, retry,
+requeue, cancellation, second owner, duplicate driver, push, PR, or merge ran;
+protected job `1579631`, active CNVQ work, and all prior evidence were untouched.
+
+Durable evidence is rooted at:
+
+```text
+/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979
+```
+
+The 47-entry evidence manifest SHA-256 is
+`f355e913a6d2230ffd10a88afee09d9794e1d2a96f0af4184e134a7e1f648020`.
+Result JSONL, raw samples, execution manifest, GPU log, tmux log, terminal
+accounting, and corrected result-audit SHA-256 values are respectively
+`00ce50472f3690ddaffdf79cac06ab78a53b7be52d3e7f4c445f5c130084236a`,
+`a4950eb79de4ac52718af0e304ee18349d41204f796f53d2418bb2845693f5c0`,
+`083a216994cee6695596f255de3d22997fe3e65b0483b116ee23edd3c067fc56`,
+`8d0bd0c9d33600bcf1ef6618fe9643441c92700398da641a539180dfac067e20`,
+`8f31394170b07b594abe456cfdd50fc8ec0f1099f0b55579aa25b8a0b05c742b`,
+`778e329615b9944b812e36ac1074a363204168c7fb00282e94f62432d73e3d6f`,
+and `e19516943c61886d31418fbd3de7bba71d2ed18e14e4dc149a2bb7dfa7e69e33`.
+The concise report and exact local artifact copies are under
+`data/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/`.

@@ -1,0 +1,35 @@
+{
+  "clearance_id": "rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run-20260901T214700Z",
+  "clock_policy": "default-unmodified; no clock control requested",
+  "device": "cuda:0",
+  "driver_commit": "48a972220979197359a324ab102eb8de24ce321f",
+  "model_revision": "01c7f73d771dfac7d292323805ebc428287df4f9",
+  "output_directory": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/outputs/phase-a-48a972220979",
+  "owner": "kwen1",
+  "owner_uid": 28131,
+  "quant": {
+    "a_bits": 4,
+    "a_group_size": "per-row",
+    "a_symmetric": true,
+    "calibration_dataset": "Salesforce/wikitext@b08601e04326c79dfdd32d625aee71d232d685c3",
+    "calibration_rows": 8192,
+    "calibration_seed": 0,
+    "clip": "none",
+    "scale_granularity": "per-group-W4;dynamic-per-row-A4",
+    "w_bits": 4,
+    "w_group_size": "128",
+    "w_symmetric": true
+  },
+  "scheduler_clearance": true,
+  "schema_version": "phase-a-scheduler-clearance-v1",
+  "site_layer": 0,
+  "source_commit": "48a972220979197359a324ab102eb8de24ce321f",
+  "stage_manifest_sha256": "e54ce37b0f14838731f6458631801e9e2130b66589e6beca27b5a1d615ce903e",
+  "stage_root": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/stage/20260901T214700Z-48a972220979-code",
+  "timing": {
+    "outer_trials": 5,
+    "repetition_ms": 200,
+    "warmup_ms": 25
+  },
+  "transform_commit": "48a972220979197359a324ab102eb8de24ce321f"
+}

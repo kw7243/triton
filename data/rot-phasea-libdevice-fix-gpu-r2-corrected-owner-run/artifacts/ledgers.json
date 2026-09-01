@@ -1,0 +1,7 @@
+{
+  "driver_invocations": 1,
+  "salloc_attempts": 1,
+  "srun_attempts": 1,
+  "terminal_events_fired": 1,
+  "terminal_events_handled": 1
+}

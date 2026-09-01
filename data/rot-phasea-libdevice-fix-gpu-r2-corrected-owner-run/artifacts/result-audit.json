@@ -1,0 +1,29 @@
+{
+  "composition": "sequential-transform-then-quantize",
+  "execution_manifest_sha256": "083a216994cee6695596f255de3d22997fe3e65b0483b116ee23edd3c067fc56",
+  "fusion": "none",
+  "hfull_vs_i_transform_quantize_overhead_percent": 160.0000036379789,
+  "important_kernel_gate_met": true,
+  "important_kernel_threshold_percent": 5.0,
+  "measured_transforms": [
+    "I",
+    "Hfull"
+  ],
+  "raw_sample_counts": {
+    "Hfull:transform+quantize": 3160,
+    "Hfull:transform-only": 2633,
+    "I:transform+quantize": 3238,
+    "I:transform-only": 0
+  },
+  "raw_samples_jsonl_sha256": "a4950eb79de4ac52718af0e304ee18349d41204f796f53d2418bb2845693f5c0",
+  "record_jsonl_sha256": "00ce50472f3690ddaffdf79cac06ab78a53b7be52d3e7f4c445f5c130084236a",
+  "rows": 4,
+  "schema_version": "rot-phasea-corrected-result-audit-v1",
+  "scientific_evidence": false,
+  "status": "PASS",
+  "synthetic_non_model_non_ppl": true,
+  "transform_quantize_medians_us": {
+    "Hfull": 13.311999849975109,
+    "I": 5.119999870657921
+  }
+}

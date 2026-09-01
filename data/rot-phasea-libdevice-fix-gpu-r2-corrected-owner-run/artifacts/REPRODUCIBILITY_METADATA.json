@@ -1,0 +1,35 @@
+{
+  "command": [
+    "git",
+    "rev-parse",
+    "--verify",
+    "HEAD^{commit}"
+  ],
+  "default_exclusions": {
+    "directory_names_at_any_depth": [
+      ".cache",
+      "__pycache__",
+      ".pytest_cache",
+      ".mypy_cache",
+      ".ruff_cache",
+      ".venv",
+      "venv"
+    ],
+    "root_directories": [
+      "staging",
+      "out",
+      "outputs",
+      "eval_outputs",
+      "slurm_outputs",
+      "wandb"
+    ]
+  },
+  "schema_version": "phase-a-repository-stage-v3",
+  "source_git_common_dir": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/source-48a972220979/.git",
+  "source_head": "48a972220979197359a324ab102eb8de24ce321f",
+  "staged_git_common_dir": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/stage/20260901T214700Z-48a972220979-code/.git",
+  "tracked_and_untracked_entries": 1757,
+  "working_tree_manifest": "REPRODUCIBILITY_MANIFEST.json",
+  "working_tree_manifest_file_sha256": "d5096b74326048d4ddb84607ffe43552a4372fdd715aa7ff4d1de75346c2a233",
+  "working_tree_manifest_sha256": "e54ce37b0f14838731f6458631801e9e2130b66589e6beca27b5a1d615ce903e"
+}

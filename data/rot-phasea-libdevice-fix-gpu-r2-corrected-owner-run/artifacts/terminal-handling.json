@@ -1,0 +1,13 @@
+{
+  "handled_at_utc": "2026-09-01T22:06:52.929527+00:00",
+  "ledgers": {
+    "driver_invocations": 1,
+    "salloc_attempts": 1,
+    "srun_attempts": 1,
+    "terminal_events_fired": 1,
+    "terminal_events_handled": 1
+  },
+  "local_event_sha256": "ab318c16533e2b532ec5de8aa495ad65fc42737497260f91efafc6c8739826b2",
+  "remote_terminal_sha256": "a744e7410db5f34194651cd9c5c2efd9e90fba573185f68a75abc1a3ddfc8ddb",
+  "schema_version": "rot-phasea-corrected-terminal-handling-v1"
+}

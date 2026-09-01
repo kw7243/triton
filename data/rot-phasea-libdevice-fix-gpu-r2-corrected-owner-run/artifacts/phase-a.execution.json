@@ -1,0 +1,17 @@
+{
+  "clearance_id": "rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run-20260901T214700Z",
+  "clearance_sha256": "fec5407404af09cfad8eb3eabb5ff7fb5b62bc20adf92da7d45d7bc7f3c1f402",
+  "driver_commit": "48a972220979197359a324ab102eb8de24ce321f",
+  "execution_config_sha256": "d9b0171c40414616dff003cd407677a4d0e71bca38b32f10d8e847a9ca6cc26c",
+  "raw_samples_jsonl": "phase-a.raw-samples.jsonl",
+  "raw_samples_jsonl_sha256": "a4950eb79de4ac52718af0e304ee18349d41204f796f53d2418bb2845693f5c0",
+  "record_jsonl": "phase-a.jsonl",
+  "record_jsonl_sha256": "00ce50472f3690ddaffdf79cac06ab78a53b7be52d3e7f4c445f5c130084236a",
+  "schema_version": "phase-a-execution-output-v1",
+  "scientific_evidence": false,
+  "source_commit": "48a972220979197359a324ab102eb8de24ce321f",
+  "stage_manifest_sha256": "e54ce37b0f14838731f6458631801e9e2130b66589e6beca27b5a1d615ce903e",
+  "stage_metadata_sha256": "d446d626eaea2ba6b03ee0963d19e7bde87c413a8155b62c32394b97b3fc95da",
+  "synthetic_non_model_non_ppl": true,
+  "transform_commit": "48a972220979197359a324ab102eb8de24ce321f"
+}

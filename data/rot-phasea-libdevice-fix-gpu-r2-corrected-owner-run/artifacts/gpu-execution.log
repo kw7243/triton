@@ -1,0 +1,119 @@
+gpu_payload_started_utc=2026-09-01T22:05:59Z
+hostname=torralba-3090-1.csail.mit.edu
+slurm_job_id=1660871
+slurm_job_partition=vision-torralba-rtx3090
+slurm_job_account=vision-torralba-urops-meng
+slurm_job_qos=vision-torralba-interactive
+slurm_ntasks=1
+slurm_cpus_per_task=2
+slurm_mem_per_node=8192
+cuda_visible_devices=0
+JobId=1660871 JobName=rot-phasea-corrected-owner UserId=kwen1(28131) GroupId=kwen1(28131) MCS_label=N/A Priority=16 Nice=0 Account=vision-torralba-urops-meng QOS=vision-torralba-interactive JobState=RUNNING Reason=None Dependency=(null) Requeue=0 Restarts=0 BatchFlag=0 Reboot=0 ExitCode=0:0 RunTime=00:00:02 TimeLimit=00:20:00 TimeMin=N/A SubmitTime=2026-09-01T18:05:35 EligibleTime=2026-09-01T18:05:35 AccrueTime=2026-09-01T18:05:35 StartTime=2026-09-01T18:05:57 EndTime=2026-09-01T18:25:57 Deadline=N/A PreemptEligibleTime=2026-09-01T18:05:57 PreemptTime=None SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-09-01T18:05:57 Scheduler=Backfill Partition=vision-torralba-rtx3090 AllocNode:Sid=0.0.0.0:2248092 ReqNodeList=(null) ExcNodeList=(null) NodeList=torralba-3090-1 BatchHost=torralba-3090-1 NumNodes=1 NumCPUs=2 NumTasks=1 CPUs/Task=2 ReqB:S:C:T=0:0:*:* ReqTRES=cpu=2,mem=8G,node=1,billing=1002,gres/gpu=1 AllocTRES=cpu=2,mem=8G,node=1,billing=1002,gres/gpu=1 Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=* MinCPUsNode=2 MinMemoryNode=8G MinTmpDiskNode=0 Features=(null) DelayBoot=00:00:00 OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null) Command=/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/run-state/srun-owner.sh WorkDir=/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/run-state TresPerNode=gres/gpu:1 TresPerTask=cpu=2 
+nvidia_smi_list_begin
+GPU 0: NVIDIA GeForce RTX 3090 (UUID: GPU-a8af9c30-bfc9-01c8-4e1d-f0ddbc789706)
+nvidia_smi_list_end
+nvidia_smi_identity_begin
+0, NVIDIA GeForce RTX 3090, GPU-a8af9c30-bfc9-01c8-4e1d-f0ddbc789706, 24576, 580.178.04, 8.6
+nvidia_smi_identity_end
+python_path=/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python
+python_realpath=/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10
+python_sha256=fa10ee8f4c18e62cbd1e467c156a228be45138bd537b9949e66fc8e5937a018e
+stage_head=48a972220979197359a324ab102eb8de24ce321f
+stage_audit.py: OK
+ledger.py: OK
+gpu_preflight.py: OK
+gpu-payload.sh: OK
+srun-owner.sh: OK
+allocation-owner.sh: OK
+remote-attempt.sh: OK
+700 28131 kwen1 nogroup 7358 stage_audit.py
+700 28131 kwen1 nogroup 795 ledger.py
+700 28131 kwen1 nogroup 4794 gpu_preflight.py
+700 28131 kwen1 nogroup 4022 gpu-payload.sh
+700 28131 kwen1 nogroup 428 srun-owner.sh
+700 28131 kwen1 nogroup 641 allocation-owner.sh
+700 28131 kwen1 nogroup 1499 remote-attempt.sh
+e97278b3588e2fc6a48c873156e02efee2336d8077a19085ddba4cc57710e93a  /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/stage/20260901T214700Z-48a972220979-code/experiments/structured_hadamard/phase_a/activation_quantizer.py
+d70ad3ea54c127fbd717ed0886adbbf20d03840264ae98fcf10ef8991a0937d7  /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/stage/20260901T214700Z-48a972220979-code/experiments/structured_hadamard/phase_a/execute.py
+73eb9ec4060fb0a71211984642a749e423ec541dd8a44f261e4ca075ddaa2c40  /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/stage/20260901T214700Z-48a972220979-code/experiments/structured_hadamard/phase_a/stage_repository.py
+d5096b74326048d4ddb84607ffe43552a4372fdd715aa7ff4d1de75346c2a233  /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/stage/20260901T214700Z-48a972220979-code/REPRODUCIBILITY_MANIFEST.json
+d446d626eaea2ba6b03ee0963d19e7bde87c413a8155b62c32394b97b3fc95da  /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/stage/20260901T214700Z-48a972220979-code/REPRODUCIBILITY_METADATA.json
+fec5407404af09cfad8eb3eabb5ff7fb5b62bc20adf92da7d45d7bc7f3c1f402  /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/run-state/clearance.json
+{
+  "clearance_sha256": "fec5407404af09cfad8eb3eabb5ff7fb5b62bc20adf92da7d45d7bc7f3c1f402",
+  "cuda_visible_devices": "0",
+  "fixed_input": {
+    "dtype": "torch.float16",
+    "seed": 0,
+    "shape": [
+      1,
+      11008
+    ]
+  },
+  "gpu": {
+    "compute_capability": [
+      8,
+      6
+    ],
+    "multiprocessor_count": 82,
+    "name": "NVIDIA GeForce RTX 3090",
+    "total_memory_bytes": 25296044032
+  },
+  "modules": {
+    "activation_quantizer": {
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/stage/20260901T214700Z-48a972220979-code/experiments/structured_hadamard/phase_a/activation_quantizer.py",
+      "sha256": "e97278b3588e2fc6a48c873156e02efee2336d8077a19085ddba4cc57710e93a",
+      "size": 4505
+    },
+    "python": {
+      "path": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+      "sha256": "fa10ee8f4c18e62cbd1e467c156a228be45138bd537b9949e66fc8e5937a018e",
+      "size": 17331920
+    },
+    "torch": {
+      "path": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages/torch/__init__.py",
+      "sha256": "2f0deb66d5dff6b9c02a62832c3bf3824c2ee031c462a3afeb9ca170466da5bf",
+      "size": 102960
+    },
+    "triton": {
+      "path": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages/triton/__init__.py",
+      "sha256": "08441d399eb32c7b84546a09ee497663071f04120f064390cf30e31ebea26ce3",
+      "size": 1464
+    }
+  },
+  "recorded_at_utc": "2026-09-01T22:06:07.718856+00:00",
+  "schema_version": "rot-phasea-corrected-gpu-preflight-v1",
+  "slurm": {
+    "account": "vision-torralba-urops-meng",
+    "cpus_per_task": "2",
+    "job_id": "1660871",
+    "mem_per_node": "8192",
+    "partition": "vision-torralba-rtx3090",
+    "qos": "vision-torralba-interactive"
+  },
+  "stage_head": "48a972220979197359a324ab102eb8de24ce321f",
+  "stage_manifest_sha256": "e54ce37b0f14838731f6458631801e9e2130b66589e6beca27b5a1d615ce903e",
+  "synchronized_cuda_tensor_value": 2.0,
+  "torch_cuda_device_count": 1,
+  "untimed_a4_correctness": {
+    "max_abs_error": 0.0008370535714283811,
+    "passed": true,
+    "reference_scale": 0.6043526785714286,
+    "relative_error": 0.00022564938232343555,
+    "rounding": "nearest-even"
+  },
+  "versions": {
+    "python": "3.10.20 | packaged by conda-forge | (main, Jun 11 2026, 03:31:56) [GCC 14.3.0]",
+    "torch": "2.8.0+cu128",
+    "torch_cuda": "12.8",
+    "triton": "3.4.0"
+  }
+}
+UNTIMED_A4_CORRECTNESS=PASS
+accepted_driver_invocation_utc=2026-09-01T22:06:08Z
+/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/outputs/phase-a-48a972220979
+accepted_driver_finished_utc=2026-09-01T22:06:19Z
+00ce50472f3690ddaffdf79cac06ab78a53b7be52d3e7f4c445f5c130084236a  /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/outputs/phase-a-48a972220979/phase-a.jsonl
+a4950eb79de4ac52718af0e304ee18349d41204f796f53d2418bb2845693f5c0  /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/outputs/phase-a-48a972220979/phase-a.raw-samples.jsonl
+083a216994cee6695596f255de3d22997fe3e65b0483b116ee23edd3c067fc56  /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2-corrected-owner-run/attempt-20260901T214700Z-48a972220979/outputs/phase-a-48a972220979/phase-a.execution.json
+gpu_payload_finished_utc=2026-09-01T22:06:19Z
