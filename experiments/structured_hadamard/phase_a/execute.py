@@ -265,6 +265,9 @@ def _validate_timing(timing: object) -> dict:
         raise ExecutionRefusal("clearance timing must be an object")
     _exact_keys(timing, _TIMING_KEYS, "clearance timing")
     expected = {"warmup_ms": 25, "repetition_ms": 200, "outer_trials": 5}
+    for key in expected:
+        if type(timing[key]) is not int:
+            raise ExecutionRefusal(f"clearance timing.{key} must be an integer")
     if timing != expected:
         raise ExecutionRefusal(f"clearance timing must equal the accepted fixed config {expected}")
     return copy.deepcopy(timing)

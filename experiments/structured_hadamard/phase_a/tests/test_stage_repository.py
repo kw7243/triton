@@ -200,6 +200,23 @@ class RepositoryStageTest(unittest.TestCase):
 
             self.assertFalse(stage.exists())
 
+    def test_refuses_dotdot_after_resolved_symlink_component(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = root / "source"
+            stage = root / "stage"
+            _init_repository(source)
+            (source / "sub").mkdir()
+            (source / "sub" / "a").symlink_to("..")
+            (source / "sub" / "external").write_text("included config\n", encoding="utf-8")
+            (source / "sub" / "config").symlink_to("a/../external")
+            (root / "external").write_text("mutable external config\n", encoding="utf-8")
+
+            with self.assertRaisesRegex(StageError, "escapes the source"):
+                stage_repository(source, stage)
+
+            self.assertFalse(stage.exists())
+
 
 if __name__ == "__main__":
     unittest.main()

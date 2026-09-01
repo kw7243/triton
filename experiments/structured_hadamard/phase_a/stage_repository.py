@@ -70,6 +70,24 @@ def _absolute_git_path(root: Path, value: str) -> Path:
     return (path if path.is_absolute() else root / path).resolve()
 
 
+def _validate_symlink_target(source: Path, source_path: Path, target: Path,
+                             included_closure: set[Path], relative: Path) -> None:
+    current = source_path.parent
+    for part in target.parts:
+        if not current.is_dir():
+            raise StageError(f"repository symlink target cannot be resolved: {relative}")
+        candidate = current.parent if part == ".." else current / part
+        try:
+            current = candidate.resolve(strict=True)
+            resolved_relative = current.relative_to(source)
+        except ValueError as exc:
+            raise StageError(f"repository symlink target escapes the source: {relative}") from exc
+        except (OSError, RuntimeError) as exc:
+            raise StageError(f"repository symlink target cannot be resolved: {relative}") from exc
+        if resolved_relative not in included_closure:
+            raise StageError(f"repository symlink target is excluded from the stage: {relative}")
+
+
 def _validate_source(source: Path) -> tuple[Path, str, Path]:
     source = source.resolve(strict=True)
     if not source.is_dir():
@@ -169,37 +187,7 @@ def _source_paths(source: Path) -> tuple[Path, ...]:
         target = Path(os.readlink(source_path))
         if target.is_absolute():
             raise StageError(f"repository symlink must use a relative target: {relative}")
-        lexical_parts = list(relative.parent.parts)
-        target_parts = target.parts
-        for index, part in enumerate(target_parts):
-            if part == "..":
-                if not lexical_parts:
-                    raise StageError(f"repository symlink target escapes the source: {relative}")
-                lexical_parts.pop()
-            else:
-                lexical_parts.append(part)
-            if index == len(target_parts) - 1:
-                continue
-            candidate = Path(*lexical_parts)
-            try:
-                resolved_candidate = (source / candidate).resolve(strict=True)
-                resolved_relative = resolved_candidate.relative_to(source)
-            except ValueError as exc:
-                raise StageError(f"repository symlink target escapes the source: {relative}") from exc
-            except (OSError, RuntimeError) as exc:
-                raise StageError(f"repository symlink target cannot be resolved: {relative}") from exc
-            if resolved_relative not in included_closure:
-                raise StageError(f"repository symlink target is excluded from the stage: {relative}")
-        lexical_target = Path(*lexical_parts)
-        try:
-            resolved_target = (source / lexical_target).resolve(strict=True)
-            resolved_relative = resolved_target.relative_to(source)
-        except ValueError as exc:
-            raise StageError(f"repository symlink target escapes the source: {relative}") from exc
-        except (OSError, RuntimeError) as exc:
-            raise StageError(f"repository symlink target cannot be resolved: {relative}") from exc
-        if resolved_relative not in included_closure:
-            raise StageError(f"repository symlink target is excluded from the stage: {relative}")
+        _validate_symlink_target(source, source_path, target, included_closure, relative)
     return paths
 
 

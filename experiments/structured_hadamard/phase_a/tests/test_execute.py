@@ -219,6 +219,9 @@ class ExecutionProvenanceTest(unittest.TestCase):
             unresolved_calibration = copy.deepcopy(base)
             unresolved_calibration["quant"]["calibration_dataset"] = "UNRESOLVED"
             cases.append((unresolved_calibration, "calibration_dataset|resolved"))
+            float_timing = copy.deepcopy(base)
+            float_timing["timing"]["outer_trials"] = 5.0
+            cases.append((float_timing, "timing.outer_trials must be an integer"))
             for value, message in cases:
                 with self.subTest(message=message):
                     _write_clearance(path, value)
