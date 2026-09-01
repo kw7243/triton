@@ -1335,3 +1335,13 @@ allocation, or GPU attempt is authorized. Scheduler attempts remain exactly
 zero. The local evidence is in
 `data/rot-phasea-real-model-baseline-r1/artifacts/minimal-binding-recovery.json`
 and `minimal-build-v2.ninja`.
+
+## 2026-09-01 — Minimal-binding recovery result provenance
+
+The terminal recovery result commit is
+`fb03481c2dada6e36fbd79f540d70de80061ae01`, tree
+`f3a8ce75c6b554a65977b0914ba7515548ed6938`. It contains the exact minimal
+binding/builder bytes, third-party attribution, generated Ninja artifact,
+machine-readable terminal evidence, updated report and hashes, and the
+47-test CPU/static validation record. This follow-up changes only the notebook
+provenance pointer.
