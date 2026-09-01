@@ -1281,3 +1281,14 @@ All required scientific rows are absent, so this is not a valid baseline. A1,
 A2, and A3 are each `not evaluated`; this task cannot establish A3. The exact
 local report and machine-readable preflight artifact are under
 `data/rot-phasea-real-model-baseline-r1/`.
+
+## 2026-09-01 — Phase A real-model preflight result provenance
+
+The source commit is
+`0c4aaf075d929be2474fd271ffb8bc1244206d99`. The immutable local
+result-evidence commit is
+`64621d4379911be6036b54e5b792a83bdd901e02`, tree
+`09b7ae64942d9b69aee08027d6091ddb7a4d7955`. It contains the complete
+blocked-pre-scheduler notebook entry, concise report, machine-readable
+preflight artifact, and verified SHA-256 manifest. This follow-up changes only
+the notebook provenance pointer.
