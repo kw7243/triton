@@ -19,9 +19,9 @@ class PreflightTest(unittest.TestCase):
 
     @mock.patch("experiments.structured_hadamard.phase_a.preflight.subprocess.run")
     @mock.patch("experiments.structured_hadamard.phase_a.preflight._git")
-    def test_kernel_profile_branch_discovers_clean_pinned_identity(self, git, run):
+    def test_libdevice_fix_branch_discovers_clean_pinned_identity(self, git, run):
         head = "a" * 40
-        git.side_effect = ["fm/structured-hadamard-phase-a-kernel-profile-r1", head, ""]
+        git.side_effect = ["fm/structured-hadamard-phase-a-libdevice-fix-gpu-r2", head, ""]
         run.return_value.returncode = 0
 
         self.assertEqual(discover_code_identity(), {"head": head, "dirty": False})

@@ -21,6 +21,7 @@ SOURCE_BRANCHES = (
     "fm/structured-hadamard-phase-a",
     "fm/structured-hadamard-phase-a-exec-r1",
     "fm/structured-hadamard-phase-a-kernel-profile-r1",
+    "fm/structured-hadamard-phase-a-libdevice-fix-gpu-r2",
 )
 ACTIVE_ROOT = "/data/scratch-fast/kwen1"
 DEFAULT_RESULT_JSONL = f"{ACTIVE_ROOT}/structured-hadamard/phase-a/results/phase-a.jsonl"

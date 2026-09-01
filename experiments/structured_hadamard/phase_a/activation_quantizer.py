@@ -48,6 +48,7 @@ def quantize_rows_reference(rows: Sequence[Sequence[float]]) -> tuple[list[list[
 def _kernel_bundle():
     import triton
     import triton.language as tl
+    from triton.language.extra import libdevice
 
     @triton.jit
     def quantize_dequantize_a4_kernel(source, output, scales, WIDTH: tl.constexpr, BLOCK: tl.constexpr,
@@ -58,7 +59,7 @@ def _kernel_bundle():
         values = tl.load(source + row * WIDTH + offsets, mask=mask, other=0.0).to(tl.float32)
         absmax = tl.max(tl.abs(values), axis=0)
         scale = tl.where(absmax > 0.0, absmax / QMAX, 1.0)
-        rounded = tl.extra.libdevice.rint(values / scale)
+        rounded = libdevice.rint(values / scale)
         quantized = tl.maximum(QMIN, tl.minimum(QMAX, rounded))
         tl.store(output + row * WIDTH + offsets, quantized * scale, mask=mask)
         tl.store(scales + row, scale)

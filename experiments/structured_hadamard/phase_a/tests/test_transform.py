@@ -3,9 +3,11 @@ from __future__ import annotations
 import math
 import struct
 import sys
+import types
 import unittest
+from unittest import mock
 
-from experiments.structured_hadamard.phase_a.activation_quantizer import (A4_QMAX, A4_QMIN,
+from experiments.structured_hadamard.phase_a.activation_quantizer import (A4_QMAX, A4_QMIN, _kernel_bundle,
                                                                           quantize_row_reference)
 from experiments.structured_hadamard.phase_a.reference import D_FF, forward_rows, inverse_rows, transform_spec
 from experiments.structured_hadamard.phase_a.triton_transform import (HFullWorkspace, _allocate_intermediate,
@@ -130,6 +132,58 @@ class TransformContractTest(unittest.TestCase):
         self.assertEqual((A4_QMIN, A4_QMAX, scale), (-7, 7, 1.0))
         self.assertEqual(quantized[:6], [7.0, -7.0, 4.0, -4.0, 2.0, -2.0])
         self.assertTrue(all(A4_QMIN * scale <= value <= A4_QMAX * scale for value in quantized))
+
+    def test_triton_34_libdevice_import_contract_without_gpu(self):
+        triton = types.ModuleType("triton")
+        language = types.ModuleType("triton.language")
+        extra = types.ModuleType("triton.language.extra")
+        libdevice = types.ModuleType("triton.language.extra.libdevice")
+        triton.__path__ = []
+        language.__path__ = []
+        extra.__path__ = []
+        triton.language = language
+        language.extra = extra
+        triton.jit = lambda function: function
+
+        offsets = mock.MagicMock()
+        offsets.__lt__.return_value = object()
+        values = mock.MagicMock()
+        absmax = mock.MagicMock()
+        absmax.__gt__.return_value = object()
+        scale = mock.MagicMock()
+        language.constexpr = object()
+        language.float32 = object()
+        language.program_id = mock.Mock(return_value=0)
+        language.arange = mock.Mock(return_value=offsets)
+        language.load = mock.Mock()
+        language.load.return_value.to.return_value = values
+        language.abs = mock.Mock(return_value=mock.MagicMock())
+        language.max = mock.Mock(return_value=absmax)
+        language.where = mock.Mock(return_value=scale)
+        language.minimum = mock.Mock(return_value=mock.MagicMock())
+        language.maximum = mock.Mock(return_value=mock.MagicMock())
+        language.store = mock.Mock()
+        libdevice.rint = mock.Mock(return_value=mock.MagicMock())
+
+        modules = {
+            "triton": triton,
+            "triton.language": language,
+            "triton.language.extra": extra,
+            "triton.language.extra.libdevice": libdevice,
+        }
+        self.assertFalse(hasattr(extra, "libdevice"))
+        _kernel_bundle.cache_clear()
+        try:
+            with mock.patch.dict(sys.modules, modules):
+                kernel = _kernel_bundle()
+                closure = dict(zip(kernel.__code__.co_freevars, (cell.cell_contents for cell in kernel.__closure__)))
+                self.assertIs(closure["libdevice"], libdevice)
+                kernel(mock.MagicMock(), mock.MagicMock(), mock.MagicMock(), WIDTH=D_FF, BLOCK=16384,
+                       QMIN=A4_QMIN, QMAX=A4_QMAX)
+        finally:
+            _kernel_bundle.cache_clear()
+        libdevice.rint.assert_called_once()
+        self.assertEqual(language.store.call_count, 2)
 
     def test_dynamic_per_row_signed_a4_zero_row_is_deterministic(self):
         quantized, scale = quantize_row_reference([0.0] * D_FF)

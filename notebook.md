@@ -759,3 +759,177 @@ This task preserves the r3 conclusion exactly: allocation `1638476` reached
 `torralba-v100-1` and exposed one V100 through successful `nvidia-smi`, while
 its strict payload failed because `CUDA_VISIBLE_DEVICES` was empty and
 assigned-device count was zero.
+
+## 2026-09-01 — Triton 3.4 libdevice compatibility diagnosis
+
+Task `rot-phasea-libdevice-fix-gpu-r2` began on local-only branch
+`fm/structured-hadamard-phase-a-libdevice-fix-gpu-r2` at exact failed-run
+evidence commit `095cafd6637238c53223f44d48b36b6f5211186b`, tree
+`c47fedfce780e9f328d97e06e60373883e29ea60`. Both required
+`git merge-base --is-ancestor` checks passed for accepted Phase A commit
+`d57acb60db2a4507bbff984fb3c9771e8a6ada3d` and execution-driver parent
+`21ea761c61a5e3062cea28cabda43ac04bd5278b`.
+
+Gate 1 used only read-only SSH to `slurm-login.csail.mit.edu` and CPU-side
+Python/import/compiler probes. It made no Slurm query or mutation, imported no
+Torch or CUDA runtime module, and executed no GPU code. The exact environment
+Python is
+`/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python`
+(Python 3.10.20). `importlib.metadata.distribution("triton")` and the imported
+package both report Triton `3.4.0`; the distribution directory is
+`.../site-packages/triton-3.4.0.dist-info`, installed by `pip` from a CPython
+3.10 manylinux 2.27/2.28 wheel. `direct_url.json` is absent. Relevant exact
+installed bytes are:
+
+```text
+METADATA sha256=8496b57becd6f0fe732bf81570330383f25e2bc572a54bdec45671a23e1db189
+INSTALLER sha256=ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508
+WHEEL sha256=39bb6a722df1e6fcb9662bd8d8188e1fd1873bcfb14347781c58533ad5cc361c
+triton/__init__.py size=1464 sha256=08441d399eb32c7b84546a09ee497663071f04120f064390cf30e31ebea26ce3
+triton/language/__init__.py size=6418 sha256=5c93d0ab5aead12a0f71faa4c3d615967ed7a8fd08db99c81b34daf9098ca626
+triton/language/extra/__init__.py size=655 sha256=5d15c5bebef8d7aa51b21fd187e5faa95eba4a213254355bc69e0648013599f7
+triton/language/extra/libdevice.py size=6318 sha256=0e48b5e1e95136642ccfe62dc3d0a739a2c20a7b5ee13e9c23c6cecd68cdeb70
+triton/language/extra/cuda/__init__.py size=407 sha256=30106ed84518c6ca7aca08e2c0ee188755f512cc0cb2d7da8914cc48c1ad6dcc
+triton/language/extra/cuda/libdevice.py size=56764 sha256=27b2a5d1e8db008bacefe6019f63922bbd65926de90bb1b527ee597477d2f365
+triton/runtime/jit.py size=36766 sha256=3356ea060b9868cbb3b52de11f8f93e4223c52bbc00f2102da656ebb0295aef8
+```
+
+The narrow import/attribute probe reproduced the exact prior symptom:
+
+```text
+extra_public_names=['cuda', 'hip', 'is_pkg', 'module', 'module_finder',
+                    'module_from_spec', 'module_name', 'modules', 'pkgutil', 'spec']
+extra_has_libdevice=False
+old_attribute_result=AttributeError: module 'triton.language.extra' has no attribute 'libdevice'
+import_result=triton.language.extra.libdevice|SUCCESS|.../extra/libdevice.py
+import_result=triton.language.extra.cuda.libdevice|SUCCESS|.../extra/cuda/libdevice.py
+supported_has_rint=True
+rint_module=triton.language.extra.cuda.libdevice
+rint_signature=(arg0, _semantic=None)
+rint_source_sha256=0a5eaa5b1e9f73bc8b69be11134357d714956d7589cd6ac29fb5c9e3030d85a4
+torch_imported_after=False
+cuda_python_modules_after=[]
+```
+
+The initiating trigger is the A4 JIT body spelling
+`tl.extra.libdevice.rint`. Triton dependency discovery visits that attribute
+before code generation. The masking condition is that `_kernel_bundle` imports
+only `triton.language as tl`: Triton 3.4.0's `extra/__init__.py` deliberately
+skips `.py` modules such as `libdevice.py` while auto-importing backend
+packages, so the root stub file can exist without `libdevice` being bound on
+`tl.extra`. Triton's own v3.4.0 tutorial uses
+`from triton.language.extra import libdevice`; that explicit import binds the
+interface module, which the CUDA backend maps to
+`triton.language.extra.cuda.libdevice`. The backend implementation maps fp32
+`rint` to `__nv_rintf` and fp64 to `__nv_rint`, preserving the accepted
+round-to-nearest-even `rint`/CPU-reference contract. The visible symptom is the
+recorded `AttributeError` during JIT dependency discovery, before codegen or
+launch.
+
+The smallest disconfirming dependency-discovery counterfactual ran three
+in-memory JIT bodies under the same install and accessed each `cache_key`:
+
+```text
+initial_extra_has_libdevice=False
+old_cache_key_result=AttributeError: module 'triton.language.extra' has no attribute 'libdevice'
+after_supported_import_extra_has_libdevice=True
+supported_cache_key_result=SUCCESS
+supported_cache_key_sha256=e951d5278cfef20b5419bd2c5c5bdd75200c664ff4424ba8460b5f737afa802e1
+direct_cuda_cache_key_result=SUCCESS
+direct_cuda_cache_key_sha256=ac512b71869f5ef62b7a97da07bb5af85b079fd4a231ddec405131721fd8fd9e1
+torch_imported=False
+cuda_runtime_modules=[]
+```
+
+The supported root import then passed a compile-only SM86 front end through
+TTIR, TTGIR, LLIR, PTX, and cubin in the task-local scratch cache
+`/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2/gate1-compile-cache`.
+The compile emitted `supported_probe.cubin` SHA-256
+`c6b270618bde4d9ab9de5b62a591329c00d64981aa3c5f9a26ea297100758283`
+and PTX SHA-256
+`aee3dc2cb9d940bddda7f8277ba9e423d1ac9cdb54b8b7465c802d3008e9af05`;
+Torch and CUDA runtime modules remained absent.
+
+Exact causal conclusion: this is a source-level namespace/import defect and,
+therefore, a source-versus-installed-version contract mismatch, not a missing
+libdevice implementation and not a GPU, allocation, visibility, CUDA math, or
+scheduler defect. A version pin is disconfirmed. The chosen remedy is exactly
+one explicit supported import inside the lazy Triton bundle and changing the
+call to `libdevice.rint`; it keeps the task-local Triton 3.4.0 environment and
+the accepted rounding semantics. Focused GPU-free regression coverage executes
+the kernel body against a synthetic Triton 3.4 namespace where
+`tl.extra.libdevice` is absent but the explicitly importable interface module
+and its `rint` implementation are present.
+
+### Gate 2 remedy validation
+
+The final focused regression also asserts that the returned JIT function
+closes over the explicitly imported interface module. A review-hold
+counterfactual combined the new test with the exact parent implementation in a
+disposable `git archive`; it failed as required with `KeyError: 'libdevice'`
+because the old kernel has no such closure. The same test passes against the
+fix. An earlier audit invocation accidentally ran from the source cwd and
+therefore tested the fixed module instead of the archived parent; it returned
+0 and was rejected as invalid evidence. The corrected invocation changed into
+the disposable archive first and returned 1 on the old implementation.
+
+The actual patched `activation_quantizer.py`, SHA-256
+`eef070b590beced9772f4b58aab4f3419a66c51b8c9d499fde7f27dcffb6bee3`,
+was copied to the task-local disposable CPU/static probe at
+`/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2/gate2-source-probe`.
+With the exact installed Triton 3.4.0 environment, its real
+`quantize_dequantize_a4_kernel` dependency cache key resolved successfully to
+`445d4abeabab06335d27c2d554955f319346ad4e7b61411a7ccd03b5c4248cb853`
+and compile-only SM86 codegen succeeded. The resulting cubin SHA-256 is
+`2818a3a3a1745ed788b79aaa3834ea6c7eee035723ee39dc2118ac6a561526b2`,
+PTX SHA-256 is
+`d70058a921c031c26acdcad669af0ce39cda235853352174ed68c3f7fcdee040`,
+and TTIR SHA-256 is
+`ca627794fec0486c8c0fb15c2398b827bb23cb6655834573466124c1b9013e9f`.
+Torch and CUDA runtime modules remained absent.
+
+Final bounded local CPU/static validation after the regression-review
+correction:
+
+```text
+PYTHONDONTWRITEBYTECODE=1 python3 -m compileall -q experiments/structured_hadamard/phase_a
+  -> passed
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s experiments/structured_hadamard/phase_a/tests -v
+  -> 38 tests passed in 3.370 seconds
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_execute -v
+  -> 7 tests passed in 1.704 seconds before the closure-only test tightening;
+     unaffected execution/provenance suite
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_stage_repository -v
+  -> 3 tests passed in 0.947 seconds; unaffected staging suite
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest experiments.structured_hadamard.phase_a.tests.test_schema -v
+  -> 13 tests passed in 0.089 seconds; unaffected schema suite
+PYTHONDONTWRITEBYTECODE=1 python3 -m experiments.structured_hadamard.phase_a.oracle \
+  --seed 0 --token-rows 2 --weight-rows 3
+  -> all I/H32/H128/Hfull checks passed; maximum absolute error
+     3.1086244689504383e-15; not scientific evidence
+PYTHONDONTWRITEBYTECODE=1 python3 -m experiments.structured_hadamard.phase_a.preflight \
+  --scheduler-clearance=false --format=jsonl \
+  --result-jsonl /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-libdevice-fix-gpu-r2/outputs/phase-a.jsonl
+  -> exactly four I/Hfull rows; fusion=none; scientific_evidence=false
+PYTHONDONTWRITEBYTECODE=1 python3 -m experiments.structured_hadamard.phase_a.preflight \
+  --scheduler-clearance=false --execute
+  -> refused with exit status 2
+PYTHONDONTWRITEBYTECODE=1 python3 -m experiments.structured_hadamard.phase_a.execute \
+  --scheduler-clearance-file /tmp/rot-phasea-libdevice-fix-gpu-r2-clearance-missing
+  -> refused with exit status 2 before Torch/Triton import
+git diff --check
+  -> passed
+```
+
+`make` was not run because only Phase A Python, tests, and notebook provenance
+changed. The diagnostic hold is resolved: implementation presence, namespace
+binding, supported import, dependency discovery, actual A4 front-end codegen,
+old-path test failure, fixed-path test success, rounding contract, and bounded
+fail-closed suites all agree on the same source-only remedy. No GPU experiment
+is needed to validate this compatibility hypothesis before staging.
+
+The first local pre-run `git commit` invocation stopped before creating a
+commit because this isolated worktree had no configured author identity. The
+staged bytes were unchanged. The retry uses the exact author and committer
+identity from immutable evidence commit `095cafd663` through command-local Git
+environment variables, without changing shared or system Git configuration.
