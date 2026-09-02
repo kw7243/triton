@@ -1,0 +1,21 @@
+{
+  "exit_code": 0,
+  "failure": null,
+  "recorded_at_utc": "2026-09-02T04:16:03.189496+00:00",
+  "schema_version": "phase-c-selector-local-terminal-v1",
+  "ssh_argv": [
+    "/usr/bin/ssh",
+    "-S",
+    "/tmp/phasec-selector-r1.5ol9pE/ssh-control",
+    "-o",
+    "ControlMaster=no",
+    "-o",
+    "BatchMode=yes",
+    "-tt",
+    "slurm-login.csail.mit.edu",
+    "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+    "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_c/gpu_owner.py",
+    "--owner",
+    "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/run-state/clearance.json"
+  ]
+}

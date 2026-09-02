@@ -1,0 +1,484 @@
+{
+  "accepted_project": {
+    "head": "621e35b5d890ea0623f232a8aada299a1fc30d97",
+    "manifest": {
+      "entries_sha256": "7bc839e09dcfda3c142ac347c85e903690fd7740fcd9af8a9138c36186135a92",
+      "immutable": true,
+      "manifest_file_sha256": "bbd8f72fd8957af0c81425f339697af8e0017b6c2a403fab533b740be236ee99",
+      "manifest_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/stages/project/REPRODUCIBILITY_MANIFEST.json"
+    },
+    "metadata_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/stages/project/REPRODUCIBILITY_METADATA.json",
+    "metadata_sha256": "6c663f655271065c59e1c2e6bf541c6f4c54269d0f468eacc282278c25a2e9cd",
+    "required_ancestor": "3bc279eca8728b07f64105a39dcda3e5f896357e",
+    "root": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/stages/project",
+    "tree": "3f47e8e3332447b9d4f5c61b561cceca3868ccbd"
+  },
+  "audit_output": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/run-state/preflight-audit.json",
+  "data": {
+    "configuration": "wikitext-2-raw-v1/train calibration + test evaluation",
+    "files": [
+      {
+        "bytes": 692,
+        "name": "dataset_info.json",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/dataset_info.json",
+        "sha256": "47ce56e8a2ca0183a37850cbce75cec29f64a1f61da978386c2a0598da4a6f66"
+      },
+      {
+        "bytes": 1306200,
+        "name": "wikitext-test.arrow",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-test.arrow",
+        "sha256": "2b8a3efac7b468cbe6432edba5f55c21e435d93873acc6727431f08d5ed328ea"
+      },
+      {
+        "bytes": 11068328,
+        "name": "wikitext-train.arrow",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-train.arrow",
+        "sha256": "57947bc7b58df4b19662c0609cc30651bc84328dab5fd588860b752072911789"
+      }
+    ],
+    "name": "Salesforce/wikitext",
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "root": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3"
+  },
+  "dependency": {
+    "cutlass_head": "ffa34e70756b0bc744e1dfcc115b5a991a68f132",
+    "cutlass_root": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/stages/dependency/QuaRot/third-party/cutlass",
+    "head": "5008669b08c1f11f9b64d52d16fddd47ca754c5a",
+    "manifest": {
+      "entries_sha256": "88430f14b8d711ae1a12f0188a57032d6b49314aa9e28a460dffbede3dff4db3",
+      "immutable": true,
+      "manifest_file_sha256": "8f6037a6385f874253c69bc3ed5bf843480783984def548941bfdf1018c354ec",
+      "manifest_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/provenance/dependency-manifest.json"
+    },
+    "root": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/stages/dependency/QuaRot"
+  },
+  "environment": {
+    "allowed_roots": [
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/environment/site-packages",
+      "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing"
+    ],
+    "packages": [
+      {
+        "byte_manifest_sha256": "119b3762d7e0b19766e0f2dff60f3b6d11d9d1a13db0795569b6dc0bb0dbc46b",
+        "exact_bytes": true,
+        "name": "torch",
+        "version": "2.8.0+cu128"
+      },
+      {
+        "byte_manifest_sha256": "d57e8ad042aeee3c6cbf812b1a79563dc88f20d5fb8d21a028cab353b3b8bda6",
+        "exact_bytes": true,
+        "name": "transformers",
+        "version": "5.12.1"
+      },
+      {
+        "byte_manifest_sha256": "ef2b6c91f44fdcb79a7ebbf15377ab36301158c7c3eb570e2a258449667c9d7f",
+        "exact_bytes": true,
+        "name": "triton",
+        "version": "3.4.0"
+      },
+      {
+        "byte_manifest_sha256": "34f847a2cf8e5858497c10397607599bd7f4a803ed714ee98b951d42570c59f7",
+        "exact_bytes": true,
+        "name": "safetensors",
+        "version": "0.8.0"
+      },
+      {
+        "byte_manifest_sha256": "cdd6aa908edae817098cfdee1f568f33aaad005524fcced713c7a2f056566fcf",
+        "exact_bytes": true,
+        "name": "accelerate",
+        "version": "1.14.0"
+      },
+      {
+        "byte_manifest_sha256": "095b193629ad24c87f2d7eb1652b0eece39e1b582283c49fc0e1f530828a713f",
+        "exact_bytes": true,
+        "name": "numpy",
+        "version": "1.24.4"
+      },
+      {
+        "byte_manifest_sha256": "951af6cbc99ca1a2a62d6bab95afa6034576dc0dc92b71e20f19dcd1cdb856e4",
+        "exact_bytes": true,
+        "name": "tokenizers",
+        "version": "0.22.2"
+      },
+      {
+        "byte_manifest_sha256": "fed14b599ea9f90a0a4955c82d2dca46c624fc9e2b28860644c2be7494572492",
+        "exact_bytes": true,
+        "name": "pyarrow",
+        "version": "17.0.0"
+      }
+    ],
+    "python": {
+      "mode": 509,
+      "path": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+      "sha256": "fa10ee8f4c18e62cbd1e467c156a228be45138bd537b9949e66fc8e5937a018e"
+    },
+    "runtime_env": {
+      "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+      "HF_HOME": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/runtime-cache/huggingface",
+      "HF_HUB_OFFLINE": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONHASHSEED": "0",
+      "PYTHONPATH": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/environment/site-packages:/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages",
+      "TORCH_HOME": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/runtime-cache/torch",
+      "TRANSFORMERS_OFFLINE": "1",
+      "XDG_CACHE_HOME": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/runtime-cache/xdg"
+    },
+    "site_paths": [
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/environment/site-packages",
+      "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages"
+    ]
+  },
+  "execution": {
+    "allocated_argv": [
+      "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_c/gpu_owner.py",
+      "--allocated",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/run-state/clearance.json"
+    ],
+    "argv_sha256": "c3011c3d8241503cfe1ab31792191f8ab1e6e7a3b3c3c923f7f32f01433d4621",
+    "driver_argv": [
+      "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_c/driver.py",
+      "--stage-root",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project",
+      "--source-commit",
+      "94d23efadda38451dabd120eaa68ec6f133a369a",
+      "--snapshot",
+      "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/snapshots/315b20096dc791d381d514deb5f8bd9c8d6d3061",
+      "--model-repository",
+      "NousResearch/Meta-Llama-3-8B",
+      "--model-revision",
+      "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+      "--evaluation-arrow",
+      "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-test.arrow",
+      "--evaluation-sha256",
+      "2b8a3efac7b468cbe6432edba5f55c21e435d93873acc6727431f08d5ed328ea",
+      "--dataset-revision",
+      "b08601e04326c79dfdd32d625aee71d232d685c3",
+      "--extension",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/inputs/phase_a_w4a4_cuda.so",
+      "--extension-sha256",
+      "10a961e8855d7349708412aa8c21a38667fb75c94c372180dd6f992913e0a8e0",
+      "--quarot-root",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/stages/dependency/QuaRot",
+      "--phase-a-results",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/data/rot-phasea-real-model-baseline-r1/artifacts/run-1662352/results.json",
+      "--phase-b-map",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/data/rot-phaseb-map-r1/artifacts/run-1662528/scientific-run/map-rows.jsonl",
+      "--phase-b-report",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/data/rot-phaseb-map-r1/report.md",
+      "--policy-freeze",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/data/rot-phasec-selector-r1/policy-freeze.json",
+      "--policy-freeze-sha256",
+      "2543c2ed55a1d0b9b70189d53c91c27b88c5db4a15b152786cdbcb1b4d59a31a",
+      "--output-directory",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/output-parent/scientific-run",
+      "--status-path",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/run-state/task-status.jsonl",
+      "--device",
+      "cuda:0",
+      "--seed",
+      "20260902",
+      "--ppl-sequence-length",
+      "1024",
+      "--prompt-length",
+      "128",
+      "--output-length",
+      "32",
+      "--decode-warmups",
+      "1",
+      "--decode-repetitions",
+      "5",
+      "--fusion",
+      "none"
+    ],
+    "duration_estimate": {
+      "Phase_A_observed": "00:05:34 for three PPL/decode variants",
+      "Phase_B_observed": "00:14:39 for map, six PPL variants, and cache",
+      "buffer": "00:25:00",
+      "estimated_runtime": "00:20:00 for seven deduplicated PPL/decode policies",
+      "host_memory_reason": "32G is the smallest previously demonstrated real-model request; Phase C omits the 9.1 GiB Phase B cache and releases each policy model sequentially",
+      "requested": "00:45:00"
+    },
+    "output_directory": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/output-parent/scientific-run",
+    "output_parent": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/output-parent",
+    "output_parent_mode": 448,
+    "owner_argv": [
+      "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_c/gpu_owner.py",
+      "--owner",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/run-state/clearance.json"
+    ],
+    "salloc_argv": [
+      "/usr/bin/salloc",
+      "--account=vision-torralba-urops-meng",
+      "--qos=vision-torralba-interactive",
+      "--partition=vision-torralba-rtx3090",
+      "--job-name=rot-phasec-selector-r1",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=2",
+      "--mem=32G",
+      "--gres=gpu:1",
+      "--time=00:45:00"
+    ],
+    "srun_argv": [
+      "/usr/bin/srun",
+      "--pty",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=2",
+      "--mem=32G",
+      "--gres=gpu:1",
+      "--kill-on-bad-exit=1"
+    ]
+  },
+  "extension": {
+    "bytes": 1517328,
+    "cuobjdump_mode": 365,
+    "cuobjdump_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/inputs/cuobjdump",
+    "cuobjdump_sha256": "9a127e39d662e56d1847b0f08c4a36d53ef6e4900d0592df93b4521a177d1722",
+    "forbidden_arch_markers": [
+      "sm_89",
+      "sm_90"
+    ],
+    "mode": 365,
+    "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/inputs/phase_a_w4a4_cuda.so",
+    "ptx_markers": [
+      ".target sm_80"
+    ],
+    "sass_targets": [
+      "sm_80",
+      "sm_86"
+    ],
+    "sha256": "10a961e8855d7349708412aa8c21a38667fb75c94c372180dd6f992913e0a8e0"
+  },
+  "helpers": [
+    {
+      "bytes": 7577,
+      "mode": 292,
+      "name": "phase_c_preflight",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_c/preflight.py",
+      "sha256": "f36da1fbcfbbfda4bd47d8a41a50627ce07ba4aae32a02e63903416d24f864bd"
+    },
+    {
+      "bytes": 18221,
+      "mode": 292,
+      "name": "phase_c_driver",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_c/driver.py",
+      "sha256": "537bbbf999cec3df99ab79afa72fceb860eb8c480a7391409e43c352a3cc2343"
+    },
+    {
+      "bytes": 5896,
+      "mode": 292,
+      "name": "gpu_owner",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_c/gpu_owner.py",
+      "sha256": "63f76b29eae6d5de9a690c26217b77567d9706205aefbd54784da7fbef7a8ccc"
+    },
+    {
+      "bytes": 5727,
+      "mode": 292,
+      "name": "local_event_owner",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_c/local_event_owner.py",
+      "sha256": "0f58dee88080b62d2ce1820c0b1e63986226feb75a60c1a214363577c822b289"
+    },
+    {
+      "bytes": 16829,
+      "mode": 292,
+      "name": "phase_c_selector",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_c/selector.py",
+      "sha256": "56e4937dfcb6aa94d3272c6cb468f30c9b4b80ccd1aed7496dddafd17cd12ac2"
+    },
+    {
+      "bytes": 13575,
+      "mode": 292,
+      "name": "phase_c_analysis",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_c/analysis.py",
+      "sha256": "17e1257fdfb7a5f3105bc028647ef46188a8e7a9e110709325e5210501eab527"
+    },
+    {
+      "bytes": 2939,
+      "mode": 292,
+      "name": "phase_c_schema",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_c/schema.py",
+      "sha256": "139d89f2f721a0103a36724df3925b39ef04b585984dd5863e9d097e7d06c377"
+    },
+    {
+      "bytes": 6827,
+      "mode": 292,
+      "name": "phase_c_verifier",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_c/verify_results.py",
+      "sha256": "8d85d56bcc710804672e51b68d5f7c9841f383a3736d78beaf7c0a7b078cc8d0"
+    },
+    {
+      "bytes": 25611,
+      "mode": 292,
+      "name": "phase_a_benchmark",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_a/real_model/benchmark.py",
+      "sha256": "b43571547eab5babecdc171e3d3548d9f88837707b23d9b9751b0aa0446a0a83"
+    },
+    {
+      "bytes": 25181,
+      "mode": 292,
+      "name": "phase_a_runtime",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_a/real_model/runtime.py",
+      "sha256": "fb7b262e277785f5a9c931da4e7f209ef52c1cfcb37d166e3dcd8084e58d2f51"
+    },
+    {
+      "bytes": 4770,
+      "mode": 292,
+      "name": "phase_b_runtime",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_b/runtime.py",
+      "sha256": "0a42ba41fe85ded168edba4d16599ed66496d05af78ee89e0cd4efb2f33fd6d7"
+    },
+    {
+      "bytes": 5034,
+      "mode": 292,
+      "name": "phase_b_reference",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/experiments/structured_hadamard/phase_b/reference.py",
+      "sha256": "6568d93720828d4ffdb6082d80f3d33985e48438219f012d9b5aa5f48d4954ec"
+    },
+    {
+      "bytes": 4480,
+      "mode": 256,
+      "name": "execution_argv",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/provenance/execution-argv.json",
+      "sha256": "6ac4d36e793423d0ec95e9d695b9f5ab01c7a50f1511e57ebf73dd38939a05a9"
+    }
+  ],
+  "ledger": {
+    "expected_zero": {
+      "driver_attempts": 0,
+      "owner_attempts": 0,
+      "salloc_attempts": 0,
+      "srun_attempts": 0,
+      "terminal_events_fired": 0
+    },
+    "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/run-state/owner-ledger.json",
+    "status_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/run-state/task-status.jsonl",
+    "status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "model": {
+    "configuration": "Llama-3 8B dense causal LM",
+    "files": [
+      {
+        "bytes": 654,
+        "name": "config.json",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/7784fbf6342de338b736f884a49b08f270c5e9c8",
+        "sha256": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441"
+      },
+      {
+        "bytes": 177,
+        "name": "generation_config.json",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/22550a806e8cfce3b346a520348e14b765287805",
+        "sha256": "93caf96e269e32b9ee33ad78b0d76d910408d11a63a8b2c49241030836759311"
+      },
+      {
+        "bytes": 23950,
+        "name": "model.safetensors.index.json",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/0fd8120f1c6acddc268ebc2583058efaf699a771",
+        "sha256": "146776fce3f6db1103aa6f249e65ee5544c5923ce6f971b092eee79aa6e5d37b"
+      },
+      {
+        "bytes": 4976698672,
+        "name": "model-00001-of-00004.safetensors",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+        "sha256": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33"
+      },
+      {
+        "bytes": 4999802720,
+        "name": "model-00002-of-00004.safetensors",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+        "sha256": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c"
+      },
+      {
+        "bytes": 4915916176,
+        "name": "model-00003-of-00004.safetensors",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+        "sha256": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc"
+      },
+      {
+        "bytes": 1168138808,
+        "name": "model-00004-of-00004.safetensors",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb",
+        "sha256": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"
+      },
+      {
+        "bytes": 73,
+        "name": "special_tokens_map.json",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/d8cd5076496dbe4be2320312abc10adc43097b81",
+        "sha256": "462d91939dbc37178aa5a3eae7068d1990ccc92e09f288cc71f42cdf139d69cc"
+      },
+      {
+        "bytes": 9085698,
+        "name": "tokenizer.json",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/b197f72effb9d5ed16ee0f5663e11e4cfac2ba62",
+        "sha256": "e134af98b985517b4f068e3755ae90d4e9cd2d45d328325dc503f1c6b2d06cc7"
+      },
+      {
+        "bytes": 50566,
+        "name": "tokenizer_config.json",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/72193e9eb5cb6126087980deffb4930ec27a72a9",
+        "sha256": "690727b4fed286383df1c7ca5e805124cb70c6eb4529f807c7b2e60ff741da7e"
+      }
+    ],
+    "name": "NousResearch/Meta-Llama-3-8B",
+    "revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+    "root": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/snapshots/315b20096dc791d381d514deb5f8bd9c8d6d3061"
+  },
+  "owner": {
+    "name": "kwen1",
+    "uid": 28131
+  },
+  "phase_b": {
+    "map": {
+      "bytes": 471508,
+      "mode": 292,
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/data/rot-phaseb-map-r1/artifacts/run-1662528/scientific-run/map-rows.jsonl",
+      "sha256": "b5461aa9af17a85936f55c57c9c55d754a774236313c41363b62b6f849d8ef62"
+    },
+    "report": {
+      "bytes": 15561,
+      "mode": 292,
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/data/rot-phaseb-map-r1/report.md",
+      "sha256": "896d74da1e00d56bb260bd39a56d0cc42e66b3554916a67c808b8b9c44d53f87"
+    },
+    "results": {
+      "bytes": 6522,
+      "mode": 292,
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/data/rot-phaseb-map-r1/artifacts/run-1662528/scientific-run/results.json",
+      "sha256": "055f180acf4a69023cf1352c9d9605ce9e4b116156fdad180e8eed4af7a4d118"
+    }
+  },
+  "plan": {
+    "bytes": 32716,
+    "mode": 256,
+    "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/inputs/authoritative-plan.md",
+    "sha256": "4c0f16b28a8c92aa2a70e163df36d2e5a6e98bdcd9c4aac77a0969491f307d45"
+  },
+  "policy": {
+    "freeze": {
+      "bytes": 218030,
+      "mode": 292,
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/data/rot-phasec-selector-r1/policy-freeze.json",
+      "sha256": "2543c2ed55a1d0b9b70189d53c91c27b88c5db4a15b152786cdbcb1b4d59a31a"
+    },
+    "freeze_sha256": "2543c2ed55a1d0b9b70189d53c91c27b88c5db4a15b152786cdbcb1b4d59a31a"
+  },
+  "project": {
+    "head": "94d23efadda38451dabd120eaa68ec6f133a369a",
+    "manifest": {
+      "entries_sha256": "af221f7e29c3cad6cde62416afe32d928e2a648aaa679be7e20cccd97a73e8c3",
+      "immutable": true,
+      "manifest_file_sha256": "c1045554ff5b7b5e3f86e2aafb416a7722bc94ceec9af12da1d3f6eff09c6112",
+      "manifest_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/REPRODUCIBILITY_MANIFEST.json"
+    },
+    "metadata_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project/REPRODUCIBILITY_METADATA.json",
+    "metadata_sha256": "428c991f68cc1fe24f535d4de2cb49bbb84f5d6b3e29dcaa8d54ca57cf451850",
+    "required_ancestor": "f7cd759307ffdb534581587520b42e95a309498c",
+    "root": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project",
+    "tree": "cd4a2eeb2e8a13178f77af0aba9d73bd0ef54fa6"
+  },
+  "schema_version": "phase-c-selector-remote-preflight-v1",
+  "terminal_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/run-state/remote-terminal.json"
+}

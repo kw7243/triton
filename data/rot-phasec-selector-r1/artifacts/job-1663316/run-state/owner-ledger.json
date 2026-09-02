@@ -1,0 +1,7 @@
+{
+  "driver_attempts": 1,
+  "owner_attempts": 1,
+  "salloc_attempts": 1,
+  "srun_attempts": 1,
+  "terminal_events_fired": 1
+}

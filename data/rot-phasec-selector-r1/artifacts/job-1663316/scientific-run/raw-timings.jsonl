@@ -1,0 +1,35 @@
+{"measurement_id": "measurement-00-a32c5be6b195", "metric": "end_to_end_decode", "milliseconds": 1701.0903586633503, "policy_aliases": ["adaptive-budget-000", "fixed-i"], "repetition": 0}
+{"measurement_id": "measurement-00-a32c5be6b195", "metric": "end_to_end_decode", "milliseconds": 1702.1982856094837, "policy_aliases": ["adaptive-budget-000", "fixed-i"], "repetition": 1}
+{"measurement_id": "measurement-00-a32c5be6b195", "metric": "end_to_end_decode", "milliseconds": 1707.0028730668128, "policy_aliases": ["adaptive-budget-000", "fixed-i"], "repetition": 2}
+{"measurement_id": "measurement-00-a32c5be6b195", "metric": "end_to_end_decode", "milliseconds": 1699.8224388808012, "policy_aliases": ["adaptive-budget-000", "fixed-i"], "repetition": 3}
+{"measurement_id": "measurement-00-a32c5be6b195", "metric": "end_to_end_decode", "milliseconds": 1699.7180972248316, "policy_aliases": ["adaptive-budget-000", "fixed-i"], "repetition": 4}
+{"measurement_id": "measurement-01-b58e2f24a3fc", "metric": "end_to_end_decode", "milliseconds": 1807.5489429757, "policy_aliases": ["adaptive-budget-025"], "repetition": 0}
+{"measurement_id": "measurement-01-b58e2f24a3fc", "metric": "end_to_end_decode", "milliseconds": 1811.7984998971224, "policy_aliases": ["adaptive-budget-025"], "repetition": 1}
+{"measurement_id": "measurement-01-b58e2f24a3fc", "metric": "end_to_end_decode", "milliseconds": 1809.3978529796004, "policy_aliases": ["adaptive-budget-025"], "repetition": 2}
+{"measurement_id": "measurement-01-b58e2f24a3fc", "metric": "end_to_end_decode", "milliseconds": 1813.709351234138, "policy_aliases": ["adaptive-budget-025"], "repetition": 3}
+{"measurement_id": "measurement-01-b58e2f24a3fc", "metric": "end_to_end_decode", "milliseconds": 1810.2785469964147, "policy_aliases": ["adaptive-budget-025"], "repetition": 4}
+{"measurement_id": "measurement-02-80c0c450eed4", "metric": "end_to_end_decode", "milliseconds": 1930.2272447384894, "policy_aliases": ["adaptive-budget-050"], "repetition": 0}
+{"measurement_id": "measurement-02-80c0c450eed4", "metric": "end_to_end_decode", "milliseconds": 1936.1285283230245, "policy_aliases": ["adaptive-budget-050"], "repetition": 1}
+{"measurement_id": "measurement-02-80c0c450eed4", "metric": "end_to_end_decode", "milliseconds": 1928.2256038859487, "policy_aliases": ["adaptive-budget-050"], "repetition": 2}
+{"measurement_id": "measurement-02-80c0c450eed4", "metric": "end_to_end_decode", "milliseconds": 1931.2931718304753, "policy_aliases": ["adaptive-budget-050"], "repetition": 3}
+{"measurement_id": "measurement-02-80c0c450eed4", "metric": "end_to_end_decode", "milliseconds": 1930.5252209305763, "policy_aliases": ["adaptive-budget-050"], "repetition": 4}
+{"measurement_id": "measurement-03-fa4f20f3b3e0", "metric": "end_to_end_decode", "milliseconds": 2055.988437961787, "policy_aliases": ["adaptive-budget-075"], "repetition": 0}
+{"measurement_id": "measurement-03-fa4f20f3b3e0", "metric": "end_to_end_decode", "milliseconds": 2061.596025712788, "policy_aliases": ["adaptive-budget-075"], "repetition": 1}
+{"measurement_id": "measurement-03-fa4f20f3b3e0", "metric": "end_to_end_decode", "milliseconds": 2053.110981825739, "policy_aliases": ["adaptive-budget-075"], "repetition": 2}
+{"measurement_id": "measurement-03-fa4f20f3b3e0", "metric": "end_to_end_decode", "milliseconds": 2053.2432538457215, "policy_aliases": ["adaptive-budget-075"], "repetition": 3}
+{"measurement_id": "measurement-03-fa4f20f3b3e0", "metric": "end_to_end_decode", "milliseconds": 2051.312693860382, "policy_aliases": ["adaptive-budget-075"], "repetition": 4}
+{"measurement_id": "measurement-04-2b59f95c5c1b", "metric": "end_to_end_decode", "milliseconds": 2194.0365452319384, "policy_aliases": ["adaptive-budget-100", "fixed-hfull"], "repetition": 0}
+{"measurement_id": "measurement-04-2b59f95c5c1b", "metric": "end_to_end_decode", "milliseconds": 2200.6628988310695, "policy_aliases": ["adaptive-budget-100", "fixed-hfull"], "repetition": 1}
+{"measurement_id": "measurement-04-2b59f95c5c1b", "metric": "end_to_end_decode", "milliseconds": 2189.5860652439296, "policy_aliases": ["adaptive-budget-100", "fixed-hfull"], "repetition": 2}
+{"measurement_id": "measurement-04-2b59f95c5c1b", "metric": "end_to_end_decode", "milliseconds": 2185.6417721137404, "policy_aliases": ["adaptive-budget-100", "fixed-hfull"], "repetition": 3}
+{"measurement_id": "measurement-04-2b59f95c5c1b", "metric": "end_to_end_decode", "milliseconds": 2191.861300729215, "policy_aliases": ["adaptive-budget-100", "fixed-hfull"], "repetition": 4}
+{"measurement_id": "measurement-05-ed110085150b", "metric": "end_to_end_decode", "milliseconds": 1940.636402927339, "policy_aliases": ["fixed-h32"], "repetition": 0}
+{"measurement_id": "measurement-05-ed110085150b", "metric": "end_to_end_decode", "milliseconds": 1941.881451755762, "policy_aliases": ["fixed-h32"], "repetition": 1}
+{"measurement_id": "measurement-05-ed110085150b", "metric": "end_to_end_decode", "milliseconds": 1946.2547209113836, "policy_aliases": ["fixed-h32"], "repetition": 2}
+{"measurement_id": "measurement-05-ed110085150b", "metric": "end_to_end_decode", "milliseconds": 1935.9166091307998, "policy_aliases": ["fixed-h32"], "repetition": 3}
+{"measurement_id": "measurement-05-ed110085150b", "metric": "end_to_end_decode", "milliseconds": 1943.7442109920084, "policy_aliases": ["fixed-h32"], "repetition": 4}
+{"measurement_id": "measurement-06-a3d78cd59684", "metric": "end_to_end_decode", "milliseconds": 2011.3607440143824, "policy_aliases": ["fixed-h128"], "repetition": 0}
+{"measurement_id": "measurement-06-a3d78cd59684", "metric": "end_to_end_decode", "milliseconds": 2009.515294805169, "policy_aliases": ["fixed-h128"], "repetition": 1}
+{"measurement_id": "measurement-06-a3d78cd59684", "metric": "end_to_end_decode", "milliseconds": 2007.261420134455, "policy_aliases": ["fixed-h128"], "repetition": 2}
+{"measurement_id": "measurement-06-a3d78cd59684", "metric": "end_to_end_decode", "milliseconds": 2008.3792167715728, "policy_aliases": ["fixed-h128"], "repetition": 3}
+{"measurement_id": "measurement-06-a3d78cd59684", "metric": "end_to_end_decode", "milliseconds": 2012.062645982951, "policy_aliases": ["fixed-h128"], "repetition": 4}

@@ -1,0 +1,28 @@
+{
+  "conclusion": "C4: adaptive allocation does not beat the fixed-transform frontier; stop the per-layer allocation idea",
+  "decision": "C4",
+  "input_hashes": {
+    "literal-decision-c.json": "3bdf523af005faa27825413edf6b55e792c5eb660683ff5453b220c50b1ce0f9",
+    "measured-policies.jsonl": "134323f3f5ede501d93990e4391abe3b6c65eff69944a099c68866ca1a99426d",
+    "owner-ledger.json": "1233621ff98d00e5767081c3c573a766bc997c6bd6e5cb73731369a4052f9e44",
+    "policy-freeze.json": "2543c2ed55a1d0b9b70189d53c91c27b88c5db4a15b152786cdbcb1b4d59a31a",
+    "raw-timings.jsonl": "953543c1e7446ab23772de233e935d64ffa003ecc1010a1736378be229a74b33",
+    "remote-terminal.json": "5c42c0815405923194fc9e9f0bcc28255155685ae3a5f3a7b2f20885c7a432ce",
+    "results.json": "e220456900f6f082e2e6596ec310f39a9282595e7820547867c1bf6b5b530169"
+  },
+  "ledger": {
+    "driver_attempts": 1,
+    "owner_attempts": 1,
+    "salloc_attempts": 1,
+    "srun_attempts": 1,
+    "terminal_events_fired": 1
+  },
+  "mixquant_perq_available": false,
+  "policy_identities": 9,
+  "raw_timing_rows": 35,
+  "root": "/tmp/phasec-selector-r1.5ol9pE/copied",
+  "schema_version": "phase-c-result-verification-v1",
+  "source_commit": "94d23efadda38451dabd120eaa68ec6f133a369a",
+  "status": "passed",
+  "unique_measurements": 7
+}

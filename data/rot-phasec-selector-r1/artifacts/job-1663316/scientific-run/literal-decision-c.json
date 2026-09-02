@@ -1,0 +1,57 @@
+{
+  "accuracy_recovery_entered": false,
+  "adaptive_comparisons": [
+    {
+      "beats_fixed_frontier": false,
+      "materially_dominated_by_any_fixed": false,
+      "materially_dominates_fixed_blocks": [],
+      "policy_id": "adaptive-budget-025",
+      "ppl_delta_vs_hfull": 403.01326138557437,
+      "speedup_percent_vs_hfull": 21.078676227253347
+    },
+    {
+      "beats_fixed_frontier": false,
+      "materially_dominated_by_any_fixed": false,
+      "materially_dominates_fixed_blocks": [],
+      "policy_id": "adaptive-budget-050",
+      "ppl_delta_vs_hfull": 119.2860851052031,
+      "speedup_percent_vs_hfull": 13.537045616667264
+    },
+    {
+      "beats_fixed_frontier": false,
+      "materially_dominated_by_any_fixed": false,
+      "materially_dominates_fixed_blocks": [],
+      "policy_id": "adaptive-budget-075",
+      "ppl_delta_vs_hfull": 21.65466089247407,
+      "speedup_percent_vs_hfull": 6.751175079906502
+    }
+  ],
+  "best_quality_good_speedup_percent_vs_hfull": null,
+  "c_kernel_entered": false,
+  "conclusion": "C4: adaptive allocation does not beat the fixed-transform frontier; stop the per-layer allocation idea",
+  "contract": {
+    "C1_speedup_percent_min": 3.0,
+    "C2_speedup_percent_max_exclusive": 3.0,
+    "C2_speedup_percent_min_inclusive": 1.0,
+    "material_latency_improvement_percent": 1.0,
+    "material_ppl_improvement": 0.05,
+    "multiple_adaptive_budgets": 2,
+    "no_worse_latency_tolerance_percent": 0.5,
+    "no_worse_ppl_tolerance": 0.02,
+    "quality_good_ppl_delta_max": 0.2
+  },
+  "decision": "C4",
+  "endpoint_deduplication": {
+    "adaptive_budget_000_equals_fixed_i": true,
+    "adaptive_budget_100_equals_fixed_hfull": true
+  },
+  "fixed_block_baselines_dominated": [],
+  "fixed_frontier_winning_adaptive_policies": [],
+  "maximum_interior_adaptive_speedup_percent_vs_hfull": 21.078676227253347,
+  "multi_budget_fixed_baseline_dominance": false,
+  "next_step": "Stop; do not add selector search complexity.",
+  "phase_d_entered": false,
+  "schema_version": "phase-c-literal-decision-v1",
+  "second_scientific_run_entered": false,
+  "selector_beats_fixed_frontier": false
+}

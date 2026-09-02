@@ -1992,3 +1992,100 @@ two CPUs, 32 GiB (the smallest demonstrated real-model host-memory request), and
 45 minutes (20-minute estimate plus 25-minute buffer). The single immutable
 stage, staged preflight, and scheduler boundary are still pending at this entry;
 no GPU or Slurm attempt has been consumed.
+
+## 2026-09-02 — Phase C one-shot result and literal Decision C
+
+The sole immutable stage passed before allocation at
+`/data/scratch-fast/kwen1/structured-hadamard/rot-phasec-selector-r1/attempt-20260902T034239Z-94d23efadd/stages/project`.
+It contains exact source commit
+`94d23efadda38451dabd120eaa68ec6f133a369a`, tree
+`cd4a2eeb2e8a13178f77af0aba9d73bd0ef54fa6`, independent usable Git metadata,
+and all 1,885 tracked/untracked/allowed-ignored inputs. Canonical entries hash
+is `af221f7e29c3cad6cde62416afe32d928e2a648aaa679be7e20cccd97a73e8c3`;
+metadata and manifest-file hashes are
+`428c991f68cc1fe24f535d4de2cb49bbb84f5d6b3e29dcaa8d54ca57cf451850`
+and `c1045554ff5b7b5e3f86e2aafb416a7722bc94ceec9af12da1d3f6eff09c6112`.
+The complete source bundle hash is
+`c48d0ef48306663b56e2d52c4c0e045e3334941c222d65d11c3949835982aaf2`.
+
+The staged preflight bound the plan; accepted Phase B report, results, map, and
+224 selected source rows; model/data/dependency/runtime/environment/helper
+bytes; frozen policies; exact argv; output parent; and zeroed one-shot ledger.
+Clearance hash was
+`503f34523a6a49146ef31d6e9d98aef795552e948c81c260546d9af002397c31`
+and preflight hash was
+`8f628f7508075e899d98f1d142887efcb80ec5ddacc0a451e4fe8a39874a3cc7`.
+Exact command arrays are in
+`data/rot-phasec-selector-r1/artifacts/job-1663316/provenance/execution-argv.json`,
+file SHA-256
+`6ac4d36e793423d0ec95e9d695b9f5ab01c7a50f1511e57ebf73dd38939a05a9`
+and canonical arrays hash
+`c3011c3d8241503cfe1ab31792191f8ab1e6e7a3b3c3c923f7f32f01433d4621`.
+
+Dynamic read-only inspection found eight free account-allowed RTX 3090 GPUs.
+The smallest native accepted target was therefore the directly comparable
+`vision-torralba-rtx3090` partition. Fixed event ownership was armed before the
+scheduler boundary. Slurm job `1663316` ran on
+`torralba-3090-1.csail.mit.edu`, exposing the accepted NVIDIA GeForce RTX 3090,
+SM86, UUID `76f2cc49-6a31-24e3-23e0-f628fc728221`, and 25,296,044,032 bytes.
+Accounting is `COMPLETED`, exit `0:0`, elapsed `00:12:49`, with step MaxRSS
+`30,851,108K` against 32 GiB requested. Exactly one owner, `salloc`,
+`srun --pty`, scientific driver, and terminal event ran; every final ledger
+counter is one. The event was handled once, and the allocation, SSH control
+master, and sole tmux route were retired.
+
+The five adaptive points and fixed baselines measured:
+
+```text
+policy                 cost %      PPL          decode ms   tokens/s
+adaptive 0 / fixed I    0.000000  1075.362051   1701.090    18.8115
+adaptive 25            23.960498   504.055520   1810.279    17.6768
+adaptive 50            49.916370   220.328343   1930.525    16.5758
+fixed H32              51.301009   179.977336   1941.881    16.4789
+fixed H128             65.621508   123.946654   2009.515    15.9242
+adaptive 75            74.228793   122.696919   2053.243    15.5851
+adaptive 100 / Hfull  100.000000   101.042258   2191.861    14.5995
+```
+
+Interior adaptive speedups versus all-`Hfull` were `21.0787%`, `13.5370%`,
+and `6.7512%`, but PPL penalties were `+403.0133`, `+119.2861`, and
+`+21.6547`. None was within the frozen `0.2`-PPL quality window. At comparable
+half cost, adaptive 50 was only `0.5848%` faster than fixed `H32` and
+`40.3510` PPL worse. Adaptive 75 was `1.2497` PPL better than fixed `H128`
+but `2.1760%` slower. No adaptive point materially dominated any fixed block
+baseline, and there was no multi-budget fixed-baseline dominance.
+
+The literal result is **C4: adaptive allocation does not beat the
+fixed-transform frontier; stop the per-layer allocation idea and do not add
+selector search complexity**. C-kernel, mass balancing, Phase D, accuracy
+recovery, MixQuant/PeRQ reproduction, fusion, and a second scientific run were
+not entered. The inherited all-`Hfull` W4A4 PPL remains about 101 versus FP16
+about 6.82, so this relative C4 result is not deployment-quality evidence.
+
+Three read-only command-shaping issues are preserved without deletion: a
+space-containing remote `stat` format was split before staging; one
+`scontrol show node` invocation incorrectly supplied three node names; and a
+post-terminal `find -printf` format containing `|` was split. Each output was
+rejected, each correction was read-only or evidence-preserving, no relevant
+byte/job/ledger state changed, and no retry or duplicate owner resulted.
+
+Independent verification passed all hashes, policy aliases and schemas, 35 raw
+timing rows, literal decision reproduction, preflight, and exact one-shot
+ledger. The verifier record SHA-256 is
+`50359aa1e6a377cf7cb4d5e5640a1dde14e3ea8b9727156023e0a7dd511e418d`.
+The 21-file repo-local evidence manifest SHA-256 is
+`af0e454600913dab592ad54834164d487020549db87514e2436dbe0c46c73e98`.
+The exact results, raw timings, assignments, figure/table, stage/preflight,
+terminal lifecycle, accounting, and logs are under
+`data/rot-phasec-selector-r1/artifacts/job-1663316/`. The durable report is
+`data/rot-phasec-selector-r1/report.md`. Another GPU run is not authorized.
+
+CPU-only reproduction from the repo root:
+
+```bash
+sha256sum -c data/rot-phasec-selector-r1/artifacts/job-1663316/artifact-sha256.txt
+PYTHONDONTWRITEBYTECODE=1 python3 -m \
+  experiments.structured_hadamard.phase_c.verify_results \
+  data/rot-phasec-selector-r1/artifacts/job-1663316 \
+  --policy-freeze data/rot-phasec-selector-r1/policy-freeze.json
+```
