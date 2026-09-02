@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="680" viewBox="0 0 1000 680">
+<rect width="100%" height="100%" fill="white"/>
+<style>text{font-family:Arial,sans-serif;fill:#111827}.axis{stroke:#374151;stroke-width:1.5}.grid{stroke:#e5e7eb;stroke-width:1}</style>
+<text x="500" y="28" text-anchor="middle" font-size="20">Phase B per-layer quality–latency map</text>
+<line class="grid" x1="95.00" y1="55" x2="95.00" y2="595"/>
+<text x="95.00" y="619" text-anchor="middle" font-size="12">0.1772</text>
+<line class="grid" x1="95" y1="595.00" x2="965" y2="595.00"/>
+<text x="85" y="599.00" text-anchor="end" font-size="12">0.004381</text>
+<line class="grid" x1="269.00" y1="55" x2="269.00" y2="595"/>
+<text x="269.00" y="619" text-anchor="middle" font-size="12">0.2888</text>
+<line class="grid" x1="95" y1="487.00" x2="965" y2="487.00"/>
+<text x="85" y="491.00" text-anchor="end" font-size="12">0.1173</text>
+<line class="grid" x1="443.00" y1="55" x2="443.00" y2="595"/>
+<text x="443.00" y="619" text-anchor="middle" font-size="12">0.4004</text>
+<line class="grid" x1="95" y1="379.00" x2="965" y2="379.00"/>
+<text x="85" y="383.00" text-anchor="end" font-size="12">0.2303</text>
+<line class="grid" x1="617.00" y1="55" x2="617.00" y2="595"/>
+<text x="617.00" y="619" text-anchor="middle" font-size="12">0.512</text>
+<line class="grid" x1="95" y1="271.00" x2="965" y2="271.00"/>
+<text x="85" y="275.00" text-anchor="end" font-size="12">0.3432</text>
+<line class="grid" x1="791.00" y1="55" x2="791.00" y2="595"/>
+<text x="791.00" y="619" text-anchor="middle" font-size="12">0.6236</text>
+<line class="grid" x1="95" y1="163.00" x2="965" y2="163.00"/>
+<text x="85" y="167.00" text-anchor="end" font-size="12">0.4562</text>
+<line class="grid" x1="965.00" y1="55" x2="965.00" y2="595"/>
+<text x="965.00" y="619" text-anchor="middle" font-size="12">0.7352</text>
+<line class="grid" x1="95" y1="55.00" x2="965" y2="55.00"/>
+<text x="85" y="59.00" text-anchor="end" font-size="12">0.5691</text>
+<line class="axis" x1="95" y1="595" x2="965" y2="595"/>
+<line class="axis" x1="95" y1="55" x2="95" y2="595"/>
+<text x="530.0" y="656" text-anchor="middle" font-size="15">Affected packed-W4A4 layer latency (ms)</text>
+<text transform="translate(24 325.0) rotate(-90)" text-anchor="middle" font-size="15">Local normalized output error</text>
+<circle cx="98.19" cy="356.88" r="4" fill="#6b7280" opacity="0.76"><title>layer 0, I: latency=0.17919999 ms, NMSE=0.25340413</title></circle>
+<circle cx="527.61" cy="492.73" r="4" fill="#2563eb" opacity="0.76"><title>layer 0, H32: latency=0.454656 ms, NMSE=0.11133652</title></circle>
+<circle cx="661.70" cy="544.44" r="4" fill="#7c3aed" opacity="0.76"><title>layer 0, H128: latency=0.540672 ms, NMSE=0.057259914</title></circle>
+<circle cx="965.00" cy="575.35" r="4" fill="#dc2626" opacity="0.76"><title>layer 0, Hfull: latency=0.735232 ms, NMSE=0.024932404</title></circle>
+<circle cx="95.00" cy="595.00" r="4" fill="#6b7280" opacity="0.76"><title>layer 1, I: latency=0.17715199 ms, NMSE=0.004380804</title></circle>
+<circle cx="526.81" cy="585.02" r="4" fill="#2563eb" opacity="0.76"><title>layer 1, H32: latency=0.454144 ms, NMSE=0.014819376</title></circle>
+<circle cx="660.10" cy="585.48" r="4" fill="#7c3aed" opacity="0.76"><title>layer 1, H128: latency=0.539648 ms, NMSE=0.01433551</title></circle>
+<circle cx="963.40" cy="585.53" r="4" fill="#dc2626" opacity="0.76"><title>layer 1, Hfull: latency=0.73420799 ms, NMSE=0.014289569</title></circle>
+<circle cx="98.19" cy="148.29" r="4" fill="#6b7280" opacity="0.76"><title>layer 2, I: latency=0.17919999 ms, NMSE=0.47154731</title></circle>
+<circle cx="529.20" cy="440.42" r="4" fill="#2563eb" opacity="0.76"><title>layer 2, H32: latency=0.45568001 ms, NMSE=0.16603797</title></circle>
+<circle cx="662.50" cy="515.90" r="4" fill="#7c3aed" opacity="0.76"><title>layer 2, H128: latency=0.54118401 ms, NMSE=0.08710267</title></circle>
+<circle cx="963.40" cy="552.08" r="4" fill="#dc2626" opacity="0.76"><title>layer 2, Hfull: latency=0.73420799 ms, NMSE=0.049268611</title></circle>
+<circle cx="96.60" cy="156.82" r="4" fill="#6b7280" opacity="0.76"><title>layer 3, I: latency=0.178176 ms, NMSE=0.4626249</title></circle>
+<circle cx="527.61" cy="488.39" r="4" fill="#2563eb" opacity="0.76"><title>layer 3, H32: latency=0.454656 ms, NMSE=0.11587735</title></circle>
+<circle cx="660.10" cy="530.47" r="4" fill="#7c3aed" opacity="0.76"><title>layer 3, H128: latency=0.539648 ms, NMSE=0.071861173</title></circle>
+<circle cx="965.00" cy="548.02" r="4" fill="#dc2626" opacity="0.76"><title>layer 3, Hfull: latency=0.735232 ms, NMSE=0.053507304</title></circle>
+<circle cx="96.60" cy="98.93" r="4" fill="#6b7280" opacity="0.76"><title>layer 4, I: latency=0.178176 ms, NMSE=0.52316922</title></circle>
+<circle cx="524.41" cy="481.49" r="4" fill="#2563eb" opacity="0.76"><title>layer 4, H32: latency=0.45260799 ms, NMSE=0.12309064</title></circle>
+<circle cx="660.10" cy="527.36" r="4" fill="#7c3aed" opacity="0.76"><title>layer 4, H128: latency=0.539648 ms, NMSE=0.075122956</title></circle>
+<circle cx="961.81" cy="546.32" r="4" fill="#dc2626" opacity="0.76"><title>layer 4, Hfull: latency=0.73318398 ms, NMSE=0.05528673</title></circle>
+<circle cx="95.00" cy="96.95" r="4" fill="#6b7280" opacity="0.76"><title>layer 5, I: latency=0.17715199 ms, NMSE=0.52524227</title></circle>
+<circle cx="521.22" cy="486.30" r="4" fill="#2563eb" opacity="0.76"><title>layer 5, H32: latency=0.45056 ms, NMSE=0.11805642</title></circle>
+<circle cx="656.91" cy="528.12" r="4" fill="#7c3aed" opacity="0.76"><title>layer 5, H128: latency=0.53759998 ms, NMSE=0.074320097</title></circle>
+<circle cx="953.83" cy="545.59" r="4" fill="#dc2626" opacity="0.76"><title>layer 5, Hfull: latency=0.728064 ms, NMSE=0.056053138</title></circle>
+<circle cx="95.00" cy="118.63" r="4" fill="#6b7280" opacity="0.76"><title>layer 6, I: latency=0.17715199 ms, NMSE=0.50256579</title></circle>
+<circle cx="524.41" cy="501.46" r="4" fill="#2563eb" opacity="0.76"><title>layer 6, H32: latency=0.45260799 ms, NMSE=0.10220448</title></circle>
+<circle cx="655.31" cy="533.62" r="4" fill="#7c3aed" opacity="0.76"><title>layer 6, H128: latency=0.53657597 ms, NMSE=0.06857661</title></circle>
+<circle cx="961.81" cy="545.90" r="4" fill="#dc2626" opacity="0.76"><title>layer 6, Hfull: latency=0.73318398 ms, NMSE=0.055730836</title></circle>
+<circle cx="95.00" cy="152.45" r="4" fill="#6b7280" opacity="0.76"><title>layer 7, I: latency=0.17715199 ms, NMSE=0.46719916</title></circle>
+<circle cx="527.61" cy="508.23" r="4" fill="#2563eb" opacity="0.76"><title>layer 7, H32: latency=0.454656 ms, NMSE=0.095123881</title></circle>
+<circle cx="658.50" cy="533.95" r="4" fill="#7c3aed" opacity="0.76"><title>layer 7, H128: latency=0.53862399 ms, NMSE=0.06822147</title></circle>
+<circle cx="961.81" cy="544.01" r="4" fill="#dc2626" opacity="0.76"><title>layer 7, Hfull: latency=0.73318398 ms, NMSE=0.05770236</title></circle>
+<circle cx="95.00" cy="156.11" r="4" fill="#6b7280" opacity="0.76"><title>layer 8, I: latency=0.17715199 ms, NMSE=0.46336957</title></circle>
+<circle cx="522.82" cy="508.45" r="4" fill="#2563eb" opacity="0.76"><title>layer 8, H32: latency=0.45158401 ms, NMSE=0.094895777</title></circle>
+<circle cx="655.31" cy="534.23" r="4" fill="#7c3aed" opacity="0.76"><title>layer 8, H128: latency=0.53657597 ms, NMSE=0.067938894</title></circle>
+<circle cx="957.02" cy="543.71" r="4" fill="#dc2626" opacity="0.76"><title>layer 8, Hfull: latency=0.73011202 ms, NMSE=0.05801658</title></circle>
+<circle cx="96.60" cy="130.00" r="4" fill="#6b7280" opacity="0.76"><title>layer 9, I: latency=0.178176 ms, NMSE=0.49067124</title></circle>
+<circle cx="528.63" cy="505.11" r="4" fill="#2563eb" opacity="0.76"><title>layer 9, H32: latency=0.45531201 ms, NMSE=0.098391109</title></circle>
+<circle cx="663.29" cy="531.86" r="4" fill="#7c3aed" opacity="0.76"><title>layer 9, H128: latency=0.54169601 ms, NMSE=0.070408187</title></circle>
+<circle cx="961.86" cy="541.87" r="4" fill="#dc2626" opacity="0.76"><title>layer 9, Hfull: latency=0.73321599 ms, NMSE=0.059946552</title></circle>
+<circle cx="96.60" cy="155.65" r="4" fill="#6b7280" opacity="0.76"><title>layer 10, I: latency=0.178176 ms, NMSE=0.46384614</title></circle>
+<circle cx="534.79" cy="509.26" r="4" fill="#2563eb" opacity="0.76"><title>layer 10, H32: latency=0.45926401 ms, NMSE=0.094048828</title></circle>
+<circle cx="655.31" cy="532.93" r="4" fill="#7c3aed" opacity="0.76"><title>layer 10, H128: latency=0.53657597 ms, NMSE=0.069292918</title></circle>
+<circle cx="957.02" cy="542.20" r="4" fill="#dc2626" opacity="0.76"><title>layer 10, Hfull: latency=0.73011202 ms, NMSE=0.059595422</title></circle>
+<circle cx="95.00" cy="139.74" r="4" fill="#6b7280" opacity="0.76"><title>layer 11, I: latency=0.17715199 ms, NMSE=0.48048821</title></circle>
+<circle cx="526.01" cy="511.50" r="4" fill="#2563eb" opacity="0.76"><title>layer 11, H32: latency=0.453632 ms, NMSE=0.091700317</title></circle>
+<circle cx="656.91" cy="535.25" r="4" fill="#7c3aed" opacity="0.76"><title>layer 11, H128: latency=0.53759998 ms, NMSE=0.066862937</title></circle>
+<circle cx="963.40" cy="543.57" r="4" fill="#dc2626" opacity="0.76"><title>layer 11, Hfull: latency=0.73420799 ms, NMSE=0.058164509</title></circle>
+<circle cx="96.60" cy="144.88" r="4" fill="#6b7280" opacity="0.76"><title>layer 12, I: latency=0.178176 ms, NMSE=0.47511607</title></circle>
+<circle cx="527.61" cy="502.48" r="4" fill="#2563eb" opacity="0.76"><title>layer 12, H32: latency=0.454656 ms, NMSE=0.1011328</title></circle>
+<circle cx="656.91" cy="531.52" r="4" fill="#7c3aed" opacity="0.76"><title>layer 12, H128: latency=0.53759998 ms, NMSE=0.070767633</title></circle>
+<circle cx="957.02" cy="542.81" r="4" fill="#dc2626" opacity="0.76"><title>layer 12, Hfull: latency=0.73011202 ms, NMSE=0.058961107</title></circle>
+<circle cx="96.60" cy="86.61" r="4" fill="#6b7280" opacity="0.76"><title>layer 13, I: latency=0.178176 ms, NMSE=0.53605136</title></circle>
+<circle cx="526.01" cy="500.26" r="4" fill="#2563eb" opacity="0.76"><title>layer 13, H32: latency=0.453632 ms, NMSE=0.10346319</title></circle>
+<circle cx="656.91" cy="528.64" r="4" fill="#7c3aed" opacity="0.76"><title>layer 13, H128: latency=0.53759998 ms, NMSE=0.073774828</title></circle>
+<circle cx="957.82" cy="540.15" r="4" fill="#dc2626" opacity="0.76"><title>layer 13, Hfull: latency=0.73062402 ms, NMSE=0.061738101</title></circle>
+<circle cx="96.60" cy="69.10" r="4" fill="#6b7280" opacity="0.76"><title>layer 14, I: latency=0.178176 ms, NMSE=0.55436536</title></circle>
+<circle cx="524.41" cy="479.52" r="4" fill="#2563eb" opacity="0.76"><title>layer 14, H32: latency=0.45260799 ms, NMSE=0.12515069</title></circle>
+<circle cx="661.70" cy="522.80" r="4" fill="#7c3aed" opacity="0.76"><title>layer 14, H128: latency=0.540672 ms, NMSE=0.079888016</title></circle>
+<circle cx="963.40" cy="539.75" r="4" fill="#dc2626" opacity="0.76"><title>layer 14, Hfull: latency=0.73420799 ms, NMSE=0.062162928</title></circle>
+<circle cx="96.60" cy="55.00" r="4" fill="#6b7280" opacity="0.76"><title>layer 15, I: latency=0.178176 ms, NMSE=0.56911024</title></circle>
+<circle cx="526.01" cy="471.80" r="4" fill="#2563eb" opacity="0.76"><title>layer 15, H32: latency=0.453632 ms, NMSE=0.1332221</title></circle>
+<circle cx="655.31" cy="520.55" r="4" fill="#7c3aed" opacity="0.76"><title>layer 15, H128: latency=0.53657597 ms, NMSE=0.082239682</title></circle>
+<circle cx="955.42" cy="540.74" r="4" fill="#dc2626" opacity="0.76"><title>layer 15, Hfull: latency=0.72908801 ms, NMSE=0.061121812</title></circle>
+<circle cx="96.60" cy="67.19" r="4" fill="#6b7280" opacity="0.76"><title>layer 16, I: latency=0.178176 ms, NMSE=0.55636595</title></circle>
+<circle cx="522.82" cy="461.15" r="4" fill="#2563eb" opacity="0.76"><title>layer 16, H32: latency=0.45158401 ms, NMSE=0.14436479</title></circle>
+<circle cx="653.84" cy="517.90" r="4" fill="#7c3aed" opacity="0.76"><title>layer 16, H128: latency=0.53563201 ms, NMSE=0.085009395</title></circle>
+<circle cx="955.42" cy="541.75" r="4" fill="#dc2626" opacity="0.76"><title>layer 16, Hfull: latency=0.72908801 ms, NMSE=0.060072151</title></circle>
+<circle cx="96.60" cy="71.64" r="4" fill="#6b7280" opacity="0.76"><title>layer 17, I: latency=0.178176 ms, NMSE=0.55170781</title></circle>
+<circle cx="526.01" cy="463.98" r="4" fill="#2563eb" opacity="0.76"><title>layer 17, H32: latency=0.453632 ms, NMSE=0.14140464</title></circle>
+<circle cx="655.31" cy="517.37" r="4" fill="#7c3aed" opacity="0.76"><title>layer 17, H128: latency=0.53657597 ms, NMSE=0.0855699</title></circle>
+<circle cx="955.42" cy="541.25" r="4" fill="#dc2626" opacity="0.76"><title>layer 17, Hfull: latency=0.72908801 ms, NMSE=0.060595368</title></circle>
+<circle cx="98.19" cy="89.03" r="4" fill="#6b7280" opacity="0.76"><title>layer 18, I: latency=0.17919999 ms, NMSE=0.53352613</title></circle>
+<circle cx="524.41" cy="462.17" r="4" fill="#2563eb" opacity="0.76"><title>layer 18, H32: latency=0.45260799 ms, NMSE=0.14329738</title></circle>
+<circle cx="653.72" cy="516.25" r="4" fill="#7c3aed" opacity="0.76"><title>layer 18, H128: latency=0.53555202 ms, NMSE=0.086741355</title></circle>
+<circle cx="958.61" cy="541.71" r="4" fill="#dc2626" opacity="0.76"><title>layer 18, Hfull: latency=0.73113602 ms, NMSE=0.060112419</title></circle>
+<circle cx="95.00" cy="90.56" r="4" fill="#6b7280" opacity="0.76"><title>layer 19, I: latency=0.17715199 ms, NMSE=0.53191702</title></circle>
+<circle cx="524.41" cy="458.00" r="4" fill="#2563eb" opacity="0.76"><title>layer 19, H32: latency=0.45260799 ms, NMSE=0.14765031</title></circle>
+<circle cx="655.31" cy="516.24" r="4" fill="#7c3aed" opacity="0.76"><title>layer 19, H128: latency=0.53657597 ms, NMSE=0.086744971</title></circle>
+<circle cx="958.61" cy="542.78" r="4" fill="#dc2626" opacity="0.76"><title>layer 19, Hfull: latency=0.73113602 ms, NMSE=0.058992794</title></circle>
+<circle cx="96.60" cy="97.59" r="4" fill="#6b7280" opacity="0.76"><title>layer 20, I: latency=0.178176 ms, NMSE=0.52456919</title></circle>
+<circle cx="524.41" cy="465.17" r="4" fill="#2563eb" opacity="0.76"><title>layer 20, H32: latency=0.45260799 ms, NMSE=0.14015401</title></circle>
+<circle cx="655.31" cy="518.90" r="4" fill="#7c3aed" opacity="0.76"><title>layer 20, H128: latency=0.53657597 ms, NMSE=0.083967934</title></circle>
+<circle cx="957.02" cy="542.39" r="4" fill="#dc2626" opacity="0.76"><title>layer 20, Hfull: latency=0.73011202 ms, NMSE=0.059401138</title></circle>
+<circle cx="96.60" cy="110.34" r="4" fill="#6b7280" opacity="0.76"><title>layer 21, I: latency=0.178176 ms, NMSE=0.51123642</title></circle>
+<circle cx="522.82" cy="467.89" r="4" fill="#2563eb" opacity="0.76"><title>layer 21, H32: latency=0.45158401 ms, NMSE=0.1373149</title></circle>
+<circle cx="656.91" cy="520.46" r="4" fill="#7c3aed" opacity="0.76"><title>layer 21, H128: latency=0.53759998 ms, NMSE=0.08233828</title></circle>
+<circle cx="957.84" cy="542.76" r="4" fill="#dc2626" opacity="0.76"><title>layer 21, Hfull: latency=0.73064002 ms, NMSE=0.0590099</title></circle>
+<circle cx="95.00" cy="121.08" r="4" fill="#6b7280" opacity="0.76"><title>layer 22, I: latency=0.17715199 ms, NMSE=0.50000337</title></circle>
+<circle cx="522.82" cy="462.02" r="4" fill="#2563eb" opacity="0.76"><title>layer 22, H32: latency=0.45158401 ms, NMSE=0.14344561</title></circle>
+<circle cx="653.72" cy="519.83" r="4" fill="#7c3aed" opacity="0.76"><title>layer 22, H128: latency=0.53555202 ms, NMSE=0.082994347</title></circle>
+<circle cx="955.42" cy="544.65" r="4" fill="#dc2626" opacity="0.76"><title>layer 22, Hfull: latency=0.72908801 ms, NMSE=0.057039317</title></circle>
+<circle cx="95.00" cy="144.25" r="4" fill="#6b7280" opacity="0.76"><title>layer 23, I: latency=0.17715199 ms, NMSE=0.47576857</title></circle>
+<circle cx="524.41" cy="467.97" r="4" fill="#2563eb" opacity="0.76"><title>layer 23, H32: latency=0.45260799 ms, NMSE=0.13722886</title></circle>
+<circle cx="655.31" cy="522.36" r="4" fill="#7c3aed" opacity="0.76"><title>layer 23, H128: latency=0.53657597 ms, NMSE=0.080349858</title></circle>
+<circle cx="960.21" cy="545.50" r="4" fill="#dc2626" opacity="0.76"><title>layer 23, Hfull: latency=0.73215997 ms, NMSE=0.05614412</title></circle>
+<circle cx="96.60" cy="147.85" r="4" fill="#6b7280" opacity="0.76"><title>layer 24, I: latency=0.178176 ms, NMSE=0.47201327</title></circle>
+<circle cx="524.41" cy="462.17" r="4" fill="#2563eb" opacity="0.76"><title>layer 24, H32: latency=0.45260799 ms, NMSE=0.14329613</title></circle>
+<circle cx="653.72" cy="519.36" r="4" fill="#7c3aed" opacity="0.76"><title>layer 24, H128: latency=0.53555202 ms, NMSE=0.083482687</title></circle>
+<circle cx="955.42" cy="544.82" r="4" fill="#dc2626" opacity="0.76"><title>layer 24, Hfull: latency=0.72908801 ms, NMSE=0.056854958</title></circle>
+<circle cx="96.60" cy="127.84" r="4" fill="#6b7280" opacity="0.76"><title>layer 25, I: latency=0.178176 ms, NMSE=0.49293794</title></circle>
+<circle cx="527.61" cy="457.25" r="4" fill="#2563eb" opacity="0.76"><title>layer 25, H32: latency=0.454656 ms, NMSE=0.14844025</title></circle>
+<circle cx="658.50" cy="517.19" r="4" fill="#7c3aed" opacity="0.76"><title>layer 25, H128: latency=0.53862399 ms, NMSE=0.085750371</title></circle>
+<circle cx="962.18" cy="543.50" r="4" fill="#dc2626" opacity="0.76"><title>layer 25, Hfull: latency=0.73342401 ms, NMSE=0.058244304</title></circle>
+<circle cx="98.19" cy="137.76" r="4" fill="#6b7280" opacity="0.76"><title>layer 26, I: latency=0.17919999 ms, NMSE=0.48255506</title></circle>
+<circle cx="522.82" cy="461.89" r="4" fill="#2563eb" opacity="0.76"><title>layer 26, H32: latency=0.45158401 ms, NMSE=0.14358658</title></circle>
+<circle cx="653.72" cy="517.57" r="4" fill="#7c3aed" opacity="0.76"><title>layer 26, H128: latency=0.53555202 ms, NMSE=0.085351865</title></circle>
+<circle cx="955.42" cy="542.10" r="4" fill="#dc2626" opacity="0.76"><title>layer 26, Hfull: latency=0.72908801 ms, NMSE=0.059707057</title></circle>
+<circle cx="96.60" cy="66.56" r="4" fill="#6b7280" opacity="0.76"><title>layer 27, I: latency=0.178176 ms, NMSE=0.55701758</title></circle>
+<circle cx="524.41" cy="412.28" r="4" fill="#2563eb" opacity="0.76"><title>layer 27, H32: latency=0.45260799 ms, NMSE=0.19547208</title></circle>
+<circle cx="658.50" cy="499.08" r="4" fill="#7c3aed" opacity="0.76"><title>layer 27, H128: latency=0.53862399 ms, NMSE=0.10469775</title></circle>
+<circle cx="961.81" cy="540.61" r="4" fill="#dc2626" opacity="0.76"><title>layer 27, Hfull: latency=0.73318398 ms, NMSE=0.061263164</title></circle>
+<circle cx="96.60" cy="173.08" r="4" fill="#6b7280" opacity="0.76"><title>layer 28, I: latency=0.178176 ms, NMSE=0.44561791</title></circle>
+<circle cx="522.82" cy="477.13" r="4" fill="#2563eb" opacity="0.76"><title>layer 28, H32: latency=0.45158401 ms, NMSE=0.12764573</title></circle>
+<circle cx="650.52" cy="523.26" r="4" fill="#7c3aed" opacity="0.76"><title>layer 28, H128: latency=0.53350401 ms, NMSE=0.07940572</title></circle>
+<circle cx="957.02" cy="544.31" r="4" fill="#dc2626" opacity="0.76"><title>layer 28, Hfull: latency=0.73011202 ms, NMSE=0.057392405</title></circle>
+<circle cx="96.60" cy="158.64" r="4" fill="#6b7280" opacity="0.76"><title>layer 29, I: latency=0.178176 ms, NMSE=0.46072279</title></circle>
+<circle cx="524.41" cy="474.90" r="4" fill="#2563eb" opacity="0.76"><title>layer 29, H32: latency=0.45260799 ms, NMSE=0.12998317</title></circle>
+<circle cx="655.31" cy="523.61" r="4" fill="#7c3aed" opacity="0.76"><title>layer 29, H128: latency=0.53657597 ms, NMSE=0.07903824</title></circle>
+<circle cx="958.61" cy="544.41" r="4" fill="#dc2626" opacity="0.76"><title>layer 29, Hfull: latency=0.73113602 ms, NMSE=0.057285275</title></circle>
+<circle cx="98.19" cy="115.38" r="4" fill="#6b7280" opacity="0.76"><title>layer 30, I: latency=0.17919999 ms, NMSE=0.50596924</title></circle>
+<circle cx="526.01" cy="463.58" r="4" fill="#2563eb" opacity="0.76"><title>layer 30, H32: latency=0.453632 ms, NMSE=0.14181956</title></circle>
+<circle cx="658.50" cy="520.36" r="4" fill="#7c3aed" opacity="0.76"><title>layer 30, H128: latency=0.53862399 ms, NMSE=0.082434798</title></circle>
+<circle cx="963.40" cy="553.21" r="4" fill="#dc2626" opacity="0.76"><title>layer 30, Hfull: latency=0.73420799 ms, NMSE=0.048080009</title></circle>
+<circle cx="96.60" cy="369.05" r="4" fill="#6b7280" opacity="0.76"><title>layer 31, I: latency=0.178176 ms, NMSE=0.24068255</title></circle>
+<circle cx="527.61" cy="501.63" r="4" fill="#2563eb" opacity="0.76"><title>layer 31, H32: latency=0.454656 ms, NMSE=0.10202732</title></circle>
+<circle cx="656.91" cy="539.39" r="4" fill="#7c3aed" opacity="0.76"><title>layer 31, H128: latency=0.53759998 ms, NMSE=0.062537121</title></circle>
+<circle cx="960.21" cy="558.01" r="4" fill="#dc2626" opacity="0.76"><title>layer 31, Hfull: latency=0.73215997 ms, NMSE=0.043066581</title></circle>
+<circle cx="107" cy="626" r="5" fill="#6b7280"/>
+<text x="117" y="631" font-size="13">I</text>
+<circle cx="212" cy="626" r="5" fill="#2563eb"/>
+<text x="222" y="631" font-size="13">H32</text>
+<circle cx="317" cy="626" r="5" fill="#7c3aed"/>
+<text x="327" y="631" font-size="13">H128</text>
+<circle cx="422" cy="626" r="5" fill="#dc2626"/>
+<text x="432" y="631" font-size="13">Hfull</text>
+</svg>

@@ -1,0 +1,4 @@
+JobIDRaw|JobName|Partition|Account|QOS|State|ExitCode|Elapsed|ElapsedRaw|Start|End|NodeList|AllocCPUS|ReqMem|ReqTRES|AllocTRES|MaxRSS|MaxVMSize|TotalCPU|CPUTimeRAW
+1662528|rot-phaseb-map-r1|vision-torralba-rtx3090|vision-torralba-urops-meng|vision-torralba-interactive|COMPLETED|0:0|00:14:39|879|2026-09-01T22:48:39|2026-09-01T23:03:18|torralba-3090-1|2|33554432K|billing=1008,cpu=2,gres/gpu=1,mem=33554432K,node=1|billing=1008,cpu=2,gres/gpu=1,mem=33554432K,node=1|||00:00:00|1758
+1662528.extern|extern||vision-torralba-urops-meng||COMPLETED|0:0|00:14:39|879|2026-09-01T22:48:39|2026-09-01T23:03:18|torralba-3090-1|2|||billing=1008,cpu=2,gres/gpu=1,mem=33554432K,node=1|||00:00:00|1758
+1662528.0|python3.10||vision-torralba-urops-meng||COMPLETED|0:0|00:14:37|877|2026-09-01T22:48:41|2026-09-01T23:03:18|torralba-3090-1|2|||cpu=2,gres/gpu=1,mem=33554432K,node=1|33546248K|0|00:00:00|1754

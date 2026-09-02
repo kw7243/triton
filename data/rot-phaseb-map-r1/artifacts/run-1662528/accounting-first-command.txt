@@ -1,0 +1,4 @@
+command: /usr/bin/sacct -j 1662528 --units=K --noconvert --parsable2 --starttime 2026-09-02T00:00:00 --format=JobIDRaw,JobName,Partition,Account,QOS,State,ExitCode,Elapsed,ElapsedRaw,Start,End,NodeList,AllocCPUS,ReqMem,ReqTRES,AllocTRES,MaxRSS,MaxVMSize,TotalCPU,CPUTimeRAW
+exit_code: 1
+stderr: sacct: error: Start time (2026-09-02T00:00:00) requested is after end time (2026-09-01T23:03:37).
+explanation: The command supplied the UTC calendar date to Slurm's local-time parser. It returned no accounting rows. The corrected read used 2026-09-01T00:00:00 and is preserved in sacct.psv.

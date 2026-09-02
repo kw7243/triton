@@ -1,0 +1,32 @@
+{
+  "decision": "B1: strong heterogeneity; Phase B supports proceeding to Phase C, but Phase C was not entered",
+  "input_hashes": {
+    "map-rows.jsonl": "b5461aa9af17a85936f55c57c9c55d754a774236313c41363b62b6f849d8ef62",
+    "owner-ledger.json": "1233621ff98d00e5767081c3c573a766bc997c6bd6e5cb73731369a4052f9e44",
+    "ranking-stability-analysis.json": "a48f1259c26673fdc39db30c071bc6cd54b4788871d9856b3a95d745452764ce",
+    "remote-terminal.json": "f2fc31aa829395e3f7dd1ab4a6a690ceb36c811495ec0b389b1f9bc0d06a91d8",
+    "results.json": "055f180acf4a69023cf1352c9d9605ce9e4b116156fdad180e8eed4af7a4d118",
+    "selection-freeze.json": "7c7ef11ba7eded7082849aa5a0fd98928ffb3e44c984005adf926dc7a15de166",
+    "six-site-validation.jsonl": "957b66a00b811b4434038509abdb10bd890f5d963671277732676ebe68952458"
+  },
+  "ledger": {
+    "driver_attempts": 1,
+    "owner_attempts": 1,
+    "salloc_attempts": 1,
+    "srun_attempts": 1,
+    "terminal_events_fired": 1
+  },
+  "map_rows": 128,
+  "proxy_switch_count": 0,
+  "ranking_stability_spearman_rho": 0.9750733137829912,
+  "raw_timing_rows": 25600,
+  "root": "/home/ubuntu/.treehouse/triton-ff92c5/12/triton/data/rot-phaseb-map-r1/artifacts/run-1662528",
+  "schema_version": "phase-b-result-verification-v1",
+  "site_cache_bytes": 9663741088,
+  "site_cache_entries": 32,
+  "site_cache_hashes_verified": true,
+  "six_site_rows": 6,
+  "six_site_spearman_rho": 0.2571428571428571,
+  "source_commit": "621e35b5d890ea0623f232a8aada299a1fc30d97",
+  "status": "passed"
+}

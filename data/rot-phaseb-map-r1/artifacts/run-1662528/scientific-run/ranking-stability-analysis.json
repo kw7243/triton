@@ -1,0 +1,217 @@
+{
+  "active_scores": {
+    "0": 0.08641799882473601,
+    "1": 0.0005297495305966668,
+    "10": 0.03444344679897492,
+    "11": 0.03353547101787125,
+    "12": 0.042172029342639895,
+    "13": 0.041724126316471474,
+    "14": 0.06298183957873545,
+    "15": 0.07210131604552333,
+    "16": 0.08428575696040969,
+    "17": 0.08080239575005672,
+    "18": 0.08316788073083299,
+    "19": 0.0885679966405726,
+    "2": 0.11670202635527668,
+    "20": 0.08073280275458529,
+    "21": 0.07825145904761566,
+    "22": 0.08639167648310576,
+    "23": 0.0811008325948408,
+    "24": 0.08612765162759767,
+    "25": 0.08983736570976632,
+    "26": 0.0837557305704838,
+    "27": 0.13424852245345334,
+    "28": 0.07030122422373314,
+    "29": 0.07268363013303919,
+    "3": 0.062459732546765914,
+    "30": 0.09371280108822645,
+    "31": 0.058523167044608956,
+    "4": 0.06778083222989378,
+    "5": 0.06203902700838779,
+    "6": 0.046507407928543715,
+    "7": 0.037432827144082276,
+    "8": 0.03685900054737759,
+    "9": 0.03841373755287955
+  },
+  "decision": {
+    "B1": "actionable stable quality heterogeneity and >=5% realized affected-layer latency separation",
+    "B2": "actionable stable quality heterogeneity without >=5% realized latency separation",
+    "B3": ">=5% realized latency separation without actionable stable quality heterogeneity",
+    "B4": "neither actionable quality heterogeneity nor realized latency separation",
+    "conclusion": "B1: strong heterogeneity; Phase B supports proceeding to Phase C, but Phase C was not entered",
+    "proxy_validated": true,
+    "quality_heterogeneity": {
+      "heterogeneous": true,
+      "p10": 0.03685900054737759,
+      "p90": 0.08983736570976632,
+      "relative_spread": 0.7318214574092387,
+      "statistic": "(p90 - p10) / (median(abs(sensitivity)) + 1e-12)",
+      "threshold": 0.5
+    },
+    "ranking_stability": {
+      "spearman_rho": 0.9750733137829912,
+      "stable": true,
+      "threshold": 0.5
+    },
+    "realized_latency_separation": {
+      "differs": true,
+      "gap_percent": 61.53847065556841,
+      "h32_median_ms": 0.45260798931121826,
+      "hfull_median_ms": 0.7311360239982605,
+      "statistic": "median Hfull affected-layer latency vs median H32 affected-layer latency",
+      "threshold_percent": 5.0
+    }
+  },
+  "predeclared_primary_proxy": "local_nmse_h32_minus_hfull",
+  "predeclared_stronger_proxy": "short_sequence_end_to_end_nll_h32_minus_hfull",
+  "proxy_validation": {
+    "active_proxy": "local_nmse_h32_minus_hfull",
+    "primary": {
+      "agrees": true,
+      "bottom_three_mean_ppl_impact": 0.548384388094334,
+      "predeclared_qualitative_agreement": "mean PPL impact of predicted top three exceeds predicted bottom three and six-site Spearman rho is positive",
+      "predicted_bottom_three": [
+        10,
+        11,
+        1
+      ],
+      "predicted_top_three": [
+        27,
+        2,
+        30
+      ],
+      "six_site_spearman_rho": 0.2571428571428571,
+      "top_three_mean_ppl_impact": 1.1654294599314834
+    },
+    "stronger": null,
+    "switch_count": 0
+  },
+  "schema_version": "phase-b-ranking-analysis-v1",
+  "selection": {
+    "cheaper_transform": "H32",
+    "definition": "NMSE(H32) - NMSE(Hfull) at each FFN down_proj input",
+    "frozen_before_ppl": true,
+    "least_sensitive": [
+      10,
+      11,
+      1
+    ],
+    "most_sensitive": [
+      27,
+      2,
+      30
+    ],
+    "proxy": "local_nmse_h32_minus_hfull",
+    "ranking_most_to_least_sensitive": [
+      27,
+      2,
+      30,
+      25,
+      19,
+      0,
+      22,
+      24,
+      16,
+      26,
+      18,
+      23,
+      17,
+      20,
+      21,
+      29,
+      15,
+      28,
+      4,
+      14,
+      3,
+      5,
+      31,
+      6,
+      12,
+      13,
+      9,
+      7,
+      8,
+      10,
+      11,
+      1
+    ],
+    "schema_version": "phase-b-selection-freeze-v1",
+    "scores": {
+      "0": 0.08641799882473601,
+      "1": 0.0005297495305966668,
+      "10": 0.03444344679897492,
+      "11": 0.03353547101787125,
+      "12": 0.042172029342639895,
+      "13": 0.041724126316471474,
+      "14": 0.06298183957873545,
+      "15": 0.07210131604552333,
+      "16": 0.08428575696040969,
+      "17": 0.08080239575005672,
+      "18": 0.08316788073083299,
+      "19": 0.0885679966405726,
+      "2": 0.11670202635527668,
+      "20": 0.08073280275458529,
+      "21": 0.07825145904761566,
+      "22": 0.08639167648310576,
+      "23": 0.0811008325948408,
+      "24": 0.08612765162759767,
+      "25": 0.08983736570976632,
+      "26": 0.0837557305704838,
+      "27": 0.13424852245345334,
+      "28": 0.07030122422373314,
+      "29": 0.07268363013303919,
+      "3": 0.062459732546765914,
+      "30": 0.09371280108822645,
+      "31": 0.058523167044608956,
+      "4": 0.06778083222989378,
+      "5": 0.06203902700838779,
+      "6": 0.046507407928543715,
+      "7": 0.037432827144082276,
+      "8": 0.03685900054737759,
+      "9": 0.03841373755287955
+    },
+    "selected_sites": [
+      27,
+      2,
+      30,
+      10,
+      11,
+      1
+    ],
+    "stability": {
+      "spearman_rho": 0.9750733137829912,
+      "stable": true,
+      "stable_threshold": 0.5,
+      "statistic": "Spearman rank correlation of the 32 site sensitivity scores"
+    },
+    "subset_definitions": {
+      "calibration_sequences_0_7": {
+        "rows": 4096,
+        "sequence_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      },
+      "calibration_sequences_8_15": {
+        "rows": 4096,
+        "sequence_indices": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15
+        ]
+      }
+    }
+  }
+}

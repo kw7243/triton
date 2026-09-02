@@ -1,0 +1,3 @@
+vision-torralba-rtx3090                   gpu:rtx_3090:7(S:0-127)                         gpu:rtx_3090:4(IDX:2-5)                         mixed               torralba-3090-1                                 
+vision-torralba-rtx3090                   gpu:rtx_3090:7(S:0-127)                         gpu:rtx_3090:4(IDX:1-4)                         mixed               torralba-3090-2                                 
+vision-torralba-rtx3090                   gpu:rtx_3090:7(S:0-127)                         gpu:rtx_3090:5(IDX:0-4)                         mixed               torralba-3090-3                                 

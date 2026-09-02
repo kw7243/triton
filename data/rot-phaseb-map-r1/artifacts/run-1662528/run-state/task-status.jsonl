@@ -1,0 +1,84 @@
+{"event":"preflight_prepared","gpu_attempts":0,"recorded_at_utc":"2026-09-02T02:33:28Z","scheduler_attempts":0,"stage_status":"complete","stage_head":"621e35b5d890ea0623f232a8aada299a1fc30d97"}
+{"event": "scheduler_owner_started", "recorded_at_utc": "2026-09-02T02:48:39.592604+00:00"}
+{"event": "allocation_acquired", "job_id": "1662528", "partition": "vision-torralba-rtx3090", "recorded_at_utc": "2026-09-02T02:48:41.872512+00:00"}
+{"event": "scientific_driver_started", "output_directory": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/output-parent/scientific-run", "recorded_at_utc": "2026-09-02T02:48:47.079177+00:00"}
+{"event": "gpu_visible", "hardware": {"compute_capability": [8, 6], "cuda_visible_devices": "0", "driver": null, "hostname": "torralba-3090-1.csail.mit.edu", "job_id": "1662528", "name": "NVIDIA GeForce RTX 3090", "partition": "vision-torralba-rtx3090", "total_memory_bytes": 25296044032, "uuid": "76f2cc49-6a31-24e3-23e0-f628fc728221"}, "recorded_at_utc": "2026-09-02T02:49:02.564429+00:00"}
+{"event": "site_started", "layer": 0, "recorded_at_utc": "2026-09-02T02:49:45.832972+00:00"}
+{"cache_sha256": "e0b5f0c457dfa492d11f434622cad66f387b0b863fab39b2752fca9d7e24c265", "event": "site_completed", "layer": 0, "recorded_at_utc": "2026-09-02T02:49:50.769151+00:00"}
+{"event": "site_started", "layer": 1, "recorded_at_utc": "2026-09-02T02:49:50.860080+00:00"}
+{"cache_sha256": "45d9a908bd8c89226283a5284dba3680fb7cef5920ac347acca253b389b355b9", "event": "site_completed", "layer": 1, "recorded_at_utc": "2026-09-02T02:49:55.772721+00:00"}
+{"event": "site_started", "layer": 2, "recorded_at_utc": "2026-09-02T02:49:55.851381+00:00"}
+{"cache_sha256": "8247a4f890747199b2efa06678108b2d590719e3f1e11ea58205e6e53a5869c0", "event": "site_completed", "layer": 2, "recorded_at_utc": "2026-09-02T02:50:00.298448+00:00"}
+{"event": "site_started", "layer": 3, "recorded_at_utc": "2026-09-02T02:50:00.391293+00:00"}
+{"cache_sha256": "9ca504b96c025b3e2d707d18a7fbbf7f4f4ca02e4bdbf8c37a88d0429a88012f", "event": "site_completed", "layer": 3, "recorded_at_utc": "2026-09-02T02:50:04.886000+00:00"}
+{"event": "site_started", "layer": 4, "recorded_at_utc": "2026-09-02T02:50:04.970680+00:00"}
+{"cache_sha256": "6142f8d54fcc63ac647338189ef70137c53b88c666988afaec79b22889ed65a1", "event": "site_completed", "layer": 4, "recorded_at_utc": "2026-09-02T02:50:09.440795+00:00"}
+{"event": "site_started", "layer": 5, "recorded_at_utc": "2026-09-02T02:50:09.518854+00:00"}
+{"cache_sha256": "6137441ceff7c8a0ec4d52cfd52ca0c7a3f5d7542c678d851bca142610777f1a", "event": "site_completed", "layer": 5, "recorded_at_utc": "2026-09-02T02:50:14.012388+00:00"}
+{"event": "site_started", "layer": 6, "recorded_at_utc": "2026-09-02T02:50:14.100191+00:00"}
+{"cache_sha256": "7bb6a69e91ad0bb0e36a72e3c5d0795a0dd95d26f6432b8555bda6d29d26bd78", "event": "site_completed", "layer": 6, "recorded_at_utc": "2026-09-02T02:50:18.619777+00:00"}
+{"event": "site_started", "layer": 7, "recorded_at_utc": "2026-09-02T02:50:18.700265+00:00"}
+{"cache_sha256": "edcb65e2780473cf98ec44473d5890df88d707293ea61489af47682ba36ed812", "event": "site_completed", "layer": 7, "recorded_at_utc": "2026-09-02T02:50:23.214167+00:00"}
+{"event": "site_started", "layer": 8, "recorded_at_utc": "2026-09-02T02:50:23.301118+00:00"}
+{"cache_sha256": "9de086088263ed11156e5156dd4b4589870ff4302332b41b35e4914e39edeea3", "event": "site_completed", "layer": 8, "recorded_at_utc": "2026-09-02T02:50:27.841538+00:00"}
+{"event": "site_started", "layer": 9, "recorded_at_utc": "2026-09-02T02:50:27.939585+00:00"}
+{"cache_sha256": "548f23cbb7a2d96c434e7948cc2171f631e9b990ea458fe524c8b90faffe6035", "event": "site_completed", "layer": 9, "recorded_at_utc": "2026-09-02T02:50:32.453625+00:00"}
+{"event": "site_started", "layer": 10, "recorded_at_utc": "2026-09-02T02:50:32.537925+00:00"}
+{"cache_sha256": "885fa89bc51a26178544236d269f2484de3f14c87adab625b030bb0b4d3dc640", "event": "site_completed", "layer": 10, "recorded_at_utc": "2026-09-02T02:50:37.018434+00:00"}
+{"event": "site_started", "layer": 11, "recorded_at_utc": "2026-09-02T02:50:37.136952+00:00"}
+{"cache_sha256": "bf9158ca6a3d4c21bb48bfe8568e528cece464701a96622c0f22d524e954e92e", "event": "site_completed", "layer": 11, "recorded_at_utc": "2026-09-02T02:50:41.621149+00:00"}
+{"event": "site_started", "layer": 12, "recorded_at_utc": "2026-09-02T02:50:41.708815+00:00"}
+{"cache_sha256": "1370e8b48b3c6a26da833626d8909c2401a9d4718123659717c9d9838ca4e8e5", "event": "site_completed", "layer": 12, "recorded_at_utc": "2026-09-02T02:50:46.105981+00:00"}
+{"event": "site_started", "layer": 13, "recorded_at_utc": "2026-09-02T02:50:46.195913+00:00"}
+{"cache_sha256": "102fefda56780ef6ea02ec73c2dad39960172380c6d2d7b00177a9bfb3194d86", "event": "site_completed", "layer": 13, "recorded_at_utc": "2026-09-02T02:50:50.666196+00:00"}
+{"event": "site_started", "layer": 14, "recorded_at_utc": "2026-09-02T02:50:50.751853+00:00"}
+{"cache_sha256": "023c1317583f848b704d8445d124e022d2151a4624089bb655dbc0bea1d53bea", "event": "site_completed", "layer": 14, "recorded_at_utc": "2026-09-02T02:50:55.259421+00:00"}
+{"event": "site_started", "layer": 15, "recorded_at_utc": "2026-09-02T02:50:55.345274+00:00"}
+{"cache_sha256": "268cefc76aac922d1c87ed7a965ce66f73a070eae190727fb324347983d2ff8c", "event": "site_completed", "layer": 15, "recorded_at_utc": "2026-09-02T02:50:59.803159+00:00"}
+{"event": "site_started", "layer": 16, "recorded_at_utc": "2026-09-02T02:50:59.893498+00:00"}
+{"cache_sha256": "f2c2c70f23b1ad5b2d979681c9cd6367a743f391ab0e01409cb442d4a19683c0", "event": "site_completed", "layer": 16, "recorded_at_utc": "2026-09-02T02:51:04.358649+00:00"}
+{"event": "site_started", "layer": 17, "recorded_at_utc": "2026-09-02T02:51:04.457450+00:00"}
+{"cache_sha256": "e123eeacffa3caf6ab96cc904afc3fa12f0ff6647448044eba524e137d9422a8", "event": "site_completed", "layer": 17, "recorded_at_utc": "2026-09-02T02:51:08.981074+00:00"}
+{"event": "site_started", "layer": 18, "recorded_at_utc": "2026-09-02T02:51:09.071456+00:00"}
+{"cache_sha256": "d76da4e75694b27a4fa771c6217be925d246d415db079645338bdb7712ebbeda", "event": "site_completed", "layer": 18, "recorded_at_utc": "2026-09-02T02:51:13.540121+00:00"}
+{"event": "site_started", "layer": 19, "recorded_at_utc": "2026-09-02T02:51:13.617772+00:00"}
+{"cache_sha256": "feba97bf119ecce4b8e46e096bb9c61eb2fcb882c754d168fcc95dc38c137a3d", "event": "site_completed", "layer": 19, "recorded_at_utc": "2026-09-02T02:51:18.061208+00:00"}
+{"event": "site_started", "layer": 20, "recorded_at_utc": "2026-09-02T02:51:18.151679+00:00"}
+{"cache_sha256": "c58500adc963da7ccb1bcd5d11292814ef9b539f02753d25fda56021f1032184", "event": "site_completed", "layer": 20, "recorded_at_utc": "2026-09-02T02:51:22.590750+00:00"}
+{"event": "site_started", "layer": 21, "recorded_at_utc": "2026-09-02T02:51:22.675858+00:00"}
+{"cache_sha256": "56a7488ef47bf5740fabd7e57e36114108619460ac988fff95f764b7034a79fc", "event": "site_completed", "layer": 21, "recorded_at_utc": "2026-09-02T02:51:27.121646+00:00"}
+{"event": "site_started", "layer": 22, "recorded_at_utc": "2026-09-02T02:51:27.209553+00:00"}
+{"cache_sha256": "968ea852be0e55ed7c39e2d9104a2c761d570b650977bc05464b8f4886b34142", "event": "site_completed", "layer": 22, "recorded_at_utc": "2026-09-02T02:51:31.697881+00:00"}
+{"event": "site_started", "layer": 23, "recorded_at_utc": "2026-09-02T02:51:31.786914+00:00"}
+{"cache_sha256": "e1cd907c42bbffec77d9a53469cc9ecbaf0584f05c8d01c92b46fea14804ed6b", "event": "site_completed", "layer": 23, "recorded_at_utc": "2026-09-02T02:51:36.215024+00:00"}
+{"event": "site_started", "layer": 24, "recorded_at_utc": "2026-09-02T02:51:36.294224+00:00"}
+{"cache_sha256": "24cd191ceb87d0c6787da8c9699312897eb5a198937560ab65c9d5cb785ec85d", "event": "site_completed", "layer": 24, "recorded_at_utc": "2026-09-02T02:51:40.736908+00:00"}
+{"event": "site_started", "layer": 25, "recorded_at_utc": "2026-09-02T02:51:40.822609+00:00"}
+{"cache_sha256": "d3395c16f522759079d4ebc3ec1463090c23f7f01f8b107f649ef180b8a9639d", "event": "site_completed", "layer": 25, "recorded_at_utc": "2026-09-02T02:51:45.245497+00:00"}
+{"event": "site_started", "layer": 26, "recorded_at_utc": "2026-09-02T02:51:45.323281+00:00"}
+{"cache_sha256": "27d903749e340837b2a9df9b1d3b5f598957ecd62fd4b0505f0b46e4597b0e15", "event": "site_completed", "layer": 26, "recorded_at_utc": "2026-09-02T02:51:49.780200+00:00"}
+{"event": "site_started", "layer": 27, "recorded_at_utc": "2026-09-02T02:51:49.870672+00:00"}
+{"cache_sha256": "b51ec065da896b7708c39489c487870dcca97cb3496e8cbe9d5efa259061084f", "event": "site_completed", "layer": 27, "recorded_at_utc": "2026-09-02T02:51:54.289564+00:00"}
+{"event": "site_started", "layer": 28, "recorded_at_utc": "2026-09-02T02:51:54.366141+00:00"}
+{"cache_sha256": "591afc5fa5231383dc8b0b7a98c45ac50bd71769a266de417fab0982950bed91", "event": "site_completed", "layer": 28, "recorded_at_utc": "2026-09-02T02:51:58.812306+00:00"}
+{"event": "site_started", "layer": 29, "recorded_at_utc": "2026-09-02T02:51:58.893716+00:00"}
+{"cache_sha256": "c8250f3110fa67a48cfd6f1afeefa53839028eebed1031d372344bd23d87d919", "event": "site_completed", "layer": 29, "recorded_at_utc": "2026-09-02T02:52:03.411137+00:00"}
+{"event": "site_started", "layer": 30, "recorded_at_utc": "2026-09-02T02:52:03.495060+00:00"}
+{"cache_sha256": "14bb0cd4309a2a45f9946740b22cc949d79d45ed5a0a6e6d4a43f088425021f4", "event": "site_completed", "layer": 30, "recorded_at_utc": "2026-09-02T02:52:07.946089+00:00"}
+{"event": "site_started", "layer": 31, "recorded_at_utc": "2026-09-02T02:52:08.034434+00:00"}
+{"cache_sha256": "8386d3676ab4c38bf29773ed4f4be47c156127a7fbcea7b2dcf8eaae7113005d", "event": "site_completed", "layer": 31, "recorded_at_utc": "2026-09-02T02:52:12.494413+00:00"}
+{"event": "selection_frozen", "recorded_at_utc": "2026-09-02T02:52:12.961639+00:00", "selected_sites": [27, 2, 30, 10, 11, 1], "stability": {"spearman_rho": 0.9750733137829912, "stable": true, "stable_threshold": 0.5, "statistic": "Spearman rank correlation of the 32 site sensitivity scores"}}
+{"event": "ppl_validation_started", "group": "most_sensitive", "layer": 27, "recorded_at_utc": "2026-09-02T02:52:12.963098+00:00"}
+{"event": "ppl_validation_completed", "layer": 27, "perplexity": 101.09426006233146, "ppl_impact": 0.052001834451829154, "recorded_at_utc": "2026-09-02T02:54:07.228111+00:00"}
+{"event": "ppl_validation_started", "group": "most_sensitive", "layer": 2, "recorded_at_utc": "2026-09-02T02:54:07.527657+00:00"}
+{"event": "ppl_validation_completed", "layer": 2, "perplexity": 103.44504315635783, "ppl_impact": 2.402784928478198, "recorded_at_utc": "2026-09-02T02:55:56.890964+00:00"}
+{"event": "ppl_validation_started", "group": "most_sensitive", "layer": 30, "recorded_at_utc": "2026-09-02T02:55:57.188430+00:00"}
+{"event": "ppl_validation_completed", "layer": 30, "perplexity": 102.08375984474405, "ppl_impact": 1.0415016168644229, "recorded_at_utc": "2026-09-02T02:57:46.552410+00:00"}
+{"event": "ppl_validation_started", "group": "least_sensitive", "layer": 10, "recorded_at_utc": "2026-09-02T02:57:46.849779+00:00"}
+{"event": "ppl_validation_completed", "layer": 10, "perplexity": 102.07357710502232, "ppl_impact": 1.031318877142695, "recorded_at_utc": "2026-09-02T02:59:36.179311+00:00"}
+{"event": "ppl_validation_started", "group": "least_sensitive", "layer": 11, "recorded_at_utc": "2026-09-02T02:59:36.477369+00:00"}
+{"event": "ppl_validation_completed", "layer": 11, "perplexity": 102.35022720088566, "ppl_impact": 1.3079689730060267, "recorded_at_utc": "2026-09-02T03:01:25.838118+00:00"}
+{"event": "ppl_validation_started", "group": "least_sensitive", "layer": 1, "recorded_at_utc": "2026-09-02T03:01:26.133536+00:00"}
+{"event": "ppl_validation_completed", "layer": 1, "perplexity": 100.34812354201391, "ppl_impact": -0.6941346858657198, "recorded_at_utc": "2026-09-02T03:03:15.508748+00:00"}
+{"decision": "B1: strong heterogeneity; Phase B supports proceeding to Phase C, but Phase C was not entered", "event": "scientific_driver_completed", "proxy": "local_nmse_h32_minus_hfull", "recorded_at_utc": "2026-09-02T03:03:15.828893+00:00"}
+{"event": "terminal_state", "failure": null, "ledger": {"driver_attempts": 1, "owner_attempts": 1, "salloc_attempts": 1, "srun_attempts": 1, "terminal_events_fired": 1}, "owner_exit": 0, "recorded_at_utc": "2026-09-02T03:03:18.693761+00:00", "schema_version": "phase-b-map-terminal-event-v1"}

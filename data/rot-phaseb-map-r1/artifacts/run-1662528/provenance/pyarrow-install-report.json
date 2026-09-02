@@ -1,0 +1,73 @@
+{
+  "version": "1",
+  "pip_version": "26.1.2",
+  "install": [
+    {
+      "download_info": {
+        "url": "file:///data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/environment/wheels/pyarrow-17.0.0-cp310-cp310-manylinux_2_28_x86_64.whl",
+        "archive_info": {
+          "hashes": {
+            "sha256": "f7ae2de664e0b158d1607699a16a488de3d008ba99b3a7aa5de1cbc13574d047"
+          },
+          "hash": "sha256=f7ae2de664e0b158d1607699a16a488de3d008ba99b3a7aa5de1cbc13574d047"
+        }
+      },
+      "is_direct": true,
+      "is_yanked": false,
+      "requested": true,
+      "metadata": {
+        "metadata_version": "2.1",
+        "name": "pyarrow",
+        "version": "17.0.0",
+        "summary": "Python library for Apache Arrow",
+        "description_content_type": "text/markdown",
+        "maintainer_email": "Apache Arrow Developers <dev@arrow.apache.org>",
+        "license": "Apache Software License",
+        "license_file": [
+          "../LICENSE.txt",
+          "../NOTICE.txt"
+        ],
+        "classifier": [
+          "License :: OSI Approved :: Apache Software License",
+          "Programming Language :: Python :: 3.8",
+          "Programming Language :: Python :: 3.9",
+          "Programming Language :: Python :: 3.10",
+          "Programming Language :: Python :: 3.11",
+          "Programming Language :: Python :: 3.12"
+        ],
+        "requires_dist": [
+          "numpy >=1.16.6",
+          "pytest ; extra == 'test'",
+          "hypothesis ; extra == 'test'",
+          "cffi ; extra == 'test'",
+          "pytz ; extra == 'test'",
+          "pandas ; extra == 'test'"
+        ],
+        "requires_python": ">=3.8",
+        "project_url": [
+          "Homepage, https://arrow.apache.org/",
+          "Documentation, https://arrow.apache.org/docs/python",
+          "Repository, https://github.com/apache/arrow",
+          "Issues, https://github.com/apache/arrow/issues"
+        ],
+        "provides_extra": [
+          "test"
+        ],
+        "description": "<!---\n  Licensed to the Apache Software Foundation (ASF) under one\n  or more contributor license agreements.  See the NOTICE file\n  distributed with this work for additional information\n  regarding copyright ownership.  The ASF licenses this file\n  to you under the Apache License, Version 2.0 (the\n  \"License\"); you may not use this file except in compliance\n  with the License.  You may obtain a copy of the License at\n\n    http://www.apache.org/licenses/LICENSE-2.0\n\n  Unless required by applicable law or agreed to in writing,\n  software distributed under the License is distributed on an\n  \"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\n  KIND, either express or implied.  See the License for the\n  specific language governing permissions and limitations\n  under the License.\n-->\n\n## Python library for Apache Arrow\n\n[![pypi](https://img.shields.io/pypi/v/pyarrow.svg)](https://pypi.org/project/pyarrow/) [![conda-forge](https://img.shields.io/conda/vn/conda-forge/pyarrow.svg)](https://anaconda.org/conda-forge/pyarrow)\n\nThis library provides a Python API for functionality provided by the Arrow C++\nlibraries, along with tools for Arrow integration and interoperability with\npandas, NumPy, and other software in the Python ecosystem.\n\n## Installing\n\nAcross platforms, you can install a recent version of pyarrow with the conda\npackage manager:\n\n```shell\nconda install pyarrow -c conda-forge\n```\n\nOn Linux, macOS, and Windows, you can also install binary wheels from PyPI with\npip:\n\n```shell\npip install pyarrow\n```\n\nIf you encounter any issues importing the pip wheels on Windows, you may need\nto install the [Visual C++ Redistributable for Visual Studio 2015][6].\n\n## Development\n\nSee [Python Development][2] in the documentation subproject.\n\n### Building the documentation\n\nSee [documentation build instructions][1] in the documentation subproject.\n\n[1]: https://github.com/apache/arrow/blob/main/docs/source/developers/documentation.rst\n[2]: https://github.com/apache/arrow/blob/main/docs/source/developers/python.rst\n[3]: https://github.com/pandas-dev/pandas\n[5]: https://arrow.apache.org/docs/latest/python/benchmarks.html\n[6]: https://www.microsoft.com/en-us/download/details.aspx?id=48145\n"
+      }
+    }
+  ],
+  "environment": {
+    "implementation_name": "cpython",
+    "implementation_version": "3.10.20",
+    "os_name": "posix",
+    "platform_machine": "x86_64",
+    "platform_release": "5.15.0-190-generic",
+    "platform_system": "Linux",
+    "platform_version": "#200-Ubuntu SMP Fri Aug 7 15:06:04 UTC 2026",
+    "python_full_version": "3.10.20",
+    "platform_python_implementation": "CPython",
+    "python_version": "3.10",
+    "sys_platform": "linux"
+  }
+}

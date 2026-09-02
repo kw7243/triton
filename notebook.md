@@ -1688,3 +1688,245 @@ Implementation provenance:
   `39647018d4273c0957f495b900742c5c76911a668a767fdf97c576b1dae1620c`.
 - Local terminal owner SHA-256:
   `d440fd9f3e321cd65bd11bedaae021b9089494d70f6d9d3cc818b947c927d1e2`.
+
+## 2026-09-02 — Phase B per-layer quality–latency map result
+
+Status: complete, literal Decision B1. The sole authorized Phase B run
+completed successfully. It did not enter Phase C or add any site, model,
+bit-width, learned transform, or fused kernel beyond the approved Phase B
+contract.
+
+### Source, stage, and environment
+
+Scientific source commit was
+`621e35b5d890ea0623f232a8aada299a1fc30d97`, tree
+`3f47e8e3332447b9d4f5c61b561cceca3868ccbd`, on branch
+`fm/rot-phaseb-map-r1`, with required ancestor
+`3bc279eca8728b07f64105a39dcda3e5f896357e`. The one immutable project stage
+had independent usable Git metadata and 1,838 entries. Its canonical entries
+hash, metadata hash, and manifest-file hash were:
+
+```text
+7bc839e09dcfda3c142ac347c85e903690fd7740fcd9af8a9138c36186135a92
+6c663f655271065c59e1c2e6bf541c6f4c54269d0f468eacc282278c25a2e9cd
+bbd8f72fd8957af0c81425f339697af8e0017b6c2a403fab533b740be236ee99
+```
+
+The full immutable stage and result root is:
+
+```text
+/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8
+```
+
+The fresh dependency stage pinned QuaRot commit
+`5008669b08c1f11f9b64d52d16fddd47ca754c5a` and CUTLASS commit
+`ffa34e70756b0bc744e1dfcc115b5a991a68f132`. Its 5,728-entry canonical and
+manifest-file hashes were
+`88430f14b8d711ae1a12f0188a57032d6b49314aa9e28a460dffbede3dff4db3`
+and `8f6037a6385f874253c69bc3ed5bf843480783984def548941bfdf1018c354ec`.
+
+Exact input identities were:
+
+```text
+model revision       315b20096dc791d381d514deb5f8bd9c8d6d3061
+dataset revision     b08601e04326c79dfdd32d625aee71d232d685c3
+train Arrow SHA-256  57947bc7b58df4b19662c0609cc30651bc84328dab5fd588860b752072911789
+test Arrow SHA-256   2b8a3efac7b468cbe6432edba5f55c21e435d93873acc6727431f08d5ed328ea
+W4A4 runtime SHA-256 10a961e8855d7349708412aa8c21a38667fb75c94c372180dd6f992913e0a8e0
+Phase A result SHA   a173ee7fc4d43ab4b33123190ea4e7893c1d5bf421587f07e2502b75fcfd61d4
+```
+
+The accepted extension contained native SM80 and SM86 SASS. No PTX-JIT
+fallback was authorized or used. Python 3.10.20 SHA-256 was
+`fa10ee8f4c18e62cbd1e467c156a228be45138bd537b9949e66fc8e5937a018e`.
+The exact 147-distribution inventory SHA-256 was
+`6acfbf19d91f7c2ad81fa9702759940896860f8aa821c32cbf6b4c6190b5aaa2`.
+The task-local PyArrow 17.0.0 overlay did not modify system Python.
+
+Clearance SHA-256 was
+`ecc98c92ed9c26644713ab66a4ba8805c31e079b21d968a97cdcb03f71e2dd3c`.
+The staged preflight passed at SHA-256
+`a7c43107febef65bce893e236a1fc3bb546d10cff2db60de026b1262248b17ae`
+before any scheduler attempt. It bound the project, dependencies, model, data,
+packages, runtime artifact, helper bytes, exact argv, output parent, and zeroed
+one-shot ledger.
+
+### Exact command arrays
+
+The exact arrays are preserved byte-for-byte in
+`data/rot-phaseb-map-r1/artifacts/run-1662528/provenance/execution-argv.json`,
+file SHA-256
+`dee56cf11ca9a45934a9d4cd45c45e6aedafdf57060fd0d20d7d4a58506731d4`
+and canonical arrays hash
+`4c53ea10b99e7bf1e2ae502cdea28780b91317d5ab65781871432ec74ca4ef31`.
+Rendered without changing token boundaries, they were:
+
+```text
+owner_argv = [
+  "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+  "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/stages/project/experiments/structured_hadamard/phase_b/gpu_owner.py",
+  "--owner",
+  "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/run-state/clearance.json"
+]
+salloc_argv = [
+  "/usr/bin/salloc",
+  "--account=vision-torralba-urops-meng",
+  "--qos=vision-torralba-interactive",
+  "--partition=vision-torralba-rtx3090",
+  "--job-name=rot-phaseb-map-r1",
+  "--nodes=1", "--ntasks=1", "--cpus-per-task=2", "--mem=32G",
+  "--gres=gpu:1", "--time=02:00:00"
+]
+allocated_argv = [
+  "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+  "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/stages/project/experiments/structured_hadamard/phase_b/gpu_owner.py",
+  "--allocated",
+  "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/run-state/clearance.json"
+]
+srun_argv = [
+  "/usr/bin/srun", "--pty", "--nodes=1", "--ntasks=1",
+  "--cpus-per-task=2", "--mem=32G", "--gres=gpu:1",
+  "--kill-on-bad-exit=1"
+]
+driver_argv = [
+  "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+  "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/stages/project/experiments/structured_hadamard/phase_b/driver.py",
+  "--source-commit", "621e35b5d890ea0623f232a8aada299a1fc30d97",
+  "--snapshot", "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/snapshots/315b20096dc791d381d514deb5f8bd9c8d6d3061",
+  "--model-repository", "NousResearch/Meta-Llama-3-8B",
+  "--model-revision", "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+  "--calibration-arrow", "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-train.arrow",
+  "--calibration-split", "train",
+  "--calibration-sha256", "57947bc7b58df4b19662c0609cc30651bc84328dab5fd588860b752072911789",
+  "--evaluation-arrow", "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-test.arrow",
+  "--evaluation-sha256", "2b8a3efac7b468cbe6432edba5f55c21e435d93873acc6727431f08d5ed328ea",
+  "--dataset-revision", "b08601e04326c79dfdd32d625aee71d232d685c3",
+  "--extension", "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/inputs/phase_a_w4a4_cuda.so",
+  "--extension-sha256", "10a961e8855d7349708412aa8c21a38667fb75c94c372180dd6f992913e0a8e0",
+  "--quarot-root", "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/stages/dependency/QuaRot",
+  "--phase-a-results", "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/stages/project/data/rot-phasea-real-model-baseline-r1/artifacts/run-1662352/results.json",
+  "--phase-a-results-sha256", "a173ee7fc4d43ab4b33123190ea4e7893c1d5bf421587f07e2502b75fcfd61d4",
+  "--output-directory", "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/output-parent/scientific-run",
+  "--status-path", "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/run-state/task-status.jsonl",
+  "--device", "cuda:0", "--seed", "20260902",
+  "--calibration-sequences", "16", "--calibration-tokens", "512",
+  "--proxy-chunk-rows", "256", "--ppl-sequence-length", "1024",
+  "--timing-warmups", "20", "--timing-repetitions", "100",
+  "--correctness-tolerance", "1e-12", "--fusion", "none"
+]
+```
+
+The workload estimate was 90 minutes plus a 30-minute buffer. The selected
+request was one node, one GPU, two CPUs, 32 GiB, and two hours.
+
+### Hardware and one-shot accounting
+
+Read-only inspection immediately before launch selected
+`vision-torralba-rtx3090` as the smallest available account-allowed class with
+a native accepted-extension target. Slurm job `1662528` ran on
+`torralba-3090-1.csail.mit.edu`, exposing one NVIDIA GeForce RTX 3090, SM86,
+UUID `76f2cc49-6a31-24e3-23e0-f628fc728221`, and 25,296,044,032 visible bytes.
+This matches the accepted Phase A GPU class and UUID.
+
+Accounting was `COMPLETED`, exit `0:0`, elapsed `00:14:39`. Step MaxRSS was
+`33,546,248K`, `99.975610%` of the 32 GiB request. The exact ledger finished:
+
+```text
+owner_attempts=1
+salloc_attempts=1
+srun_attempts=1
+driver_attempts=1
+terminal_events_fired=1
+```
+
+The fixed terminal event was armed before the scheduler boundary. On terminal,
+the event was handled once; output, logs, terminal state, ledger, and accounting
+were preserved; then the GPU owner and sole SSH/tmux route were retired. There
+was no scheduler or GPU retry, `sbatch`, requeue, cancellation, or duplicate
+owner.
+
+The first accounting command used the UTC date with Slurm's local-time parser
+and returned no rows. That exact command/error is preserved. One corrected
+post-terminal read produced `sacct.psv`; it was not another scheduler attempt.
+
+### Raw and derived metrics
+
+Calibration used exactly 16 sequences by 512 tokens and 8,192 fp16 rows per
+site. Sequences 0–7 and 8–15 formed deterministic disjoint 4,096-row subsets.
+The sample was not expanded. Thirty-two site caches, each containing the input
+and reference output, total 9,663,741,088 bytes under approved `kwen1` scratch.
+
+The map contains one row for every `(layer, down_proj, transform)` tuple:
+128 rows total. Each has units, 20 warmups, 100 repetitions, CUDA-event
+synchronization, seed 20260902, exact shapes, block semantics,
+`fusion="none"`, and hardware identity. Raw timing has 25,600 rows.
+
+```text
+choice  median local NMSE  median transform ms  median affected-layer ms
+I       0.491805           0.000000             0.178176
+H32     0.128814           0.293888             0.452608
+H128    0.079647           0.376552             0.537600
+Hfull   0.058091           0.572552             0.731136
+```
+
+`H32` used 448 real normalized 32-wide Sylvester blocks; `H128` used 112 real
+normalized 128-wide blocks. Matching folded weights passed equivalence at
+`1.78e-15` and `1.33e-15`. All transform/GEMM sequences remained unfused.
+
+The frozen primary score was `NMSE(H32)-NMSE(Hfull)`. Ranking stability across
+the two subsets was Spearman `rho=0.975073`, above the frozen `0.5` threshold.
+Relative p10–p90 sensitivity spread was `0.731821`, above `0.5`. Frozen top
+sites were layers 27, 2, 30; bottom sites were 10, 11, 1.
+
+The accepted Hfull PPL was `101.042258`. Six single-site H32 replacements were:
+
+```text
+group  layer  PPL         impact
+top    27     101.094260  +0.052002
+top     2     103.445043  +2.402785
+top    30     102.083760  +1.041502
+bottom 10     102.073577  +1.031319
+bottom 11     102.350227  +1.307969
+bottom  1     100.348124  -0.694135
+```
+
+Top mean impact `1.165429` exceeded bottom mean `0.548384`; six-site Spearman
+rho was positive at `0.257143`. The primary proxy therefore passed the
+predeclared qualitative gate, and the stronger proxy was not entered.
+Median Hfull affected-layer latency exceeded H32 by `61.5385%`. The literal
+decision was B1. B2, B3, and B4 do not apply. Phase C was not entered.
+
+### Limitations, corrections, and reproduction
+
+The six-site proxy correlation is positive but modest, with visible individual
+exceptions. The accepted minimal W4A4 baseline also remains far from FP16 in
+absolute PPL. B1 supports testing a selector; it does not establish final model
+quality. Slurm MaxRSS nearly exhausted the request, so the calibration sample
+correctly remained unexpanded. The direct driver field is `null` under the
+pinned Torch API; no second attempt was made for that metadata-only gap.
+
+One pre-correction remote read-only `python -c` metadata inspection lost its
+quoting and returned a syntax error before reading anything. It changed no
+stage byte. Correction copied the already-generated metadata file, verified
+SHA-256 `6c663f655271065c59e1c2e6bf541c6f4c54269d0f468eacc282278c25a2e9cd`,
+and parsed it locally. The existing parent-ledger line is preserved. After the
+supervision correction, this worker directly used only the home task status
+path and constructed no further remote inline-Python/heredoc probe.
+
+Independent post-run verification covered every 128-row schema field, all
+25,600 raw timing keys, artifact hashes, selection, proxy agreement, literal
+decision, terminal ledger, and all 32 cache hashes. It passed. The concise
+artifact manifest SHA-256 is
+`47379c6db422036826eebaf733d8f76c60b7cbffd4abc337e5ec4f69012f6f50`.
+
+CPU-only verification command:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python3 \
+  experiments/structured_hadamard/phase_b/verify_results.py \
+  data/rot-phaseb-map-r1/artifacts/run-1662528
+```
+
+Add `--cache-root <site-cache-directory>` to verify all 9.1 GiB cache bytes.
+The complete remote result remains at the attempt root above. Another GPU run
+is not authorized by this completed task.

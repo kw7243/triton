@@ -1,0 +1,30 @@
+{
+  "command": [],
+  "default_exclusions": {
+    "directory_names_at_any_depth": [
+      ".cache",
+      "__pycache__",
+      ".pytest_cache",
+      ".mypy_cache",
+      ".ruff_cache",
+      ".venv",
+      "venv"
+    ],
+    "root_directories": [
+      "staging",
+      "out",
+      "outputs",
+      "eval_outputs",
+      "slurm_outputs",
+      "wandb"
+    ]
+  },
+  "schema_version": "phase-a-repository-stage-v3",
+  "source_git_common_dir": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/transport-source-621e35b5d8/.git",
+  "source_head": "621e35b5d890ea0623f232a8aada299a1fc30d97",
+  "staged_git_common_dir": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/stages/project/.git",
+  "tracked_and_untracked_entries": 1838,
+  "working_tree_manifest": "REPRODUCIBILITY_MANIFEST.json",
+  "working_tree_manifest_file_sha256": "bbd8f72fd8957af0c81425f339697af8e0017b6c2a403fab533b740be236ee99",
+  "working_tree_manifest_sha256": "7bc839e09dcfda3c142ac347c85e903690fd7740fcd9af8a9138c36186135a92"
+}

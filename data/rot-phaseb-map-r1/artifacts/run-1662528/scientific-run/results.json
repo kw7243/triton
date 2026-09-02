@@ -1,0 +1,153 @@
+{
+  "B1_cache": {
+    "cache_manifest": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/output-parent/scientific-run/site-cache-manifest.json",
+    "expanded": false,
+    "rows_per_site": 8192,
+    "sequences": 16,
+    "sites": 32,
+    "tokens_per_sequence": 512
+  },
+  "B2_map": {
+    "figure": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/output-parent/scientific-run/phase-b-quality-latency-map.svg",
+    "fusion": "none",
+    "map_rows": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/output-parent/scientific-run/map-rows.jsonl",
+    "rows": 128,
+    "table": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/output-parent/scientific-run/phase-b-table.csv",
+    "transforms": [
+      "I",
+      "H32",
+      "H128",
+      "Hfull"
+    ]
+  },
+  "B3_validation": {
+    "cheaper_transform": "H32",
+    "phase_a_hfull_ppl": 101.04225822787963,
+    "rows": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/output-parent/scientific-run/six-site-validation.jsonl",
+    "selection_freeze": "/data/scratch-fast/kwen1/structured-hadamard/rot-phaseb-map-r1/attempt-20260902T022201Z-621e35b5d8/output-parent/scientific-run/selection-freeze.json",
+    "sites": 6
+  },
+  "artifact_hashes": {
+    "map-rows.jsonl": "b5461aa9af17a85936f55c57c9c55d754a774236313c41363b62b6f849d8ef62",
+    "phase-b-quality-latency-map.svg": "3decd7844bae57f720607598045be51c8e40a294d40a83f5e46169a2902572c6",
+    "phase-b-table.csv": "bce5a8b27ca0dfb9859d362de4240c4e7aaf9ab1cc5e6007cbf13e062b0d2f5d",
+    "ranking-stability-analysis.json": "a48f1259c26673fdc39db30c071bc6cd54b4788871d9856b3a95d745452764ce",
+    "raw-timings.jsonl": "9f5099b92add5cc9434ca7ecc2cf5d3866531702a42bce264d2ca354c538eb6d",
+    "selection-freeze.json": "7c7ef11ba7eded7082849aa5a0fd98928ffb3e44c984005adf926dc7a15de166",
+    "site-cache-manifest.json": "5cd321e34298b572dcf689e866a9074436e93d394ebe9fb81e313eb4a444ba7f",
+    "six-site-validation.jsonl": "957b66a00b811b4434038509abdb10bd890f5d963671277732676ebe68952458"
+  },
+  "correctness": {
+    "H128": {
+      "equivalence_max_abs": 1.3322676295501878e-15,
+      "inverse_max_abs": 4.440892098500626e-16
+    },
+    "H32": {
+      "equivalence_max_abs": 1.7763568394002505e-15,
+      "inverse_max_abs": 4.440892098500626e-16
+    },
+    "Hfull": {
+      "equivalence_max_abs": 0.0,
+      "inverse_max_abs": 0.0
+    }
+  },
+  "data": {
+    "calibration_arrow": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-train.arrow",
+    "calibration_sha256": "57947bc7b58df4b19662c0609cc30651bc84328dab5fd588860b752072911789",
+    "evaluation_arrow": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-test.arrow",
+    "evaluation_sha256": "2b8a3efac7b468cbe6432edba5f55c21e435d93873acc6727431f08d5ed328ea",
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3"
+  },
+  "hardware": {
+    "compute_capability": [
+      8,
+      6
+    ],
+    "cuda_visible_devices": "0",
+    "driver": null,
+    "hostname": "torralba-3090-1.csail.mit.edu",
+    "job_id": "1662528",
+    "name": "NVIDIA GeForce RTX 3090",
+    "partition": "vision-torralba-rtx3090",
+    "total_memory_bytes": 25296044032,
+    "uuid": "76f2cc49-6a31-24e3-23e0-f628fc728221"
+  },
+  "literal_decision_B": {
+    "B1": "actionable stable quality heterogeneity and >=5% realized affected-layer latency separation",
+    "B2": "actionable stable quality heterogeneity without >=5% realized latency separation",
+    "B3": ">=5% realized latency separation without actionable stable quality heterogeneity",
+    "B4": "neither actionable quality heterogeneity nor realized latency separation",
+    "conclusion": "B1: strong heterogeneity; Phase B supports proceeding to Phase C, but Phase C was not entered",
+    "proxy_validated": true,
+    "quality_heterogeneity": {
+      "heterogeneous": true,
+      "p10": 0.03685900054737759,
+      "p90": 0.08983736570976632,
+      "relative_spread": 0.7318214574092387,
+      "statistic": "(p90 - p10) / (median(abs(sensitivity)) + 1e-12)",
+      "threshold": 0.5
+    },
+    "ranking_stability": {
+      "spearman_rho": 0.9750733137829912,
+      "stable": true,
+      "threshold": 0.5
+    },
+    "realized_latency_separation": {
+      "differs": true,
+      "gap_percent": 61.53847065556841,
+      "h32_median_ms": 0.45260798931121826,
+      "hfull_median_ms": 0.7311360239982605,
+      "statistic": "median Hfull affected-layer latency vs median H32 affected-layer latency",
+      "threshold_percent": 5.0
+    }
+  },
+  "model": {
+    "repository": "NousResearch/Meta-Llama-3-8B",
+    "revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061"
+  },
+  "phase_a_results_sha256": "a173ee7fc4d43ab4b33123190ea4e7893c1d5bf421587f07e2502b75fcfd61d4",
+  "phase_c_entered": false,
+  "preprocessing": {
+    "calibration": {
+      "add_special_tokens": "tokenizer-default",
+      "join": "double-newline",
+      "rows": 36718,
+      "token_sha256": "456f503bae67767925061cf27aa50222506a9c66e589a2765945874382b0ed57",
+      "tokenizer_class": "TokenizersBackend",
+      "tokens": 2436214
+    },
+    "evaluation": {
+      "add_special_tokens": "tokenizer-default",
+      "join": "double-newline",
+      "rows": 4358,
+      "token_sha256": "a16c49c96e931fb7ef685f4bf49a4d16df554b0729c9899690bff09fdf54bcef",
+      "tokenizer_class": "TokenizersBackend",
+      "tokens": 289077
+    }
+  },
+  "proxy_validation": {
+    "active_proxy": "local_nmse_h32_minus_hfull",
+    "primary": {
+      "agrees": true,
+      "bottom_three_mean_ppl_impact": 0.548384388094334,
+      "predeclared_qualitative_agreement": "mean PPL impact of predicted top three exceeds predicted bottom three and six-site Spearman rho is positive",
+      "predicted_bottom_three": [
+        10,
+        11,
+        1
+      ],
+      "predicted_top_three": [
+        27,
+        2,
+        30
+      ],
+      "six_site_spearman_rho": 0.2571428571428571,
+      "top_three_mean_ppl_impact": 1.1654294599314834
+    },
+    "stronger": null,
+    "switch_count": 0
+  },
+  "recorded_at_utc": "2026-09-02T03:03:15.827927+00:00",
+  "schema_version": "phase-b-map-result-v1",
+  "source_commit": "621e35b5d890ea0623f232a8aada299a1fc30d97"
+}
