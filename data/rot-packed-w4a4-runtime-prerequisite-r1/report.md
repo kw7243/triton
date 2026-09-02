@@ -196,5 +196,8 @@ contamination audits. Large outputs and the full dependency/Ninja manifests
 remain under the immutable scratch attempt; small handoff evidence is in
 `artifacts/` beside this report.
 
-The result-evidence commit and final branch tip are recorded in the immediately
-following notebook provenance entry.
+The result-evidence commit is
+`bb642cf908cb891da385ef1750cc69878e4f483e`, tree
+`d4355892e63f20983a4f392fc0a93da84d20b343`. The final local branch tip is the
+following report/notebook provenance-pointer commit and is reported at
+handoff.

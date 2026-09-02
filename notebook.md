@@ -1411,3 +1411,13 @@ Full provenance and reproduction steps are in
 under the immutable scratch attempt, while the concise evidence set is stored
 beside the report. The result-evidence commit is recorded in the following
 notebook provenance entry.
+
+## 2026-09-02 — Packed W4A4 prerequisite result provenance
+
+The immutable source-stage commit is
+`701e372572e8e60524b362a7426bc71bf0904bed`. The local result-evidence commit
+is `bb642cf908cb891da385ef1750cc69878e4f483e`, tree
+`d4355892e63f20983a4f392fc0a93da84d20b343`. It contains the implementation's
+complete outcome entry, concise report, exact remote evidence subset, and the
+local secondmate authority-correction record. This follow-up changes only the
+report and notebook provenance pointers.
