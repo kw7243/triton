@@ -1614,3 +1614,65 @@ evidence commit is `1693ba48e39a5ae9501222f561cdf6d4f96f5bb6`, tree
 exact copied result/raw/control artifacts, verified SHA-256 manifest, full
 result notebook entry, and the sole owner/terminal logs. This follow-up changes
 only the notebook provenance pointer.
+
+## 2026-09-02 — Phase B map implementation and reference gate
+
+Current state:
+
+- Branch: `fm/rot-phaseb-map-r1`.
+- Parent provenance tip: `3bc279eca8728b07f64105a39dcda3e5f896357e`.
+- Accepted Phase A result: `1693ba48e39a5ae9501222f561cdf6d4f96f5bb6`.
+- New implementation is isolated under `experiments/structured_hadamard/phase_b/`.
+- New evidence path is `data/rot-phaseb-map-r1/`.
+- No scheduler query, allocation, GPU command, scientific driver, push, PR, or
+  merge has run for Phase B.
+
+Frozen analysis before GPU results:
+
+- Calibration is exactly 16 sequences by 512 tokens and 8,192 rows per site.
+- The disjoint halves are sequence indices 0–7 and 8–15.
+- The primary score is `NMSE(H32) - NMSE(Hfull)`.
+- Stability is Spearman rank correlation across the two half-set rankings.
+- `rho >= 0.5` is stable.
+- The three highest and three lowest primary scores are frozen before PPL.
+- Every PPL validation changes one selected site from `Hfull` to `H32`.
+- Qualitative agreement requires the predicted top-three mean PPL impact to
+  exceed the predicted bottom-three mean and the six-site Spearman rho to be
+  positive.
+- A failed primary proxy switches exactly once to short-sequence end-to-end NLL
+  impact. No third proxy is defined.
+- Quality heterogeneity uses `(p90 - p10) / (median(abs(score)) + 1e-12) >= 0.5`.
+- Realized latency separation uses at least 5% median affected-layer latency
+  between `Hfull` and `H32`.
+
+Reference evidence:
+
+- `H32` is 448 consecutive normalized Sylvester blocks of width 32.
+- `H128` is 112 consecutive normalized Sylvester blocks of width 128.
+- Both apply the same symmetric orthonormal block transform to activation rows
+  and folded weight rows.
+- `Hfull` reuses the accepted pinned QuaRot `7 x 2048` factorization.
+- `I` remains a host alias.
+- All choices record `fusion="none"`; no fused-kernel claim is made.
+
+Validation:
+
+- `python3 -m unittest discover -s experiments/structured_hadamard/phase_b/tests -p 'test_*.py' -v`
+  passed 13 tests.
+- The inherited Phase A discovery suite passed all 60 tests.
+- `python3 -m compileall -q experiments/structured_hadamard/phase_b` passed with
+  `PYTHONDONTWRITEBYTECODE=1`.
+- `git diff --check` passed.
+- `pytest -s --tb=short` could not start because `pytest` is not installed in
+  the local validation environment.
+- `make` was not run because this change is Python, tests, documentation, and
+  data metadata only.
+
+Runtime estimate:
+
+- Phase A completed three full quality variants plus timing in 5m34s on RTX
+  3090.
+- Phase B adds 32 site-local 8,192-row maps and six full PPL variants.
+- The bounded estimate is 60–90 minutes including repeated exact model-byte
+  verification; a two-hour allocation is the smallest safe request with a
+  reasonable proxy-switch contingency buffer.

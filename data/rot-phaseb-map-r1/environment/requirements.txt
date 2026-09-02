@@ -1,0 +1,3 @@
+# The accepted Phase A scientific interpreter supplies Torch/Transformers/NumPy.
+# WikiText Arrow ingestion reuses the exact task-local overlay.
+pyarrow==17.0.0
