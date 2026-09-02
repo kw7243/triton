@@ -1930,3 +1930,16 @@ PYTHONDONTWRITEBYTECODE=1 python3 \
 Add `--cache-root <site-cache-directory>` to verify all 9.1 GiB cache bytes.
 The complete remote result remains at the attempt root above. Another GPU run
 is not authorized by this completed task.
+
+## 2026-09-02 — Phase B result provenance
+
+The immutable scientific source commit is
+`621e35b5d890ea0623f232a8aada299a1fc30d97`, tree
+`3f47e8e3332447b9d4f5c61b561cceca3868ccbd`. The local result-evidence commit
+is `7ec3f3f4dea8fa9bd21c0a9d1465ef926da6c65c`, tree
+`a47bf9a30495fbbc947f54aee421034d9f3c84ee`. It contains the exact copied
+machine rows, raw timing, ranking and PPL analysis, table and figure, cache
+manifest and independently verified cache hashes, stage and dependency
+provenance, one-shot control and terminal records, accounting, verifier,
+standalone report, and this result notebook entry. Report SHA-256 is
+`896d74da1e00d56bb260bd39a56d0cc42e66b3554916a67c808b8b9c44d53f87`.
