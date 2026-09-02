@@ -1676,3 +1676,15 @@ Runtime estimate:
 - The bounded estimate is 60–90 minutes including repeated exact model-byte
   verification; a two-hour allocation is the smallest safe request with a
   reasonable proxy-switch contingency buffer.
+
+Implementation provenance:
+
+- Commit: `99bc0bcfa499e1eb1f9c35cd5269c005b95044ba`.
+- Tree: `3bb5c7d79262c5aec3aa8209f125b109fe4de458`.
+- Driver SHA-256: `c9e450bd3870c8439d0a2c1d393b3719048e28fc8904b22cdaa8109d9ece23da`.
+- Runtime SHA-256: `0a42ba41fe85ded168edba4d16599ed66496d05af78ee89e0cd4efb2f33fd6d7`.
+- Analysis SHA-256: `07e612ec2644193c4409ac8f52cb9490ff8c07024948d37c7c38bab6ddd47346`.
+- One-shot GPU owner SHA-256:
+  `39647018d4273c0957f495b900742c5c76911a668a767fdf97c576b1dae1620c`.
+- Local terminal owner SHA-256:
+  `d440fd9f3e321cd65bd11bedaae021b9089494d70f6d9d3cc818b947c927d1e2`.
