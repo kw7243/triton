@@ -1,0 +1,16 @@
+Recorded at 2026-09-02T01:23:02Z through the sole SSH route.
+
+sacctmgr -nP show assoc where user=kwen1 account=vision-torralba-urops-meng format=Cluster,Account,User,Partition,QOS
+csail-slurm|vision-torralba-urops-meng|kwen1||lab-free,normal,shared-if-available,tig-debug,tig-main,vision-torralba-interactive,vision-torralba-urops-meng
+
+scontrol show partition vision-torralba-rtx3090
+PartitionName=vision-torralba-rtx3090
+AllowGroups=vision-torralba,vision-torralba-urops-meng AllowAccounts=vision-torralba,vision-torralba-urops-meng AllowQos=vision-torralba-main,vision-torralba-low,vision-torralba-interactive,vision-torralba-urops-meng
+Nodes=torralba-3090-[1-3] State=UP TotalNodes=3 TRES=cpu=384,mem=772698M,node=3,billing=28028,gres/gpu=21
+
+sinfo --noheader --Node --partition=vision-torralba-rtx3090 --Format=NodeList,Gres,GresUsed,StateLong,Memory,FreeMem
+torralba-3090-1 gpu:rtx_3090:7 gpu:rtx_3090:4 mixed 257566 181313
+torralba-3090-2 gpu:rtx_3090:7 gpu:rtx_3090:5 mixed 257566 191574
+torralba-3090-3 gpu:rtx_3090:7 gpu:rtx_3090:5 mixed 257566 178461
+
+Selection: RTX 3090 is the only discovered account-allowed Torralba partition with a native artifact target (SM86); V100 is incompatible and H100/H200 would require the separately forbidden PTX-JIT path. Seven RTX 3090 devices were reported unused. Request is one GPU, two CPUs, 32 GiB.

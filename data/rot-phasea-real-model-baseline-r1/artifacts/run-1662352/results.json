@@ -1,0 +1,258 @@
+{
+  "artifacts": {
+    "raw_timings": {
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/output-parent/scientific-run/raw-timings.jsonl",
+      "rows": 415,
+      "sha256": "7596a96d2225523b924b66b8f0c6b594bacfb187f61fbd51a6748f8c180c0381"
+    }
+  },
+  "correctness": {
+    "equivalence_max_abs": 0.0,
+    "inverse_max_abs": 0.0,
+    "tolerance": 1e-12
+  },
+  "data": {
+    "arrow": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-test.arrow",
+    "arrow_sha256": "2b8a3efac7b468cbe6432edba5f55c21e435d93873acc6727431f08d5ed328ea",
+    "preprocessing": {
+      "add_special_tokens": "tokenizer-default",
+      "join": "double-newline",
+      "rows": 4358,
+      "token_sha256": "a16c49c96e931fb7ef685f4bf49a4d16df554b0729c9899690bff09fdf54bcef",
+      "tokenizer_class": "TokenizersBackend",
+      "tokens": 289077
+    },
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3"
+  },
+  "decision": {
+    "A1": "online transform overhead >=3% end-to-end or >=5% in an important affected kernel: proceed to Phase B",
+    "A2": "end-to-end overhead <2% but kernel overhead visible: only two plan-defined later stress regimes may be proposed",
+    "A3": "not established; this run alone cannot establish A3",
+    "conclusion": "A1: proceed to Phase B",
+    "hfull_vs_identity_affected_kernel_overhead_percent": 303.3333263268557,
+    "hfull_vs_identity_end_to_end_overhead_percent": 29.17901505098188
+  },
+  "decode_settings": {
+    "batch_size": 1,
+    "generation": "manual greedy argmax; use_cache=true; exact output length",
+    "output_length": 32,
+    "prompt_length": 128,
+    "repetitions": 5,
+    "warmups": 1
+  },
+  "hardware": {
+    "gpu": {
+      "compute_capability": [
+        8,
+        6
+      ],
+      "cuda_visible_devices": "0",
+      "driver": null,
+      "name": "NVIDIA GeForce RTX 3090",
+      "total_memory_bytes": 25296044032,
+      "uuid": "76f2cc49-6a31-24e3-23e0-f628fc728221"
+    },
+    "hostname": "torralba-3090-1.csail.mit.edu",
+    "job_id": "1662352",
+    "partition": "vision-torralba-rtx3090",
+    "pyarrow": "17.0.0",
+    "torch": "2.8.0+cu128",
+    "torch_cuda": "12.8",
+    "transformers": "5.12.1"
+  },
+  "model": {
+    "dtype": "float16",
+    "repository": "NousResearch/Meta-Llama-3-8B",
+    "revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+    "snapshot": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/snapshots/315b20096dc791d381d514deb5f8bd9c8d6d3061"
+  },
+  "quantization": {
+    "activation_bits": 4,
+    "activations": "symmetric dynamic per-token-row RTN, max-abs/7",
+    "fusion": "none",
+    "gemm": "CUTLASS int4 x int4 with int32 accumulation",
+    "rotation_scope": "online full Hadamard and matching folded weight only at all 32 FFN down_proj inputs",
+    "scope": "all 224 Transformer q/k/v/o/gate/up/down projection linears; embeddings/norm/lm_head floating point",
+    "storage": "signed int4 packed two per uint8",
+    "weight_bits": 4,
+    "weights": "symmetric per-output-row RTN, max-abs/7"
+  },
+  "recorded_at_utc": "2026-09-02T01:46:46.853761+00:00",
+  "schema_version": "phase-a-real-model-result-v1",
+  "scientific_evidence": true,
+  "source": {
+    "commit": "71ae5c823a6c4317cae74203d78716fb81c27729",
+    "stage": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project"
+  },
+  "status": "complete",
+  "variants": [
+    {
+      "decode": {
+        "batch_size": 1,
+        "generated_token_sha256": "7cf8c7fec0a9af26c829a48387144b6741032f02c52cc825cdb3262379b20376",
+        "generation": "manual greedy argmax; use_cache=true; exact output length",
+        "maximum_ms": 1234.3937857076526,
+        "mean_ms": 1233.0127914436162,
+        "median_ms": 1233.0502243712544,
+        "median_ms_per_output_token": 38.5328195116017,
+        "median_tokens_per_second": 25.9519031484035,
+        "minimum_ms": 1232.034968212247,
+        "output_length": 32,
+        "p10_ms": 1232.034968212247,
+        "p90_ms": 1234.3937857076526,
+        "prompt_length": 128,
+        "repetitions": 5,
+        "samples": 5,
+        "synchronization": "torch.cuda.synchronize before and after each repetition",
+        "warmups": 1
+      },
+      "quality": {
+        "configuration": "wikitext-2-raw-v1",
+        "dataset": "Salesforce/wikitext",
+        "elapsed_seconds": 84.73208217928186,
+        "evaluated_tokens": 288486,
+        "negative_log_likelihood_sum": 553864.5540771484,
+        "perplexity": 6.820283090496496,
+        "segments": 282,
+        "sequence_length": 1024,
+        "split": "test",
+        "tail_tokens_truncated": 309
+      },
+      "variant": "fp16"
+    },
+    {
+      "decode": {
+        "batch_size": 1,
+        "generated_token_sha256": "c94d2a2802a4a2c20c67f82acdb96db1a661170a04b432765f4c60bc511782c1",
+        "generation": "manual greedy argmax; use_cache=true; exact output length",
+        "maximum_ms": 1699.5530240237713,
+        "mean_ms": 1698.8091982901096,
+        "median_ms": 1698.9108030684292,
+        "median_ms_per_output_token": 53.09096259588841,
+        "median_tokens_per_second": 18.835597455854835,
+        "minimum_ms": 1697.187526151538,
+        "output_length": 32,
+        "p10_ms": 1697.187526151538,
+        "p90_ms": 1699.5530240237713,
+        "prompt_length": 128,
+        "repetitions": 5,
+        "samples": 5,
+        "synchronization": "torch.cuda.synchronize before and after each repetition",
+        "warmups": 1
+      },
+      "layer": {
+        "affected_quantized_layer": {
+          "maximum_ms": 0.25484800338745117,
+          "mean_ms": 0.18582527905702592,
+          "median_ms": 0.18432000279426575,
+          "minimum_ms": 0.1802240014076233,
+          "p10_ms": 0.1812479943037033,
+          "p90_ms": 0.19046400487422943,
+          "samples": 100
+        },
+        "fusion": "none",
+        "input_shape": [
+          1,
+          14336
+        ],
+        "layer": 0,
+        "quantization": "packed signed W4A4; per-output-row W4; dynamic-per-token-row A4",
+        "repetitions": 100,
+        "rotation": {
+          "maximum_ms": 0.0,
+          "mean_ms": 0.0,
+          "median_ms": 0.0,
+          "minimum_ms": 0.0,
+          "p10_ms": 0.0,
+          "p90_ms": 0.0,
+          "samples": 100
+        },
+        "site": "model.layers.0.mlp.down_proj",
+        "synchronization": "CUDA events with terminal torch.cuda.synchronize",
+        "transform": "I",
+        "warmups": 20
+      },
+      "packed_projection_count": 224,
+      "quality": {
+        "configuration": "wikitext-2-raw-v1",
+        "dataset": "Salesforce/wikitext",
+        "elapsed_seconds": 47.99875996308401,
+        "evaluated_tokens": 288486,
+        "negative_log_likelihood_sum": 2013751.3310546875,
+        "perplexity": 1075.3620508278866,
+        "segments": 282,
+        "sequence_length": 1024,
+        "split": "test",
+        "tail_tokens_truncated": 309
+      },
+      "variant": "w4a4_identity"
+    },
+    {
+      "decode": {
+        "batch_size": 1,
+        "generated_token_sha256": "6721240619e3d3f5284b67ff85818292738003824932e944f28823764447634d",
+        "generation": "manual greedy argmax; use_cache=true; exact output length",
+        "maximum_ms": 2197.7176717482507,
+        "mean_ms": 2194.569377414882,
+        "median_ms": 2194.6362419985235,
+        "median_ms_per_output_token": 68.58238256245386,
+        "median_tokens_per_second": 14.581004080594022,
+        "minimum_ms": 2192.2524753026664,
+        "output_length": 32,
+        "p10_ms": 2192.2524753026664,
+        "p90_ms": 2197.7176717482507,
+        "prompt_length": 128,
+        "repetitions": 5,
+        "samples": 5,
+        "synchronization": "torch.cuda.synchronize before and after each repetition",
+        "warmups": 1
+      },
+      "layer": {
+        "affected_quantized_layer": {
+          "maximum_ms": 0.8335360288619995,
+          "mean_ms": 0.7464960014820099,
+          "median_ms": 0.7434239983558655,
+          "minimum_ms": 0.7352319955825806,
+          "p10_ms": 0.7393280267715454,
+          "p90_ms": 0.7557119727134705,
+          "samples": 100
+        },
+        "fusion": "none",
+        "input_shape": [
+          1,
+          14336
+        ],
+        "layer": 0,
+        "quantization": "packed signed W4A4; per-output-row W4; dynamic-per-token-row A4",
+        "repetitions": 100,
+        "rotation": {
+          "maximum_ms": 0.5968319773674011,
+          "mean_ms": 0.58033471763134,
+          "median_ms": 0.5785599946975708,
+          "minimum_ms": 0.5734400153160095,
+          "p10_ms": 0.5756800174713135,
+          "p90_ms": 0.5888000130653381,
+          "samples": 100
+        },
+        "site": "model.layers.0.mlp.down_proj",
+        "synchronization": "CUDA events with terminal torch.cuda.synchronize",
+        "transform": "Hfull",
+        "warmups": 20
+      },
+      "packed_projection_count": 224,
+      "quality": {
+        "configuration": "wikitext-2-raw-v1",
+        "dataset": "Salesforce/wikitext",
+        "elapsed_seconds": 87.08094722079113,
+        "evaluated_tokens": 288486,
+        "negative_log_likelihood_sum": 1331518.3342285156,
+        "perplexity": 101.04225822787963,
+        "segments": 282,
+        "sequence_length": 1024,
+        "split": "test",
+        "tail_tokens_truncated": 309
+      },
+      "variant": "w4a4_hfull_down_proj"
+    }
+  ]
+}

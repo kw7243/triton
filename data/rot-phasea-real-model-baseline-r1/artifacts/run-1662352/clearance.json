@@ -1,0 +1,229 @@
+{
+  "accepted_project": {
+    "head": "701e372572e8e60524b362a7426bc71bf0904bed",
+    "manifest": {
+      "entries_sha256": "9bd1a2e42e179be72e085e7f284eb777c70a5581fe2003a1b292d52ca7a496aa",
+      "immutable": true,
+      "manifest_file_sha256": "a5d99602d4016dbe9bd435d6f7996c228b80c97e4baebcc9901667432a2dbe3e",
+      "manifest_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/project/REPRODUCIBILITY_MANIFEST.json"
+    },
+    "metadata_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/project/REPRODUCIBILITY_METADATA.json",
+    "metadata_sha256": "80585c40e6d12e7664eaa7f3a644177033009060bc7d13e32b77adc422e529db",
+    "required_ancestor": "0c4aaf075d929be2474fd271ffb8bc1244206d99",
+    "root": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/project",
+    "tree": "c6d22d43c2b1c47ba19ccd74a1a44a791465c025"
+  },
+  "audit_output": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/provenance/preflight-audit.json",
+  "data": {
+    "configuration": "wikitext-2-raw-v1/test",
+    "files": [
+      {
+        "bytes": 692,
+        "name": "dataset_info.json",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/dataset_info.json",
+        "sha256": "47ce56e8a2ca0183a37850cbce75cec29f64a1f61da978386c2a0598da4a6f66"
+      },
+      {
+        "bytes": 1306200,
+        "name": "wikitext-test.arrow",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-test.arrow",
+        "sha256": "2b8a3efac7b468cbe6432edba5f55c21e435d93873acc6727431f08d5ed328ea"
+      }
+    ],
+    "name": "Salesforce/wikitext",
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "root": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3"
+  },
+  "dependency": {
+    "cutlass_head": "ffa34e70756b0bc744e1dfcc115b5a991a68f132",
+    "cutlass_root": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/dependency/QuaRot/third-party/cutlass",
+    "head": "5008669b08c1f11f9b64d52d16fddd47ca754c5a",
+    "manifest": {
+      "entries_sha256": "88430f14b8d711ae1a12f0188a57032d6b49314aa9e28a460dffbede3dff4db3",
+      "immutable": true,
+      "manifest_file_sha256": "8f6037a6385f874253c69bc3ed5bf843480783984def548941bfdf1018c354ec",
+      "manifest_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/provenance/dependency-manifest.json"
+    },
+    "root": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/dependency/QuaRot"
+  },
+  "environment": {
+    "allowed_roots": [
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/environment/site-packages",
+      "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing"
+    ],
+    "packages": [
+      {"exact_bytes": true, "name": "torch", "version": "2.8.0+cu128"},
+      {"exact_bytes": true, "name": "transformers", "version": "5.12.1"},
+      {"exact_bytes": true, "name": "triton", "version": "3.4.0"},
+      {"exact_bytes": true, "name": "safetensors", "version": "0.8.0"},
+      {"exact_bytes": true, "name": "accelerate", "version": "1.14.0"},
+      {"exact_bytes": true, "name": "numpy", "version": "1.24.4"},
+      {"exact_bytes": true, "name": "tokenizers", "version": "0.22.2"},
+      {"exact_bytes": true, "name": "pyarrow", "version": "17.0.0"}
+    ],
+    "python": {
+      "mode": 509,
+      "path": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+      "sha256": "fa10ee8f4c18e62cbd1e467c156a228be45138bd537b9949e66fc8e5937a018e"
+    },
+    "runtime_env": {
+      "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+      "HF_HOME": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/runtime-cache/huggingface",
+      "HF_HUB_OFFLINE": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONHASHSEED": "0",
+      "PYTHONPATH": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/environment/site-packages:/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages",
+      "TORCH_HOME": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/runtime-cache/torch",
+      "TRANSFORMERS_OFFLINE": "1",
+      "XDG_CACHE_HOME": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/runtime-cache/xdg"
+    },
+    "site_paths": [
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/environment/site-packages",
+      "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages"
+    ]
+  },
+  "execution": {
+    "allocated_argv": [
+      "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project/experiments/structured_hadamard/phase_a/real_model/gpu_owner.py",
+      "--allocated",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/run-state/clearance.json"
+    ],
+    "argv_sha256": "ca87c0012c5b12041a0a0509d65f274f327b7e7d924d629a5bce6a475236628f",
+    "driver_argv": [
+      "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project/experiments/structured_hadamard/phase_a/real_model/benchmark.py",
+      "--stage-root", "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project",
+      "--source-commit", "71ae5c823a6c4317cae74203d78716fb81c27729",
+      "--snapshot", "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/snapshots/315b20096dc791d381d514deb5f8bd9c8d6d3061",
+      "--model-repository", "NousResearch/Meta-Llama-3-8B",
+      "--model-revision", "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+      "--dataset-arrow", "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-test.arrow",
+      "--dataset-revision", "b08601e04326c79dfdd32d625aee71d232d685c3",
+      "--dataset-sha256", "2b8a3efac7b468cbe6432edba5f55c21e435d93873acc6727431f08d5ed328ea",
+      "--extension", "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/inputs/phase_a_w4a4_cuda.so",
+      "--extension-sha256", "10a961e8855d7349708412aa8c21a38667fb75c94c372180dd6f992913e0a8e0",
+      "--quarot-root", "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/dependency/QuaRot",
+      "--output-directory", "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/output-parent/scientific-run",
+      "--status-path", "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/run-state/task-status.jsonl",
+      "--device", "cuda:0",
+      "--seed", "20260902",
+      "--ppl-sequence-length", "1024",
+      "--prompt-length", "128",
+      "--output-length", "32",
+      "--decode-warmups", "1",
+      "--decode-repetitions", "5",
+      "--layer-warmups", "20",
+      "--layer-repetitions", "100",
+      "--correctness-tolerance", "1e-12",
+      "--fusion", "none"
+    ],
+    "duration_estimate": {
+      "buffer": "00:45:00",
+      "estimated_runtime": "02:15:00",
+      "prepared_workload": "three full WikiText-2 PPL passes at 1024 tokens; 3x (1 warmup + 5 measured) fixed 128+32 greedy decodes; two 20+100 affected-layer timing series; two model loads and projection packing passes",
+      "requested": "03:00:00"
+    },
+    "output_directory": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/output-parent/scientific-run",
+    "output_parent": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/output-parent",
+    "output_parent_mode": 448,
+    "owner_argv": [
+      "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project/experiments/structured_hadamard/phase_a/real_model/gpu_owner.py",
+      "--owner",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/run-state/clearance.json"
+    ],
+    "salloc_argv": [
+      "/usr/bin/salloc",
+      "--account=vision-torralba-urops-meng",
+      "--qos=vision-torralba-interactive",
+      "--partition=vision-torralba-rtx3090",
+      "--job-name=rot-phasea-real-model",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=2",
+      "--mem=32G",
+      "--gres=gpu:1",
+      "--time=03:00:00"
+    ],
+    "srun_argv": [
+      "/usr/bin/srun",
+      "--pty",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=2",
+      "--mem=32G",
+      "--gres=gpu:1",
+      "--kill-on-bad-exit=1"
+    ]
+  },
+  "extension": {
+    "bytes": 1517328,
+    "cuobjdump_mode": 365,
+    "cuobjdump_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/inputs/cuobjdump",
+    "cuobjdump_sha256": "9a127e39d662e56d1847b0f08c4a36d53ef6e4900d0592df93b4521a177d1722",
+    "forbidden_arch_markers": ["sm_89", "sm_90"],
+    "mode": 365,
+    "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/inputs/phase_a_w4a4_cuda.so",
+    "ptx_markers": [".target sm_80"],
+    "sass_targets": ["sm_80", "sm_86"],
+    "sha256": "10a961e8855d7349708412aa8c21a38667fb75c94c372180dd6f992913e0a8e0"
+  },
+  "helpers": [
+    {"mode": 292, "name": "preflight_remote_audit", "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project/experiments/structured_hadamard/phase_a/real_model/preflight_remote_audit.py", "sha256": "d22c355d2839e38f97f651e26eedc7f665eebf5fb0ab46d976c0319aed5c10c8"},
+    {"mode": 292, "name": "benchmark", "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project/experiments/structured_hadamard/phase_a/real_model/benchmark.py", "sha256": "b43571547eab5babecdc171e3d3548d9f88837707b23d9b9751b0aa0446a0a83"},
+    {"mode": 292, "name": "gpu_owner", "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project/experiments/structured_hadamard/phase_a/real_model/gpu_owner.py", "sha256": "7f85e23f6c1b673d4d06006d86871352e23f838dfd59047d5dae4232d290a4a2"},
+    {"mode": 292, "name": "local_event_owner", "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project/experiments/structured_hadamard/phase_a/real_model/local_event_owner.py", "sha256": "5e2c35eb5d68d0824759d125f0b23070fa991ad714bcc7c9f4479b73fb482fa2"},
+    {"mode": 292, "name": "pyarrow_wheel", "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/environment/wheels/pyarrow-17.0.0-cp310-cp310-manylinux_2_28_x86_64.whl", "sha256": "f7ae2de664e0b158d1607699a16a488de3d008ba99b3a7aa5de1cbc13574d047"},
+    {"mode": 292, "name": "pyarrow_install_report", "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/provenance/pyarrow-install-report.json", "sha256": "c82b7e306dd29fa3f0d21c67a8c6cca62377d53d6331b1e6e4c73161922379b3"},
+    {"mode": 292, "name": "scheduler_capability", "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/provenance/rot-phasea-scheduler-capability-71ae5c823a.txt", "sha256": "c8c192d590583356c5bc48eb5257b50c27d034fb5428da1ff147ab099a923200"},
+    {"mode": 292, "name": "execution_argv", "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/provenance/rot-phasea-execution-argv-71ae5c823a.json", "sha256": "235b486b706790c63840966bc9eb048952e5613f579e7510b0c896eb017b229c"}
+  ],
+  "ledger": {
+    "expected_zero": {
+      "driver_attempts": 0,
+      "owner_attempts": 0,
+      "salloc_attempts": 0,
+      "srun_attempts": 0,
+      "terminal_events_fired": 0
+    },
+    "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/run-state/owner-ledger.json",
+    "status_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/run-state/task-status.jsonl",
+    "status_sha256": "0ab7b9ab08acbf1e85584f23d15e7f0c89e49c9739227be39457ae4bcb800cd5"
+  },
+  "model": {
+    "configuration": "Llama-3 8B dense causal LM",
+    "files": [
+      {"bytes": 654, "name": "config.json", "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/7784fbf6342de338b736f884a49b08f270c5e9c8", "sha256": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441"},
+      {"bytes": 177, "name": "generation_config.json", "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/22550a806e8cfce3b346a520348e14b765287805", "sha256": "93caf96e269e32b9ee33ad78b0d76d910408d11a63a8b2c49241030836759311"},
+      {"bytes": 23950, "name": "model.safetensors.index.json", "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/0fd8120f1c6acddc268ebc2583058efaf699a771", "sha256": "146776fce3f6db1103aa6f249e65ee5544c5923ce6f971b092eee79aa6e5d37b"},
+      {"bytes": 4976698672, "name": "model-00001-of-00004.safetensors", "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33", "sha256": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33"},
+      {"bytes": 4999802720, "name": "model-00002-of-00004.safetensors", "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c", "sha256": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c"},
+      {"bytes": 4915916176, "name": "model-00003-of-00004.safetensors", "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc", "sha256": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc"},
+      {"bytes": 1168138808, "name": "model-00004-of-00004.safetensors", "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb", "sha256": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb"},
+      {"bytes": 73, "name": "special_tokens_map.json", "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/d8cd5076496dbe4be2320312abc10adc43097b81", "sha256": "462d91939dbc37178aa5a3eae7068d1990ccc92e09f288cc71f42cdf139d69cc"},
+      {"bytes": 9085698, "name": "tokenizer.json", "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/b197f72effb9d5ed16ee0f5663e11e4cfac2ba62", "sha256": "e134af98b985517b4f068e3755ae90d4e9cd2d45d328325dc503f1c6b2d06cc7"},
+      {"bytes": 50566, "name": "tokenizer_config.json", "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/72193e9eb5cb6126087980deffb4930ec27a72a9", "sha256": "690727b4fed286383df1c7ca5e805124cb70c6eb4529f807c7b2e60ff741da7e"}
+    ],
+    "name": "NousResearch/Meta-Llama-3-8B",
+    "revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+    "root": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/snapshots/315b20096dc791d381d514deb5f8bd9c8d6d3061"
+  },
+  "owner": {"name": "kwen1", "uid": 28131},
+  "project": {
+    "head": "71ae5c823a6c4317cae74203d78716fb81c27729",
+    "manifest": {
+      "entries_sha256": "955c9ac886eb374f362a2984a6ff2b5dbb72e6da5a7773d9c0f8492ba3500d57",
+      "immutable": true,
+      "manifest_file_sha256": "44eb32dbfec231eca78f5edacbeddf6784bc7ce994e9805469e29a5bb7660c74",
+      "manifest_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project/REPRODUCIBILITY_MANIFEST.json"
+    },
+    "metadata_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project/REPRODUCIBILITY_METADATA.json",
+    "metadata_sha256": "50d7e25a4ff79a916a2968d6bcdda56150ab6a50feda8dcea99caec6a0eb6fcc",
+    "required_ancestor": "0c4aaf075d929be2474fd271ffb8bc1244206d99",
+    "root": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project",
+    "tree": "3d93dfbc2aca1171855826a0fd21b8446bee9bf4"
+  },
+  "schema_version": "phase-a-real-model-remote-preflight-v1",
+  "terminal_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/run-state/terminal.json"
+}

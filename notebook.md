@@ -1391,3 +1391,215 @@ compileall, and `git diff --check`. No new remote command followed the recovery
 approval before these helpers and tests were complete. Scheduler queries and
 mutations, allocations, `salloc`, `srun`, scientific drivers, and GPU attempts
 remain exactly zero. The existing sole tmux-owned SSH route remains open.
+
+## 2026-09-02 — Decisive Phase A real-model baseline
+
+Status: `complete-a1`. The distinct real-model Phase A comparison completed on
+the sole authorized scheduler/GPU attempt. It did not rerun the earlier
+synthetic experiment and did not run Phase B/C, H32/H128, learned rotations,
+lower-bit stress, or either A2 stress regime.
+
+### Recovery and immutable stage
+
+The repository-owned standard-library audit helper replaced every remote
+inline/heredoc Python preflight. Local fixture validation, direct CLI checks,
+compileall, and all 60 Phase A unit tests passed. The final helper/source
+commit was `71ae5c823a6c4317cae74203d78716fb81c27729`, tree
+`3d93dfbc2aca1171855826a0fd21b8446bee9bf4`, with required ancestor
+`0c4aaf075d929be2474fd271ffb8bc1244206d99`.
+
+The original sole project-stage owner was PID 2730907. Its 30-second transport
+return was initially misdiagnosed as an interrupted stage; that status and the
+failed unsupported `pidwait -p 2730907` argv remain preserved. No duplicate
+stage was started. The exact event wait
+`/usr/bin/tail --pid=2730907 -f /dev/null` returned only after the owner exited.
+The first post-wait check then used incorrect control/helper paths and was
+immediately corrected. Repository-defined controls and the staged helper were
+present with hashes:
+
+```text
+REPRODUCIBILITY_METADATA.json  50d7e25a4ff79a916a2968d6bcdda56150ab6a50feda8dcea99caec6a0eb6fcc
+REPRODUCIBILITY_MANIFEST.json  44eb32dbfec231eca78f5edacbeddf6784bc7ce994e9805469e29a5bb7660c74
+preflight_remote_audit.py      d22c355d2839e38f97f651e26eedc7f665eebf5fb0ab46d976c0319aed5c10c8
+```
+
+The immutable project manifest verified 1,806 entries. A fresh independent
+copy of QuaRot commit `5008669b08c1f11f9b64d52d16fddd47ca754c5a`
+and CUTLASS commit `ffa34e70756b0bc744e1dfcc115b5a991a68f132`
+verified 5,728 immutable entries. Its dependency-copy SSH process PID 3055528
+also exceeded the transport window and was handled by one event-driven local
+PID wait without a duplicate copy.
+
+The accepted extension at SHA-256
+`10a961e8855d7349708412aa8c21a38667fb75c94c372180dd6f992913e0a8e0`
+was copied immutable. Independent `cuobjdump` verification found native SM80
+and SM86 SASS plus compute_80 PTX, and no SM89/SM90 native image. The exact
+`cuobjdump` SHA-256 was
+`9a127e39d662e56d1847b0f08c4a36d53ef6e4900d0592df93b4521a177d1722`.
+
+The selected first-feasible model was cached
+`NousResearch/Meta-Llama-3-8B` revision
+`315b20096dc791d381d514deb5f8bd9c8d6d3061`. It was used because the complete
+authorized Llama-3 8B cache and accepted runtime were both straightforward;
+the Llama-2 and Qwen3 fallbacks were therefore not entered. The four shard
+SHA-256 values were:
+
+```text
+f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33
+d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c
+4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc
+5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb
+```
+
+Config, index, tokenizer, and tokenizer-config SHA-256 values were
+`2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441`,
+`146776fce3f6db1103aa6f249e65ee5544c5923ce6f971b092eee79aa6e5d37b`,
+`e134af98b985517b4f068e3755ae90d4e9cd2d45d328325dc503f1c6b2d06cc7`,
+and `690727b4fed286383df1c7ca5e805124cb70c6eb4529f807c7b2e60ff741da7e`.
+WikiText-2 raw-v1 cache revision was
+`b08601e04326c79dfdd32d625aee71d232d685c3`; test Arrow SHA-256 was
+`2b8a3efac7b468cbe6432edba5f55c21e435d93873acc6727431f08d5ed328ea`.
+
+Pinned Python 3.10.20 SHA-256 was
+`fa10ee8f4c18e62cbd1e467c156a228be45138bd537b9949e66fc8e5937a018e`.
+Exact bytes were audited through `importlib.metadata`, without importing the
+packages, for Torch 2.8.0+cu128, Transformers 5.12.1, Triton 3.4.0,
+Safetensors 0.8.0, Accelerate 1.14.0, NumPy 1.24.4, Tokenizers 0.22.2, and the
+task-local isolated PyArrow 17.0.0 overlay. The complete 147-distribution
+metadata-inventory SHA-256 was
+`6acfbf19d91f7c2ad81fa9702759940896860f8aa821c32cbf6b4c6190b5aaa2`.
+The PyArrow wheel and install-report SHA-256 values were
+`f7ae2de664e0b158d1607699a16a488de3d008ba99b3a7aa5de1cbc13574d047`
+and `c82b7e306dd29fa3f0d21c67a8c6cca62377d53d6331b1e6e4c73161922379b3`.
+No system Python was modified.
+
+The exact mode-0600 clearance SHA-256 was
+`8c62ba56a3416734fdc1a4320bbab301afd120f1b2f92cc2f414de957c63791a`.
+The staged helper passed independently and wrote preflight result SHA-256
+`63d2c4915c6889c70a80973f1fc7404b2459886ec222a24e3dc5a301d78b2ff1`.
+The owner repeated the same full audit before consuming the ledger.
+
+### Selection, resources, and exact argv
+
+Read-only account/QoS inspection showed
+`vision-torralba-urops-meng` and `vision-torralba-interactive` were authorized
+for `vision-torralba-rtx3090`. All three RTX 3090 nodes were mixed with seven
+GPUs reported free in aggregate. RTX 3090/SM86 was the only discovered
+account-allowed Torralba class with a native artifact target: V100 is
+incompatible, while H100/H200 would require the excluded PTX-JIT preflight.
+The selected tuple was one node, one task, two CPUs, 32 GiB, one GPU, and
+three hours. The workload estimate was 2h15m plus a 45-minute buffer; actual
+allocation elapsed was 5m34s.
+
+The sole remote owner argv was:
+
+```text
+/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10 /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project/experiments/structured_hadamard/phase_a/real_model/gpu_owner.py --owner /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/run-state/clearance.json
+```
+
+It invoked exactly one allocation owner:
+
+```text
+/usr/bin/salloc --account=vision-torralba-urops-meng --qos=vision-torralba-interactive --partition=vision-torralba-rtx3090 --job-name=rot-phasea-real-model --nodes=1 --ntasks=1 --cpus-per-task=2 --mem=32G --gres=gpu:1 --time=03:00:00 /data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10 /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project/experiments/structured_hadamard/phase_a/real_model/gpu_owner.py --allocated /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/run-state/clearance.json
+```
+
+The allocated owner invoked exactly one scientific command:
+
+```text
+/usr/bin/srun --pty --nodes=1 --ntasks=1 --cpus-per-task=2 --mem=32G --gres=gpu:1 --kill-on-bad-exit=1 /data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10 /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project/experiments/structured_hadamard/phase_a/real_model/benchmark.py --stage-root /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project --source-commit 71ae5c823a6c4317cae74203d78716fb81c27729 --snapshot /data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/snapshots/315b20096dc791d381d514deb5f8bd9c8d6d3061 --model-repository NousResearch/Meta-Llama-3-8B --model-revision 315b20096dc791d381d514deb5f8bd9c8d6d3061 --dataset-arrow /data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-test.arrow --dataset-revision b08601e04326c79dfdd32d625aee71d232d685c3 --dataset-sha256 2b8a3efac7b468cbe6432edba5f55c21e435d93873acc6727431f08d5ed328ea --extension /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/inputs/phase_a_w4a4_cuda.so --extension-sha256 10a961e8855d7349708412aa8c21a38667fb75c94c372180dd6f992913e0a8e0 --quarot-root /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/dependency/QuaRot --output-directory /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/output-parent/scientific-run --status-path /data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/run-state/task-status.jsonl --device cuda:0 --seed 20260902 --ppl-sequence-length 1024 --prompt-length 128 --output-length 32 --decode-warmups 1 --decode-repetitions 5 --layer-warmups 20 --layer-repetitions 100 --correctness-tolerance 1e-12 --fusion none
+```
+
+Exact separated argv and its canonical SHA-256
+`ca87c0012c5b12041a0a0509d65f274f327b7e7d924d629a5bce6a475236628f`
+are preserved in `artifacts/run-1662352/execution-argv.json`.
+
+### Hardware and scientific results
+
+Slurm job `1662352` ran on partition `vision-torralba-rtx3090`, hostname
+`torralba-3090-1.csail.mit.edu`. It exposed exactly one NVIDIA GeForce RTX
+3090, compute capability 8.6, UUID
+`76f2cc49-6a31-24e3-23e0-f628fc728221`, and 25,296,044,032 visible bytes.
+Slurm accounting recorded `COMPLETED`, `ExitCode=0:0`, elapsed `00:05:34`.
+The result's direct NVIDIA-driver field is `null` because Torch 2.8.0 lacks
+the private query used by the driver. The same node was directly captured at
+driver `580.178.04` by the prior hardware-qualified run; that is explicitly
+corroborative rather than fresh job-1662352 evidence. No second attempt was
+made to repair the missing direct field.
+
+The single required correctness smoke passed before timing: inverse maximum
+absolute error `0.0`, folded-model equivalence maximum absolute error `0.0`,
+tolerance `1e-12`.
+
+WikiText preprocessing joined 4,358 raw rows with double newlines and used
+tokenizer-default special-token behavior, producing 289,077 tokens with
+SHA-256 `a16c49c96e931fb7ef685f4bf49a4d16df554b0729c9899690bff09fdf54bcef`.
+Quality scored 282 length-1024 segments, 288,486 tokens, and truncated 309
+tail tokens.
+
+```text
+variant                    PPL          decode median   ms/token   tokens/s
+fp16                       6.820283     1233.050 ms     38.5328    25.9519
+w4a4_identity              1075.362051  1698.911 ms     53.0910    18.8356
+w4a4_hfull_down_proj       101.042258   2194.636 ms     68.5824    14.5810
+```
+
+Affected layer timing at `model.layers.0.mlp.down_proj`, real input shape
+`[1, 14336]`, 20 warmups, and 100 CUDA-event repetitions was:
+
+```text
+transform  rotation median  affected packed-W4A4 layer median
+I          0.000000 ms      0.184320 ms
+Hfull      0.578560 ms      0.743424 ms
+```
+
+The exact Hfull-versus-I overhead is `29.17901505098188%` end to end and
+`303.3333263268557%` in the important affected layer. The literal conclusion
+is `A1: proceed to Phase B`; both thresholds are exceeded. A2 does not apply
+because end-to-end overhead is not below 2%. A3 is not established and cannot
+be established by this run alone.
+
+Both packed W4A4 variants quantized all 224 Transformer projections. Only all
+32 FFN down-projection inputs differed: identity versus online full Hadamard
+with matching folded weights. Embeddings, norms, and LM head remained FP16.
+This is the plan's initial-site QuaRot-style scope, not a full global QuaRot
+reproduction. Transform and quantization remained sequential with
+`fusion="none"` and no fused-kernel claim.
+
+Quality must accompany the timing conclusion: the no-rotation W4A4 row is
+catastrophic, and down-projection Hfull improves it substantially but remains
+far from FP16. A1 is an overhead gate, not evidence that this minimal W4A4
+accuracy recipe is acceptable.
+
+### Terminal handling and artifacts
+
+Final one-shot ledger values are `owner_attempts=1`, `salloc_attempts=1`,
+`srun_attempts=1`, `driver_attempts=1`, and `terminal_events_fired=1`. The
+remote terminal record and local event owner both exited successfully. The
+sole event was handled, the GPU-owner tmux window exited, the SSH control
+master accepted its exit request, and its sole tmux route no longer existed.
+There was no `sbatch`, retry, requeue, cancellation, second owner, duplicate
+driver, push, PR, merge, protected-job inspection, or active-CNVQ contact.
+
+Remote result, raw timing, terminal, status, ledger, clearance, preflight,
+stage controls, dependency manifest, extension, scheduler record, and argv
+bytes were copied locally and independently SHA-256 matched. Key hashes are:
+
+```text
+results.json          a173ee7fc4d43ab4b33123190ea4e7893c1d5bf421587f07e2502b75fcfd61d4
+raw-timings.jsonl     7596a96d2225523b924b66b8f0c6b594bacfb187f61fbd51a6748f8c180c0381
+remote-terminal.json  12e1e32d0a267a4fe92f9d68c85600a7b6b60d7fe2bfef9de7865986d8e41b58
+task-status.jsonl     6338f58daf88c65e4b2ed5336668533f76686528e810082161446cca8ce2092b
+owner-ledger.json     1233621ff98d00e5767081c3c573a766bc997c6bd6e5cb73731369a4052f9e44
+clearance.json        8c62ba56a3416734fdc1a4320bbab301afd120f1b2f92cc2f414de957c63791a
+preflight-audit.json  63d2c4915c6889c70a80973f1fc7404b2459886ec222a24e3dc5a301d78b2ff1
+```
+
+The durable remote attempt root is:
+
+```text
+/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a
+```
+
+Exact local copies and the concise report are under
+`data/rot-phasea-real-model-baseline-r1/`. The immutable result-evidence commit
+is recorded by the immediately following provenance-only notebook entry.

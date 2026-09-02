@@ -1,0 +1,13 @@
+{"event":"preflight_prepared","gpu_attempts":0,"recorded_at_utc":"2026-09-02T01:23:02Z","scheduler_attempts":0,"stage_owner_pid":2730907,"stage_status":"complete"}
+{"event": "scheduler_owner_started", "recorded_at_utc": "2026-09-02T01:41:14.250174+00:00"}
+{"event": "allocation_acquired", "job_id": "1662352", "partition": "vision-torralba-rtx3090", "recorded_at_utc": "2026-09-02T01:41:16.247563+00:00"}
+{"event": "scientific_driver_started", "output_directory": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/output-parent/scientific-run", "recorded_at_utc": "2026-09-02T01:41:18.073166+00:00"}
+{"event": "gpu_visible", "gpu": {"compute_capability": [8, 6], "cuda_visible_devices": "0", "driver": null, "name": "NVIDIA GeForce RTX 3090", "total_memory_bytes": 25296044032, "uuid": "76f2cc49-6a31-24e3-23e0-f628fc728221"}, "job_id": "1662352", "partition": "vision-torralba-rtx3090", "recorded_at_utc": "2026-09-02T01:41:28.192836+00:00"}
+{"event": "variant_started", "recorded_at_utc": "2026-09-02T01:42:11.835816+00:00", "variant": "fp16"}
+{"decode_median_ms": 1233.0502243712544, "event": "variant_completed", "perplexity": 6.820283090496496, "recorded_at_utc": "2026-09-02T01:43:44.085142+00:00", "variant": "fp16"}
+{"event": "variant_started", "recorded_at_utc": "2026-09-02T01:43:44.175393+00:00", "variant": "w4a4_identity"}
+{"decode_median_ms": 1698.9108030684292, "event": "variant_completed", "perplexity": 1075.3620508278866, "recorded_at_utc": "2026-09-02T01:44:42.374211+00:00", "variant": "w4a4_identity"}
+{"event": "variant_started", "recorded_at_utc": "2026-09-02T01:45:06.055411+00:00", "variant": "w4a4_hfull_down_proj"}
+{"decode_median_ms": 2194.6362419985235, "event": "variant_completed", "perplexity": 101.04225822787963, "recorded_at_utc": "2026-09-02T01:46:46.306283+00:00", "variant": "w4a4_hfull_down_proj"}
+{"decision": "A1: proceed to Phase B", "event": "scientific_driver_completed", "recorded_at_utc": "2026-09-02T01:46:46.864142+00:00"}
+{"event": "terminal_state", "failure": null, "ledger": {"driver_attempts": 1, "owner_attempts": 1, "salloc_attempts": 1, "srun_attempts": 1, "terminal_events_fired": 1}, "owner_exit": 0, "recorded_at_utc": "2026-09-02T01:46:48.273257+00:00", "schema_version": "phase-a-real-model-terminal-event-v1"}

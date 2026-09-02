@@ -1,0 +1,13 @@
+{
+  "failure": null,
+  "ledger": {
+    "driver_attempts": 1,
+    "owner_attempts": 1,
+    "salloc_attempts": 1,
+    "srun_attempts": 1,
+    "terminal_events_fired": 1
+  },
+  "owner_exit": 0,
+  "recorded_at_utc": "2026-09-02T01:46:48.273257+00:00",
+  "schema_version": "phase-a-real-model-terminal-event-v1"
+}

@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/usr/bin/git",
+    "rev-parse",
+    "--verify",
+    "HEAD^{commit}"
+  ],
+  "default_exclusions": {
+    "directory_names_at_any_depth": [
+      ".cache",
+      "__pycache__",
+      ".pytest_cache",
+      ".mypy_cache",
+      ".ruff_cache",
+      ".venv",
+      "venv"
+    ],
+    "root_directories": [
+      "staging",
+      "out",
+      "outputs",
+      "eval_outputs",
+      "slurm_outputs",
+      "wandb"
+    ]
+  },
+  "schema_version": "phase-a-repository-stage-v3",
+  "source_git_common_dir": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/source/.git",
+  "source_head": "71ae5c823a6c4317cae74203d78716fb81c27729",
+  "staged_git_common_dir": "/data/scratch-fast/kwen1/structured-hadamard/rot-phasea-real-model-baseline-r1/attempt-20260902T010613Z-71ae5c823a/stages/project/.git",
+  "tracked_and_untracked_entries": 1806,
+  "working_tree_manifest": "REPRODUCIBILITY_MANIFEST.json",
+  "working_tree_manifest_file_sha256": "44eb32dbfec231eca78f5edacbeddf6784bc7ce994e9805469e29a5bb7660c74",
+  "working_tree_manifest_sha256": "955c9ac886eb374f362a2984a6ff2b5dbb72e6da5a7773d9c0f8492ba3500d57"
+}
