@@ -1,0 +1,37 @@
+{
+  "clearance_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/run-state/clearance.json",
+  "clearance_sha256": "52b6adc17981e999812cde0b96ac36ab79904a75c0b3ff0c79a0fbd256f69aac",
+  "dependency_entries_verified": 5728,
+  "helpers_verified": 6,
+  "ledger": {
+    "owner_attempts": 0,
+    "payload_attempts": 0,
+    "salloc_attempts": 0,
+    "srun_attempts": 0,
+    "terminal_events_fired": 0
+  },
+  "salloc_argv": [
+    "/usr/bin/salloc",
+    "--account=csail",
+    "--qos=tig-main",
+    "--partition=tig-cpu",
+    "--job-name=rot-w4a4-cpu-build",
+    "--nodes=1",
+    "--ntasks=1",
+    "--cpus-per-task=2",
+    "--mem=16G",
+    "--time=00:45:00"
+  ],
+  "schema_version": "packed-w4a4-cpu-clearance-audit-v1",
+  "source_entries_verified": 1801,
+  "srun_argv": [
+    "/usr/bin/srun",
+    "--pty",
+    "--nodes=1",
+    "--ntasks=1",
+    "--cpus-per-task=2",
+    "--mem=16G",
+    "--kill-on-bad-exit=1"
+  ],
+  "toolchain_files_verified": 8
+}

@@ -1345,3 +1345,69 @@ binding/builder bytes, third-party attribution, generated Ninja artifact,
 machine-readable terminal evidence, updated report and hashes, and the
 47-test CPU/static validation record. This follow-up changes only the notebook
 provenance pointer.
+
+## 2026-09-02 — Packed W4A4 CPU runtime prerequisite
+
+Status: `complete`. The named local branch started directly from required tip
+`9590d879af9a0d2e083c53768152fe4fcc7d58a2`; source-stage commit
+`701e372572e8e60524b362a7426bc71bf0904bed` is a strict descendant. No prior
+branch or worktree was moved or rewritten.
+
+The prepared Phase A path now verifies and loads the exact cached
+`NousResearch/Meta-Llama-3-8B` weights at revision
+`315b20096dc791d381d514deb5f8bd9c8d6d3061`, derives GQA head dimension 128
+from `4096 / 32`, preserves standard eager Transformers attention, and limits
+the online full-Hadamard plus packed-W4A4 wrapper to selected FFN
+`mlp.down_proj` modules. The implementation rejects missing or meta weights
+and folds each actual down-projection weight with the same full transform used
+online. No model was instantiated and no inference was run in this task.
+
+The complete immutable project stage has 1,801 entries and manifest SHA-256
+`a5d99602d4016dbe9bd435d6f7996c228b80c97e4baebcc9901667432a2dbe3e`.
+The separate unchanged QuaRot/CUTLASS stage is at commits
+`5008669b08c1f11f9b64d52d16fddd47ca754c5a` and
+`ffa34e70756b0bc744e1dfcc115b5a991a68f132`; its complete 5,728-entry byte
+manifest SHA-256 is
+`8f6037a6385f874253c69bc3ed5bf843480783984def548941bfdf1018c354ec`.
+Independent Git metadata, clean trees, connectivity, permissions, helper and
+tool hashes, exact model bytes, Python/Torch/CUDA identities, owner, output,
+environment, and argv were audited before launch. Clearance and independent
+audit SHA-256 values are respectively
+`52b6adc17981e999812cde0b96ac36ab79904a75c0b3ff0c79a0fbd256f69aac`
+and `42393932cd395abd89c3e9b7bb16b436d2c8c207f64eaaafbff6c9c40399ad8e`.
+
+Exactly one non-GPU allocation ran: job `1662121`, partition `tig-cpu`, node
+`groenig-2.novalocal`, two CPUs, 16 GiB, no visible CUDA device. The exact
+ledger is one owner, one `salloc`, one `srun --pty`, one payload, and one
+terminal event. The owner exited 0 at `2026-09-02T00:24:31.021559Z`; the
+allocation, event, owner, tmux-owned SSH route, and socket were retired. One
+read-only SSH build-log observation while active is preserved. After the
+secondmate supervision correction, only the existing terminal stream/event
+was consumed; there were no further ad hoc reads or scheduler queries. No
+second owner,
+retry, requeue, cancel, `sbatch`, GPU request, CUDA operation, `nvidia-smi`,
+protected-job inspection, model inference, push, PR, or merge occurred.
+The authority attribution is recorded separately in
+`artifacts/authority-correction.json` so the hash-verified remote observation
+record remains byte-exact.
+
+The accepted regular owner-controlled artifact is:
+
+```text
+/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/accepted-build/phase_a_w4a4_cuda.so
+SHA-256 10a961e8855d7349708412aa8c21a38667fb75c94c372180dd6f992913e0a8e0
+```
+
+It imports without a CUDA device operation, has resolved linked libraries and
+the Python initialization symbol, and contains only native `sm_80`/`sm_86`
+SASS plus `compute_80` PTX. It has no native SM89/SM90 claim and no SM70/V100
+support. A later GPU must match the native targets or separately pass the
+compute_80 PTX JIT boundary. The failed login-node output contamination audit
+is false. The bounded suite passed all 54 CPU/static tests locally and in the
+allocation; no `make` was needed for the Python-only project changes.
+
+Full provenance and reproduction steps are in
+`data/rot-packed-w4a4-runtime-prerequisite-r1/report.md`. Large outputs remain
+under the immutable scratch attempt, while the concise evidence set is stored
+beside the report. The result-evidence commit is recorded in the following
+notebook provenance entry.

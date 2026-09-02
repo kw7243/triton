@@ -1,0 +1,3 @@
+User|Account|Partition|QOS|GrpTRES|MaxTRES
+kwen1|csail||lab-free,normal,shared-if-available,tig-debug,tig-main||
+kwen1|vision-torralba-urops-meng||lab-free,normal,shared-if-available,tig-debug,tig-main,vision-torralba-interactive,vision-torralba-urops-meng||

@@ -1,0 +1,13 @@
+{
+  "failure": null,
+  "ledger": {
+    "owner_attempts": 1,
+    "payload_attempts": 1,
+    "salloc_attempts": 1,
+    "srun_attempts": 1,
+    "terminal_events_fired": 1
+  },
+  "owner_exit": 0,
+  "recorded_at_utc": "2026-09-02T00:24:31.021559+00:00",
+  "schema_version": "packed-w4a4-cpu-terminal-event-v1"
+}

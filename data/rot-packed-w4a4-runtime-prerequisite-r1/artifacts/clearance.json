@@ -1,0 +1,309 @@
+{
+  "build": {
+    "allocation_json": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/allocation.json",
+    "argv": [
+      "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/project/experiments/structured_hadamard/phase_a/real_model/build_w4a4_extension.py",
+      "--quarot-root",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/dependency/QuaRot",
+      "--build-directory",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/accepted-build",
+      "--cuda-home",
+      "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93",
+      "--cxx",
+      "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/bin/x86_64-conda-linux-gnu-g++"
+    ],
+    "build_log": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/build.log",
+    "clearance_audit_json": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/owner-clearance-audit.json",
+    "cuobjdump_elf_log": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/cuobjdump-elf.log",
+    "cuobjdump_ptx_log": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/cuobjdump-ptx.log",
+    "directory": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/accepted-build",
+    "environment": {
+      "CUDA_HOME": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93",
+      "LD_LIBRARY_PATH": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/lib/python3.10/site-packages/torch/lib:/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/targets/x86_64-linux/lib:/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/lib",
+      "MAX_JOBS": "1",
+      "PATH": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/bin:/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin:/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/tooling/cuobjdump-12.8.90-v2/bin:/usr/bin:/bin",
+      "TORCH_CUDA_ARCH_LIST": "8.0+PTX;8.6"
+    },
+    "estimate": {
+      "peak_memory_gib": "4-6",
+      "request": "2 CPUs, 16 GiB, 45 minutes",
+      "wall_minutes": "15-25"
+    },
+    "hardware_boundary": "native SM80/SM86 only; compute-80 PTX needs later JIT validation; SM70 unsupported",
+    "import_log": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/import.log",
+    "ldd_log": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/ldd.log",
+    "nm_log": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/nm.log",
+    "ptx_targets": [
+      "compute_80"
+    ],
+    "readelf_log": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/readelf.log",
+    "result_json": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/build-result.json",
+    "sass_targets": [
+      "sm_80",
+      "sm_86"
+    ],
+    "validation_argv": [
+      "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "experiments/structured_hadamard/phase_a/tests",
+      "-v"
+    ],
+    "validation_log": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/cpu-static-tests.log"
+  },
+  "dependency": {
+    "cutlass_head": "ffa34e70756b0bc744e1dfcc115b5a991a68f132",
+    "cutlass_root": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/dependency/QuaRot/third-party/cutlass",
+    "head": "5008669b08c1f11f9b64d52d16fddd47ca754c5a",
+    "manifest_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/provenance/dependency-manifest.json",
+    "manifest_sha256": "8f6037a6385f874253c69bc3ed5bf843480783984def548941bfdf1018c354ec",
+    "root": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/dependency/QuaRot"
+  },
+  "helpers": [
+    {
+      "bytes": 9733,
+      "mode": 365,
+      "name": "runtime_clearance.py",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/project/data/rot-packed-w4a4-runtime-prerequisite-r1/runtime_clearance.py",
+      "sha256": "a2bb0097ba23fdab28221cc25f7fc97ee2468dcec9ef8be24de38c50056fdab1",
+      "uid": 28131
+    },
+    {
+      "bytes": 10764,
+      "mode": 365,
+      "name": "cpu_owner.py",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/project/data/rot-packed-w4a4-runtime-prerequisite-r1/cpu_owner.py",
+      "sha256": "11343e5162bfff55a3145e4dffc6fa8716db01cdc2975d022c80feac70305aef",
+      "uid": 28131
+    },
+    {
+      "bytes": 6340,
+      "mode": 292,
+      "name": "build_w4a4_extension.py",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/project/experiments/structured_hadamard/phase_a/real_model/build_w4a4_extension.py",
+      "sha256": "aa7ef217bce2d6c30f17c1bb83a2b1a602880a8e95f09bbcbb291451379b1c11",
+      "uid": 28131
+    },
+    {
+      "bytes": 4744,
+      "mode": 292,
+      "name": "w4a4_bindings.cpp",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/project/experiments/structured_hadamard/phase_a/real_model/w4a4_bindings.cpp",
+      "sha256": "3b1020fc530ccc934f3cb04d10410a95dda99d2c1b8fc5643fc34979ec7a763f",
+      "uid": 28131
+    },
+    {
+      "bytes": 21556,
+      "mode": 292,
+      "name": "runtime.py",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/project/experiments/structured_hadamard/phase_a/real_model/runtime.py",
+      "sha256": "68a667434f64704f2a4b3f92440ed64946ca84712b3013a1bb202628e7175c01",
+      "uid": 28131
+    },
+    {
+      "bytes": 2226,
+      "mode": 292,
+      "name": "prepare.py",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/project/experiments/structured_hadamard/phase_a/real_model/prepare.py",
+      "sha256": "f11f1534e09237b9f5ea4cdc73653b562ba4773f9fcdb73934a06fd400bf59bc",
+      "uid": 28131
+    }
+  ],
+  "ledger_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/run-state/ledgers.json",
+  "model": {
+    "files": [
+      {
+        "bytes": 654,
+        "name": "config.json",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/7784fbf6342de338b736f884a49b08f270c5e9c8",
+        "sha256": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441",
+        "sha256_verified": true
+      },
+      {
+        "bytes": 23950,
+        "name": "model.safetensors.index.json",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/0fd8120f1c6acddc268ebc2583058efaf699a771",
+        "sha256": "146776fce3f6db1103aa6f249e65ee5544c5923ce6f971b092eee79aa6e5d37b",
+        "sha256_verified": true
+      },
+      {
+        "bytes": 4976698672,
+        "name": "model-00001-of-00004.safetensors",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+        "sha256": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+        "sha256_verified": true
+      },
+      {
+        "bytes": 4999802720,
+        "name": "model-00002-of-00004.safetensors",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+        "sha256": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+        "sha256_verified": true
+      },
+      {
+        "bytes": 4915916176,
+        "name": "model-00003-of-00004.safetensors",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+        "sha256": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+        "sha256_verified": true
+      },
+      {
+        "bytes": 1168138808,
+        "name": "model-00004-of-00004.safetensors",
+        "resolved_path": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/blobs/5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb",
+        "sha256": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb",
+        "sha256_verified": true
+      }
+    ],
+    "inference_authorized": false,
+    "loaded_during_build": false,
+    "repository": "NousResearch/Meta-Llama-3-8B",
+    "revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+    "snapshot": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/snapshots/315b20096dc791d381d514deb5f8bd9c8d6d3061"
+  },
+  "owner": {
+    "name": "kwen1",
+    "uid": 28131
+  },
+  "python": {
+    "bytes": 17331920,
+    "mode": 509,
+    "name": "python",
+    "packages": {
+      "accelerate": "1.14.0",
+      "cmake": "4.1.0",
+      "datasets": "4.0.0",
+      "ninja": "1.13.0",
+      "safetensors": "0.8.0",
+      "torch": "2.8.0+cu128",
+      "transformers": "5.12.1",
+      "triton": "3.4.0"
+    },
+    "path": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/python3.10",
+    "sha256": "fa10ee8f4c18e62cbd1e467c156a228be45138bd537b9949e66fc8e5937a018e",
+    "torch_cuda_build": "12.8",
+    "uid": 28131,
+    "version": "3.10.20 | packaged by conda-forge | (main, Jun 11 2026, 03:31:56) [GCC 14.3.0]"
+  },
+  "scheduler": {
+    "association": {
+      "account": "csail",
+      "partition": "tig-cpu",
+      "qos": "tig-main"
+    },
+    "discovery_files": [
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/provenance/scheduler-associations.txt",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/provenance/scheduler-partitions.txt",
+      "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/provenance/selected-partition.txt"
+    ],
+    "salloc_argv": [
+      "/usr/bin/salloc",
+      "--account=csail",
+      "--qos=tig-main",
+      "--partition=tig-cpu",
+      "--job-name=rot-w4a4-cpu-build",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=2",
+      "--mem=16G",
+      "--time=00:45:00"
+    ],
+    "srun_argv": [
+      "/usr/bin/srun",
+      "--pty",
+      "--nodes=1",
+      "--ntasks=1",
+      "--cpus-per-task=2",
+      "--mem=16G",
+      "--kill-on-bad-exit=1"
+    ]
+  },
+  "schema_version": "packed-w4a4-cpu-clearance-v1",
+  "source": {
+    "head": "701e372572e8e60524b362a7426bc71bf0904bed",
+    "manifest_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/project/REPRODUCIBILITY_MANIFEST.json",
+    "manifest_sha256": "a5d99602d4016dbe9bd435d6f7996c228b80c97e4baebcc9901667432a2dbe3e",
+    "metadata_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/project/REPRODUCIBILITY_METADATA.json",
+    "metadata_sha256": "80585c40e6d12e7664eaa7f3a644177033009060bc7d13e32b77adc422e529db",
+    "required_ancestor": "9590d879af9a0d2e083c53768152fe4fcc7d58a2",
+    "root": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/stages/project"
+  },
+  "terminal_path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/run-state/remote-terminal.json",
+  "toolchain": [
+    {
+      "bytes": 24832552,
+      "mode": 509,
+      "name": "nvcc",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/bin/nvcc",
+      "sha256": "5ad3b681e5f65dc6e66799ba019627986b618120778a9cccc33276ad6893a673",
+      "uid": 28131,
+      "version": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Fri_Feb_21_20:23:50_PST_2025\nCuda compilation tools, release 12.8, V12.8.93\nBuild cuda_12.8.r12.8/compiler.35583870_0"
+    },
+    {
+      "bytes": 1788536,
+      "mode": 509,
+      "name": "cxx",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/bin/x86_64-conda-linux-gnu-g++",
+      "sha256": "f3043ba4d6dce732378de6c4c6ebb62ff89229e90dc982df6ed1071396e66029",
+      "uid": 28131,
+      "version": "x86_64-conda-linux-gnu-g++ (conda-forge gcc 13.4.0-20) 13.4.0\nCopyright (C) 2023 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    {
+      "bytes": 293,
+      "mode": 493,
+      "name": "cmake",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/quarot-torch28-cu128-v1/bin/cmake",
+      "sha256": "d5f4e539a1c6a1d556d704306b19523ba24342407a8c6a142991443d3ea70125",
+      "uid": 28131,
+      "version": "cmake version 4.1.0\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake)."
+    },
+    {
+      "bytes": 372384,
+      "mode": 509,
+      "name": "ninja",
+      "path": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing/bin/ninja",
+      "sha256": "696f9628a79d9ce50314cf9556d7cd1a1d1ec52b8fd52828f6f9db1719565b67",
+      "uid": 28131,
+      "version": "1.13.0.git.kitware.jobserver-pipe-1"
+    },
+    {
+      "bytes": 573088,
+      "mode": 509,
+      "name": "cuobjdump",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/tooling/cuobjdump-12.8.90-v2/bin/cuobjdump",
+      "sha256": "9a127e39d662e56d1847b0f08c4a36d53ef6e4900d0592df93b4521a177d1722",
+      "uid": 28131,
+      "version": "cuobjdump: NVIDIA (R) fat binary listing tool\nCopyright (c) 2005-2025 NVIDIA Corporation\nBuilt on Thu_Feb_13_02:19:26_PST_2025\nCuda compilation tools, release 12.8, V12.8.90\nBuild cuda_12.8.r12.8/compiler.35538042_0"
+    },
+    {
+      "bytes": 973680,
+      "mode": 509,
+      "name": "readelf",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/bin/x86_64-conda-linux-gnu-readelf",
+      "sha256": "cee0e46f5a81413c848c9b506686d41813d698df60284c76801b2b3b7c3ab93a",
+      "uid": 28131,
+      "version": "GNU readelf (GNU Binutils) 2.46.1\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis program is free software; you may redistribute it under the terms of\nthe GNU General Public License version 3 or (at your option) any later version.\nThis program has absolutely no warranty."
+    },
+    {
+      "bytes": 1365984,
+      "mode": 509,
+      "name": "nm",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/real-model-phase-a/envs/cuda-build-tools-12.8.93/bin/x86_64-conda-linux-gnu-nm",
+      "sha256": "b8ff9accbb9697bdc33165014fbdab42fe800907cc90dfc7a17ff2369d0b3d0f",
+      "uid": 28131,
+      "version": "GNU nm (GNU Binutils) 2.46.1\nCopyright (C) 2026 Free Software Foundation, Inc.\nThis program is free software; you may redistribute it under the terms of\nthe GNU General Public License version 3 or (at your option) any later version.\nThis program has absolutely no warranty."
+    },
+    {
+      "bytes": 5444,
+      "mode": 320,
+      "name": "ldd",
+      "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/run-state/tools/ldd",
+      "sha256": "f6aeb1a1d2ba1463dec8a3760194dd680a5126db4d6449f0f6e5ec4daee35ad2",
+      "uid": 28131,
+      "version": "ldd (Ubuntu GLIBC 2.35-0ubuntu3.14) 2.35\nCopyright (C) 2022 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\nWritten by Roland McGrath and Ulrich Drepper."
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "allocation_job_id": "1662121",
+  "disposition": "No further ad hoc checks followed; supervision waited only on the existing owner terminal stream/event.",
+  "observed": {
+    "build_log": "builder entered after no-CUDA-runtime warning",
+    "cpu_static_tests": "54 tests passed",
+    "output_directory": "accepted-build existed"
+  },
+  "recorded_at_utc": "2026-09-02T00:26:17.946691+00:00",
+  "scheduler_queries_while_active": 0,
+  "schema_version": "packed-w4a4-supervision-observation-v1",
+  "ssh_read_checks_while_active": 1
+}

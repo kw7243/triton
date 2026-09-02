@@ -1,0 +1,67 @@
+{
+  "allocation": {
+    "cpus_per_task": "2",
+    "cuda_visible_devices": null,
+    "host": "groenig-2.novalocal",
+    "job_id": "1662121",
+    "partition": "tig-cpu",
+    "recorded_at_utc": "2026-09-02T00:21:22.567858+00:00",
+    "schema_version": "packed-w4a4-cpu-allocation-v1"
+  },
+  "architecture": {
+    "native_newer_than_sm86": false,
+    "ptx": [
+      "compute_80"
+    ],
+    "sass": [
+      "sm_80",
+      "sm_86"
+    ],
+    "sm70_supported": false
+  },
+  "clearance_sha256": "52b6adc17981e999812cde0b96ac36ab79904a75c0b3ff0c79a0fbd256f69aac",
+  "cpu_only_import": true,
+  "cuda_device_operation": false,
+  "extension": {
+    "bytes": 1517328,
+    "mode": 493,
+    "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/accepted-build/phase_a_w4a4_cuda.so",
+    "sha256": "10a961e8855d7349708412aa8c21a38667fb75c94c372180dd6f992913e0a8e0",
+    "uid": 28131
+  },
+  "failed_login_build_contamination": false,
+  "ledger": {
+    "owner_attempts": 1,
+    "payload_attempts": 1,
+    "salloc_attempts": 1,
+    "srun_attempts": 1,
+    "terminal_events_fired": 1
+  },
+  "linked_libraries_resolved": true,
+  "model_inference": false,
+  "ninja": {
+    "cmake_used": false,
+    "dependency_manifest_coverage": true,
+    "dependency_paths": 958,
+    "path": "/data/scratch-fast/kwen1/structured-hadamard/rot-packed-w4a4-runtime-prerequisite-r1/attempt-20260902T000347Z-701e372572e8/output/accepted-build/build.ninja",
+    "sha256": "eee8fb5f02cc7f2fd64f6ae6fdb78d137134b1e0afd8084fb2d9b0ffbabdccef"
+  },
+  "prelaunch_audit_sha256": "42393932cd395abd89c3e9b7bb16b436d2c8c207f64eaaafbff6c9c40399ad8e",
+  "python_initialization_symbol": true,
+  "recorded_at_utc": "2026-09-02T00:25:44.485540+00:00",
+  "schema_version": "packed-w4a4-postbuild-audit-v1",
+  "status": "success",
+  "terminal": {
+    "failure": null,
+    "ledger": {
+      "owner_attempts": 1,
+      "payload_attempts": 1,
+      "salloc_attempts": 1,
+      "srun_attempts": 1,
+      "terminal_events_fired": 1
+    },
+    "owner_exit": 0,
+    "recorded_at_utc": "2026-09-02T00:24:31.021559+00:00",
+    "schema_version": "packed-w4a4-cpu-terminal-event-v1"
+  }
+}

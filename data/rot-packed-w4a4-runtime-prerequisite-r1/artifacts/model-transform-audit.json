@@ -1,0 +1,58 @@
+{
+  "cuda_device_operation": false,
+  "full_hadamard": {
+    "inner_order": 512,
+    "orthogonal": true,
+    "outer_int8_row_major_sha256": "a6cb994c78f9acd4ce172a154b97e3982594cc0124ce7af90cb88810b9509a8c",
+    "outer_order": 28,
+    "width": 14336
+  },
+  "head_dim": 128,
+  "head_dim_formula": "hidden_size / num_attention_heads",
+  "kv_cache_shape_formula": "[batch, num_key_value_heads, sequence, head_dim]",
+  "model": {
+    "attention": "transformers-standard-eager",
+    "dimensions": {
+      "head_dim": 128,
+      "hidden_size": 4096,
+      "intermediate_size": 14336,
+      "num_attention_heads": 32,
+      "num_hidden_layers": 32,
+      "num_key_value_heads": 8
+    },
+    "metadata_sha256": {
+      "config.json": "2430cee764b6530ff8673cf9ba8561e1d5a33152d503cd0de909ff5718261441",
+      "model.safetensors.index.json": "146776fce3f6db1103aa6f249e65ee5544c5923ce6f971b092eee79aa6e5d37b"
+    },
+    "repository": "NousResearch/Meta-Llama-3-8B",
+    "revision": "315b20096dc791d381d514deb5f8bd9c8d6d3061",
+    "snapshot": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--NousResearch--Meta-Llama-3-8B/snapshots/315b20096dc791d381d514deb5f8bd9c8d6d3061",
+    "weight_blobs": {
+      "model-00001-of-00004.safetensors": {
+        "bytes": 4976698672,
+        "expected_sha256": "f2c144103072514542e327fa8080bd375cb300f2d453fba9ca3aea81d0d4cf33",
+        "sha256_verified": true
+      },
+      "model-00002-of-00004.safetensors": {
+        "bytes": 4999802720,
+        "expected_sha256": "d9eee5f23d94405d90b7e9ff88b9443fee42f8528a658f54214c2aba7530d80c",
+        "sha256_verified": true
+      },
+      "model-00003-of-00004.safetensors": {
+        "bytes": 4915916176,
+        "expected_sha256": "4b8fbc5e113f69768dd8de84661ea20af8a32b734a9976144b4236c447b40ccc",
+        "sha256_verified": true
+      },
+      "model-00004-of-00004.safetensors": {
+        "bytes": 1168138808,
+        "expected_sha256": "5dc34e6bdf2da9e35f0d93b5c333c870f3677dc43dc3a91ea3a8ad28a1fe1acb",
+        "sha256_verified": true
+      }
+    },
+    "weight_keys": 291
+  },
+  "model_inference": false,
+  "model_loaded": false,
+  "recorded_at_utc": "2026-09-02T00:14:06.978952+00:00",
+  "schema_version": "packed-w4a4-model-transform-audit-v1"
+}

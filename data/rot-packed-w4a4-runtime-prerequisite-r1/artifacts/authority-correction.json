@@ -1,0 +1,12 @@
+{
+  "allocation_job_id": "1662121",
+  "authority": "supervising secondmate",
+  "corrected_wording": "secondmate supervision correction",
+  "disposition": "After the correction, supervision waited only on the existing owner terminal stream/event; no further ad hoc reads or scheduler queries occurred.",
+  "original_remote_observation_sha256": "0edf141a99e44d5c78f1fbaf310b7c281dbcb1ada9613ea9090920ca2cc0216b",
+  "preserved_active_observation": {
+    "read_only_build_log_checks": 1,
+    "scheduler_queries": 0
+  },
+  "schema_version": "packed-w4a4-supervision-authority-correction-v1"
+}

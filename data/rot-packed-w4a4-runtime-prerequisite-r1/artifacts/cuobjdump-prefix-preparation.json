@@ -1,0 +1,18 @@
+{
+  "disposition": "use a distinct v2 prefix with NVIDIA plus conda-forge; no scheduler or compiler ran",
+  "first_argv": [
+    "micromamba",
+    "create",
+    "-p",
+    "cuobjdump-12.8.90",
+    "-c",
+    "nvidia",
+    "--no-rc",
+    "cuda-cuobjdump=12.8.90"
+  ],
+  "first_error": "cuda-cuobjdump required libgcc-ng, absent from the NVIDIA-only channel",
+  "first_exit": "nonzero",
+  "first_prefix_exists_after_failed_solve": false,
+  "recorded_at_utc": "2026-09-02T00:10:26.584886+00:00",
+  "schema_version": "packed-w4a4-cuobjdump-preparation-v1"
+}

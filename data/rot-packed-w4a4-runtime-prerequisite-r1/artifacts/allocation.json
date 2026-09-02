@@ -1,0 +1,9 @@
+{
+  "cpus_per_task": "2",
+  "cuda_visible_devices": null,
+  "host": "groenig-2.novalocal",
+  "job_id": "1662121",
+  "partition": "tig-cpu",
+  "recorded_at_utc": "2026-09-02T00:21:22.567858+00:00",
+  "schema_version": "packed-w4a4-cpu-allocation-v1"
+}
