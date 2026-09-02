@@ -403,6 +403,21 @@ class TorchFullHadamard:
         return self._apply(tensor, transpose_outer=True)
 
 
+class IdentityTransform:
+    """Host-alias identity used to keep W4A4 baselines structurally identical."""
+
+    name = "I"
+
+    def online(self, tensor: object):
+        return tensor
+
+    def fold_weight(self, tensor: object):
+        return tensor
+
+    def inverse(self, tensor: object):
+        return tensor
+
+
 def load_extension(path: Path, expected_sha256: str | None = None):
     path = _require_regular(path)
     actual = sha256_file(path)
@@ -419,12 +434,12 @@ def load_extension(path: Path, expected_sha256: str | None = None):
     return module
 
 
-def _packed_down_projection_class(torch: object):
-    class PackedW4A4DownProjection(torch.nn.Module):
-        def __init__(self, original: object, extension: object, transform: TorchFullHadamard):
+def _packed_linear_class(torch: object):
+    class PackedW4A4Linear(torch.nn.Module):
+        def __init__(self, original: object, extension: object, transform: object):
             super().__init__()
             if original.bias is not None:
-                raise PreparationError("Llama down_proj is expected to have no bias")
+                raise PreparationError("packed Phase A Llama projections must not have bias")
             self.in_features = original.in_features
             self.out_features = original.out_features
             self.extension = extension
@@ -447,7 +462,13 @@ def _packed_down_projection_class(torch: object):
             output = self.extension.sym_dequant(accumulated, scales, self.weight_scales)
             return output.reshape(*original_shape[:-1], self.out_features)
 
-    return PackedW4A4DownProjection
+    return PackedW4A4Linear
+
+
+def _packed_down_projection_class(torch: object):
+    """Compatibility alias for the accepted selected-down-projection preparation."""
+
+    return _packed_linear_class(torch)
 
 
 def replace_down_projections(model: object, *, layers: Iterable[int], extension: object,
@@ -471,6 +492,69 @@ def replace_down_projections(model: object, *, layers: Iterable[int], extension:
     if any(before is not after for before, after in zip(attention_before, attention_after)):
         raise PreparationError("standard model attention changed during down-projection replacement")
     return selected
+
+
+LLAMA_PROJECTION_PATHS = (
+    ("self_attn", "q_proj"),
+    ("self_attn", "k_proj"),
+    ("self_attn", "v_proj"),
+    ("self_attn", "o_proj"),
+    ("mlp", "gate_proj"),
+    ("mlp", "up_proj"),
+    ("mlp", "down_proj"),
+)
+
+
+def replace_all_projection_linears(model: object, *, extension: object,
+                                   rotate_down_projections: bool,
+                                   transform_factory: Callable[[int], object],
+                                   torch_module: object) -> tuple[str, ...]:
+    """Install genuine packed W4A4 at every Transformer projection.
+
+    The only online rotation site in this Phase A slice is each FFN
+    ``down_proj`` input.  All other projection activations use the host-alias
+    identity so the two W4A4 variants differ only at that affected site.
+    Embeddings, normalization, and the LM head remain floating point.
+    """
+
+    wrapper_class = _packed_linear_class(torch_module)
+    replaced = []
+    attention_before = tuple(layer.self_attn for layer in model.model.layers)
+    for layer_index, layer in enumerate(model.model.layers):
+        for parent_name, child_name in LLAMA_PROJECTION_PATHS:
+            parent = getattr(layer, parent_name)
+            original = getattr(parent, child_name)
+            if rotate_down_projections and (parent_name, child_name) == ("mlp", "down_proj"):
+                transform = transform_factory(original.in_features)
+            else:
+                transform = IdentityTransform()
+            setattr(parent, child_name, wrapper_class(original, extension, transform))
+            replaced.append(f"model.layers.{layer_index}.{parent_name}.{child_name}")
+    attention_after = tuple(layer.self_attn for layer in model.model.layers)
+    if any(before is not after for before, after in zip(attention_before, attention_after)):
+        raise PreparationError("standard model attention container changed during W4A4 replacement")
+    expected = len(model.model.layers) * len(LLAMA_PROJECTION_PATHS)
+    if len(replaced) != expected:
+        raise PreparationError(f"expected {expected} packed projections, replaced {len(replaced)}")
+    return tuple(replaced)
+
+
+def unquantized_one_block_smoke() -> dict[str, float]:
+    """One bounded dependency-free transform/inverse/folding equivalence smoke."""
+
+    outer = ((1, 1), (1, -1))
+    activation = ((1.0, 2.0, 3.0, 4.0),)
+    weights = ((0.5, -1.0, 2.0, 3.0), (-2.0, 1.5, 0.25, -0.5))
+    transformed = factored_hadamard_rows(activation, outer)
+    recovered = factored_hadamard_rows(transformed, outer, transpose_outer=True)
+    folded = fold_weight_rows(weights, outer)
+    baseline = [sum(x * w for x, w in zip(activation[0], row)) for row in weights]
+    compensated = [sum(x * w for x, w in zip(transformed[0], row)) for row in folded]
+    inverse_max_abs = max(abs(observed - expected)
+                          for observed, expected in zip(recovered[0], activation[0]))
+    equivalence_max_abs = max(abs(observed - expected)
+                              for observed, expected in zip(compensated, baseline))
+    return {"inverse_max_abs": inverse_max_abs, "equivalence_max_abs": equivalence_max_abs}
 
 
 def prepare_model(snapshot: Path, extension_path: Path, extension_sha256: str, quarot_root: Path,

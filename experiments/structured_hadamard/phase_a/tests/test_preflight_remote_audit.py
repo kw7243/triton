@@ -117,7 +117,14 @@ class RemotePreflightAuditTest(unittest.TestCase):
                     "driver_attempts": 0, "terminal_events_fired": 0}
             ledger.write_text(json.dumps(zero), encoding="utf-8")
             ledger.chmod(0o600)
+            status_path = root / "task-status.jsonl"
+            status_path.write_text("", encoding="utf-8")
+            status_path.chmod(0o600)
             helper = Path(audit.__file__).resolve()
+            owner_argv = [sys.executable, "-m", "fixture.owner", "--owner", str(root / "clearance.json")]
+            allocated_argv = [
+                sys.executable, "-m", "fixture.owner", "--allocated", str(root / "clearance.json"),
+            ]
             driver_argv = [sys.executable, str(project / "payload.txt")]
             salloc_argv = ["/usr/bin/salloc", "--account=fixture", "--time=00:01:00"]
             srun_argv = ["/usr/bin/srun", "--pty", "--nodes=1"]
@@ -136,6 +143,7 @@ class RemotePreflightAuditTest(unittest.TestCase):
                 "site_paths": [str(site)],
                 "allowed_roots": [str(root)],
                 "packages": [{"name": "fixture-package", "version": "1.0", "exact_bytes": True}],
+                "runtime_env": {"PYTHONPATH": str(site), "PYTHONDONTWRITEBYTECODE": "1"},
             }
             observed_environment = audit.audit_environment(environment_record, owner_uid=os.getuid())
             environment_record["packages"][0]["byte_manifest_sha256"] = (
@@ -179,15 +187,19 @@ class RemotePreflightAuditTest(unittest.TestCase):
                 "helpers": [{"name": "preflight", "path": str(helper), "sha256": _sha(helper),
                              "mode": stat.S_IMODE(helper.stat().st_mode)}],
                 "execution": {
+                    "owner_argv": owner_argv, "allocated_argv": allocated_argv,
                     "driver_argv": driver_argv, "salloc_argv": salloc_argv, "srun_argv": srun_argv,
                     "argv_sha256": audit.canonical_sha256({
-                        "driver_argv": driver_argv, "salloc_argv": salloc_argv, "srun_argv": srun_argv,
+                        "owner_argv": owner_argv, "allocated_argv": allocated_argv,
+                        "driver_argv": driver_argv, "salloc_argv": salloc_argv,
+                        "srun_argv": srun_argv,
                     }),
                     "duration_estimate": "fixture",
                     "output_parent": str(output_parent), "output_parent_mode": 0o750,
                     "output_directory": str(output_parent / "new"),
                 },
-                "ledger": {"path": str(ledger), "expected_zero": zero},
+                "ledger": {"path": str(ledger), "expected_zero": zero,
+                           "status_path": str(status_path), "status_sha256": _sha(status_path)},
                 "terminal_path": str(root / "terminal.json"),
                 "audit_output": str(root / "audit.json"),
             }

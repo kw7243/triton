@@ -198,19 +198,54 @@ class RealModelPreparationTest(unittest.TestCase):
             "fold_weight", "sym_quant", "online", "sym_quant", "matmul", "sym_dequant",
         ])
 
+    def test_all_projection_linears_are_packed_and_only_down_projection_rotates(self):
+        def linear(in_features, out_features):
+            return SimpleNamespace(
+                in_features=in_features, out_features=out_features, bias=None,
+                weight=_Tensor((out_features, in_features), "weight"),
+            )
+
+        def model():
+            layers = []
+            for _ in range(2):
+                layers.append(SimpleNamespace(
+                    self_attn=SimpleNamespace(
+                        q_proj=linear(4, 4), k_proj=linear(4, 2),
+                        v_proj=linear(4, 2), o_proj=linear(4, 4),
+                    ),
+                    mlp=SimpleNamespace(
+                        gate_proj=linear(4, 8), up_proj=linear(4, 8), down_proj=linear(8, 4),
+                    ),
+                ))
+            return SimpleNamespace(model=SimpleNamespace(layers=layers))
+
+        calls = []
+        identity_model = model()
+        replaced = runtime.replace_all_projection_linears(
+            identity_model, extension=_Extension(calls), rotate_down_projections=False,
+            transform_factory=lambda _width: self.fail("identity path requested a transform"),
+            torch_module=_Torch,
+        )
+        self.assertEqual(len(replaced), 14)
+        self.assertTrue(all(isinstance(layer.mlp.down_proj.transform, runtime.IdentityTransform)
+                            for layer in identity_model.model.layers))
+
+        calls = []
+        rotated_model = model()
+        replaced = runtime.replace_all_projection_linears(
+            rotated_model, extension=_Extension(calls), rotate_down_projections=True,
+            transform_factory=lambda _width: _Transform(calls), torch_module=_Torch,
+        )
+        self.assertEqual(len(replaced), 14)
+        self.assertTrue(all(isinstance(layer.mlp.down_proj.transform, _Transform)
+                            for layer in rotated_model.model.layers))
+        self.assertTrue(all(isinstance(layer.self_attn.q_proj.transform, runtime.IdentityTransform)
+                            for layer in rotated_model.model.layers))
+
     def test_transform_inverse_and_fold_orientation(self):
-        outer = [[1, 1], [1, -1]]
-        activation = [[1.0, 2.0, 3.0, 4.0]]
-        weights = [[0.5, -1.0, 2.0, 3.0], [-2.0, 1.5, 0.25, -0.5]]
-        transformed = runtime.factored_hadamard_rows(activation, outer)
-        recovered = runtime.factored_hadamard_rows(transformed, outer, transpose_outer=True)
-        for observed, expected in zip(recovered[0], activation[0]):
-            self.assertAlmostEqual(observed, expected)
-        folded = runtime.fold_weight_rows(weights, outer)
-        baseline = [sum(x * w for x, w in zip(activation[0], row)) for row in weights]
-        compensated = [sum(x * w for x, w in zip(transformed[0], row)) for row in folded]
-        for observed, expected in zip(compensated, baseline):
-            self.assertAlmostEqual(observed, expected)
+        result = runtime.unquantized_one_block_smoke()
+        self.assertLessEqual(result["inverse_max_abs"], 1.0e-12)
+        self.assertLessEqual(result["equivalence_max_abs"], 1.0e-12)
 
     def test_signed_packing_scales_and_int32_dequant_reference(self):
         rows = [[-8.0, -7.0, -0.5, 0.5, 6.9, 7.0, 0.0, 1.0]]

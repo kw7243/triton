@@ -1,0 +1,3 @@
+# The base scientific interpreter supplies Torch/Transformers/NumPy.
+# WikiText Arrow ingestion is the sole task-local package addition.
+pyarrow==17.0.0

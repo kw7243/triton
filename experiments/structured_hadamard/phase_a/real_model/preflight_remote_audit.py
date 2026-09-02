@@ -353,6 +353,17 @@ def audit_environment(record: Mapping[str, object], *, owner_uid: int) -> dict[s
         for values in distributions.values() for distribution in values
         if distribution.metadata.get("Name")
     )
+    runtime_env = record["runtime_env"]
+    if (not isinstance(runtime_env, dict)
+            or any(not isinstance(key, str) or not isinstance(value, str)
+                   for key, value in runtime_env.items())):
+        raise AuditError("runtime_env must be a string mapping")
+    if any(any(fragment in key.upper() for fragment in ("TOKEN", "SECRET", "PASSWORD", "KEY"))
+           for key in runtime_env):
+        raise AuditError("runtime_env must not bind credential-like keys")
+    expected_pythonpath = os.pathsep.join(str(path) for path in site_paths)
+    if runtime_env.get("PYTHONPATH") != expected_pythonpath:
+        raise AuditError("runtime PYTHONPATH differs from the audited site-packages order")
     return {
         "python": {
             "path": str(python), "sha256": python_record["sha256"],
@@ -362,6 +373,7 @@ def audit_environment(record: Mapping[str, object], *, owner_uid: int) -> dict[s
         "metadata_inventory_sha256": canonical_sha256(metadata_inventory),
         "metadata_inventory_count": len(metadata_inventory),
         "packages": package_results,
+        "runtime_env": runtime_env,
         "scientific_packages_imported": False,
     }
 
@@ -390,13 +402,16 @@ def _audit_argv(argv: object, *, label: str) -> list[str]:
 
 
 def audit_execution(record: Mapping[str, object], *, owner_uid: int) -> dict[str, object]:
+    owner = _audit_argv(record["owner_argv"], label="owner_argv")
+    allocated = _audit_argv(record["allocated_argv"], label="allocated_argv")
     driver = _audit_argv(record["driver_argv"], label="driver_argv")
     salloc = _audit_argv(record["salloc_argv"], label="salloc_argv")
     srun = _audit_argv(record["srun_argv"], label="srun_argv")
     if salloc[0] != "/usr/bin/salloc" or srun[0] != "/usr/bin/srun" or "--pty" not in srun:
         raise AuditError("scheduler argv must be exact salloc then srun --pty")
     if record["argv_sha256"] != canonical_sha256({
-            "driver_argv": driver, "salloc_argv": salloc, "srun_argv": srun}):
+            "owner_argv": owner, "allocated_argv": allocated, "driver_argv": driver,
+            "salloc_argv": salloc, "srun_argv": srun}):
         raise AuditError("exact execution argv digest differs")
     output_parent = Path(str(record["output_parent"])).resolve(strict=True)
     status = output_parent.stat()
@@ -410,7 +425,8 @@ def audit_execution(record: Mapping[str, object], *, owner_uid: int) -> dict[str
     if output.parent != output_parent or output.exists():
         raise AuditError(f"output directory exists or escapes its parent: {output}")
     return {
-        "driver_argv": driver, "salloc_argv": salloc, "srun_argv": srun,
+        "owner_argv": owner, "allocated_argv": allocated, "driver_argv": driver,
+        "salloc_argv": salloc, "srun_argv": srun,
         "argv_sha256": record["argv_sha256"], "duration_estimate": record["duration_estimate"],
         "output_parent": str(output_parent), "output_parent_mode": record["output_parent_mode"],
         "output_directory": str(output),
@@ -418,7 +434,7 @@ def audit_execution(record: Mapping[str, object], *, owner_uid: int) -> dict[str
 
 
 def audit(clearance_path: Path, *, expected_clearance_sha256: str,
-          expected_helper_sha256: str) -> dict[str, object]:
+          expected_helper_sha256: str, allow_existing_output: bool = False) -> dict[str, object]:
     helper = Path(__file__).resolve(strict=True)
     if sha256_file(helper) != expected_helper_sha256:
         raise AuditError(f"executed helper digest differs: {helper}")
@@ -436,11 +452,16 @@ def audit(clearance_path: Path, *, expected_clearance_sha256: str,
     ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
     if ledger != value["ledger"]["expected_zero"]:
         raise AuditError(f"one-shot owner ledger is not clear: {ledger!r}")
+    status_path = require_regular(
+        Path(str(value["ledger"]["status_path"])), owner_uid=owner_uid, mode=0o600,
+    )
+    if sha256_file(status_path) != value["ledger"]["status_sha256"]:
+        raise AuditError(f"task status digest differs: {status_path}")
     terminal = Path(str(value["terminal_path"]))
     if terminal.exists():
         raise AuditError(f"terminal event already exists: {terminal}")
     output = Path(str(value["audit_output"])).resolve()
-    if output.exists():
+    if output.exists() and not allow_existing_output:
         raise AuditError(f"audit output already exists: {output}")
     result = {
         "schema_version": RESULT_SCHEMA_VERSION,
@@ -457,7 +478,8 @@ def audit(clearance_path: Path, *, expected_clearance_sha256: str,
         "environment": audit_environment(value["environment"], owner_uid=owner_uid),
         "helpers": audit_helpers(value["helpers"], owner_uid=owner_uid),
         "execution": audit_execution(value["execution"], owner_uid=owner_uid),
-        "ledger": {"path": str(ledger_path), "value": ledger},
+        "ledger": {"path": str(ledger_path), "value": ledger,
+                   "status_path": str(status_path), "status_sha256": value["ledger"]["status_sha256"]},
         "terminal_path": str(terminal),
     }
     return result

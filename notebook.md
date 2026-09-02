@@ -1361,3 +1361,33 @@ hashed script instead of inline Python. Slurm/scheduler queries and mutations,
 attempts for this relaunched lane remain exactly zero. The single existing
 tmux-owned SSH route remains open for supervisor-directed recovery and was not
 retired.
+
+## 2026-09-02 — Hashed-script recovery and real-model source preparation
+
+Status: `prepared-locally-scheduler-zero`. Recovery replaces all remote inline
+or heredoc Python with the repository-owned standard-library helper
+`experiments/structured_hadamard/phase_a/real_model/preflight_remote_audit.py`.
+Its fixture covers independent project/dependency Git metadata and manifests,
+accepted-extension architecture inspection, model/data file identities,
+`importlib.metadata` package records and exact bytes, helper hashes, ordinary
+argv, zero one-shot ledgers, and a new output path; the fixture also proves
+that `datasets` is not imported. The two malformed read-only remote commands
+remain preserved as failed evidence and were not repeated.
+
+The prepared scientific comparison uses exact cached
+`NousResearch/Meta-Llama-3-8B` revision
+`315b20096dc791d381d514deb5f8bd9c8d6d3061` and WikiText-2 raw-v1 test data.
+Both W4A4 variants install the accepted genuine packed signed-int4 runtime at
+all 224 Transformer q/k/v/o/gate/up/down projection linears; embeddings,
+normalization, and the LM head remain FP16. The variants differ only at all 32
+FFN `down_proj` inputs: host-alias identity versus exact online full Hadamard
+with matching folded weights. Transform and quantized GEMM remain sequential
+with `fusion="none"`. The single bounded unquantized block smoke checks inverse
+and folded-model equivalence at tolerance `1e-12`; no additional toy smoke was
+added.
+
+Local validation passed all 60 Phase A tests, direct-script CLI assembly,
+compileall, and `git diff --check`. No new remote command followed the recovery
+approval before these helpers and tests were complete. Scheduler queries and
+mutations, allocations, `salloc`, `srun`, scientific drivers, and GPU attempts
+remain exactly zero. The existing sole tmux-owned SSH route remains open.

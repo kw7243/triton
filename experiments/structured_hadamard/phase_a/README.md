@@ -127,6 +127,21 @@ failure evidence remains under `data/rot-phasea-real-model-baseline-r1/`.
 Acceptance of any later CPU-allocation artifact is recorded in its separate
 task report and must not be inferred from the presence of these helpers.
 
+The decisive real-model driver is `real_model/benchmark.py`. It compares one
+FP16 model with two genuine packed-W4A4 variants. Both W4A4 variants replace
+all 224 Transformer q/k/v/o/gate/up/down projection linears; embeddings,
+normalization, and the LM head remain floating point. The variants differ only
+at the 32 FFN `down_proj` inputs: one uses the host-alias identity and the other
+uses the exact online full Hadamard with matching folded weights. Every such
+transform and packed GEMM is sequential and records `fusion="none"`.
+
+`real_model/preflight_remote_audit.py` is the only remote Python preflight. It
+uses the standard library and `importlib.metadata`, never imports a scientific
+package merely to report a version, and consumes one exact mode-0600 clearance
+through ordinary argv. `real_model/gpu_owner.py` owns the sole `salloc` and
+`srun --pty`; `real_model/local_event_owner.py` reuses the one existing SSH
+ControlMaster and emits the one tmux terminal signal.
+
 ## Future experimental boundary
 
 Only a later, explicitly cleared GPU owner may activate profiling. Before any
