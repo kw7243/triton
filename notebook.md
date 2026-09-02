@@ -1603,3 +1603,14 @@ The durable remote attempt root is:
 Exact local copies and the concise report are under
 `data/rot-phasea-real-model-baseline-r1/`. The immutable result-evidence commit
 is recorded by the immediately following provenance-only notebook entry.
+
+## 2026-09-02 — Decisive real-model result provenance
+
+The scientific source commit is
+`71ae5c823a6c4317cae74203d78716fb81c27729`, tree
+`3d93dfbc2aca1171855826a0fd21b8446bee9bf4`. The immutable local result-
+evidence commit is `1693ba48e39a5ae9501222f561cdf6d4f96f5bb6`, tree
+`1e146530d62d44e8895db250ca9f7f7d02ea90c1`. It contains the concise report,
+exact copied result/raw/control artifacts, verified SHA-256 manifest, full
+result notebook entry, and the sole owner/terminal logs. This follow-up changes
+only the notebook provenance pointer.
