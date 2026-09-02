@@ -10,6 +10,7 @@ import json
 import math
 import os
 import random
+import re
 import statistics
 import subprocess
 from pathlib import Path
@@ -22,11 +23,30 @@ import torch
 import triton
 import triton.language as tl
 
+from gpu_correctness.protocol import (
+    ABS_TOL,
+    CONFIGS,
+    INPUT_KINDS,
+    PRIMARY_UNITS,
+    RANDOM_IDS_PER_ROLE_HEAD,
+    REL_TOL,
+    SECONDARY_SIZES,
+    CorrectnessArguments,
+    ScientificComparisonFailure,
+    contract_snapshot,
+    validate_correctness_arguments,
+)
+from gpu_correctness.result_protocol import (
+    STATE_FILE,
+    atomic_write_json,
+    atomic_write_text,
+    read_json,
+    record_boundary,
+)
+
 Q = (0.2, 0.5, 0.8)
 VARIANTS = ("J", "F", "H")
-CONFIGS = ((256, 4, "b256-w4"), (512, 8, "b512-w8"))
 MODE = {"J": 0, "F": 1, "H": 2}
-ABS_TOL, REL_TOL = 4e-3, 1e-3
 
 
 @triton.jit
@@ -130,18 +150,22 @@ def error(actual, reference):
                              torch.linalg.vector_norm(reference.float()).clamp_min(1e-12)).item()}
 
 
-def require_close(label, metric):
+def require_close(check, label, metric):
     if metric["max_abs"] > ABS_TOL or metric["relative_fro"] > REL_TOL:
-        raise AssertionError(f"{label}: {metric}")
+        raise ScientificComparisonFailure(check, f"{label}: {metric}")
 
 
-def correctness_case(seed, roles, heads, s_size, dtype, tables, kind, config):
+def correctness_case(seed, roles, heads, s_size, dtype, tables, kind, config, progress):
     rh_count = roles * heads
     if kind == "exhaustive":
         ids2 = torch.arange(24 * s_size, dtype=torch.int32).repeat(rh_count, 1)
     else:
-        ids2 = torch.randint(24 * s_size, (rh_count, 4099), dtype=torch.int32,
-                             generator=torch.Generator().manual_seed(seed))
+        ids2 = torch.randint(
+            24 * s_size,
+            (rh_count, RANDOM_IDS_PER_ROLE_HEAD),
+            dtype=torch.int32,
+            generator=torch.Generator().manual_seed(seed),
+        )
     ids2 = ids2.cuda()
     per_head, ids = ids2.shape[1], ids2.flatten()
     rh = torch.arange(rh_count, device="cuda")[:, None].expand_as(ids2).flatten()
@@ -151,48 +175,80 @@ def correctness_case(seed, roles, heads, s_size, dtype, tables, kind, config):
     oracle = hamilton(tables["primary32"][p],
                        tables["secondary"].view(rh_count, s_size, 4)[rh, s])
     outputs = {}
+    progress("kernel_compile_or_launch", dtype=str(dtype), S=s_size, input=kind, config=config[2])
     for variant in VARIANTS:
         outputs[variant] = torch.empty((ids.numel(), 4), dtype=dtype, device="cuda")
         launch(variant, ids, tables, outputs[variant], per_head, s_size, config)
+    progress("cuda_synchronize", dtype=str(dtype), S=s_size, input=kind, config=config[2])
     torch.cuda.synchronize()
+    progress("inside_comparison", dtype=str(dtype), S=s_size, input=kind, config=config[2])
     if not torch.equal(outputs["J"], gathered):
-        raise AssertionError("J is not bitwise equal to the independent PyTorch gather")
+        raise ScientificComparisonFailure(
+            "J_bitwise_gather", "J is not bitwise equal to the independent PyTorch gather"
+        )
     for variant in VARIANTS:
         if not torch.isfinite(outputs[variant]).all():
-            raise AssertionError(f"{variant} contains NaN/Inf")
+            raise ScientificComparisonFailure("finite", f"{variant} contains NaN/Inf")
     for variant in ("F", "H"):
         if not torch.equal(outputs[variant][p < 8], outputs["J"][p < 8]):
-            raise AssertionError(f"{variant} axis results are not bitwise equal to J")
+            raise ScientificComparisonFailure(
+                "F_H_axis_bitwise_J", f"{variant} axis results are not bitwise equal to J"
+            )
     metrics = {}
     for variant in ("F", "H"):
         metrics[f"{variant}_vs_J"] = error(outputs[variant], outputs["J"])
         metrics[f"{variant}_vs_oracle"] = error(outputs[variant], oracle)
         metrics[f"{variant}_vs_quantized_oracle"] = error(outputs[variant], oracle.to(dtype))
-        require_close(f"{variant} vs J", metrics[f"{variant}_vs_J"])
-        require_close(f"{variant} vs quantized oracle", metrics[f"{variant}_vs_quantized_oracle"])
+        require_close("F_H_vs_J_tolerance", f"{variant} vs J", metrics[f"{variant}_vs_J"])
+        require_close(
+            "F_H_vs_quantized_oracle_tolerance",
+            f"{variant} vs quantized oracle",
+            metrics[f"{variant}_vs_quantized_oracle"],
+        )
         if dtype == torch.float16:
-            require_close(f"{variant} vs float32 oracle", metrics[f"{variant}_vs_oracle"])
-    return {"dtype": str(dtype).split(".")[-1], "S": s_size, "input": kind,
-            "config": config[2], "chunks": ids.numel(), "metrics": metrics}
+            require_close(
+                "F_H_vs_float32_oracle_tolerance",
+                f"{variant} vs float32 oracle",
+                metrics[f"{variant}_vs_oracle"],
+            )
+    return {
+        "dtype": str(dtype).split(".")[-1],
+        "S": s_size,
+        "input": kind,
+        "config": config[2],
+        "chunks": ids.numel(),
+        "checks": {
+            "finite": True,
+            "J_bitwise_gather": True,
+            "F_H_axis_bitwise_J": True,
+            "F_H_vs_J_tolerance": True,
+            "F_H_vs_quantized_oracle_tolerance": True,
+            "F_H_vs_float32_oracle_tolerance": dtype == torch.float16,
+        },
+        "metrics": metrics,
+    }
 
 
-def run_correctness(args):
+def run_correctness(args, progress):
     tables, records = {}, []
     dtypes = [torch.float16]
+    bf16_supported = torch.cuda.is_bf16_supported()
     bf16 = "unsupported"
-    if torch.cuda.is_bf16_supported():
+    if bf16_supported:
         dtypes.append(torch.bfloat16)
         bf16 = "passed (bitwise gather, axis equality, quantized float32 oracle)"
     for dtype in dtypes:
         for s_size in args.s:
+            progress("cuda_table_setup", dtype=str(dtype), S=s_size)
             current = make_tables(args.seed, args.roles, args.kv_heads, s_size, dtype)
             if dtype == torch.float16:
                 tables[s_size] = current
-            for kind in ("exhaustive", "random"):
+            for kind in INPUT_KINDS:
                 for config in CONFIGS:
                     records.append(correctness_case(args.seed, args.roles, args.kv_heads,
-                                                     s_size, dtype, current, kind, config))
-    return tables, records, bf16
+                                                     s_size, dtype, current, kind, config,
+                                                     progress))
+    return tables, records, bf16, bf16_supported
 
 
 def tune(args, s_size, tables):
@@ -319,31 +375,35 @@ def decide(rows):
         "OPTIMIZE ONCE" if primary["jh_hot_speedup"] >= 1.10 else "KILL")
 
 
-def write_correctness_artifacts(output, records, bf16):
+def write_correctness_artifacts(output, records, bf16, bf16_supported):
     payload = {
+        "schema": "vq-phase-a-correctness/v2",
         "status": "passed",
+        "scientific_classification": "PASS",
         "mode": "correctness-only",
         "timing_executed": False,
         "tuning_executed": False,
         "cuda_graphs_executed": False,
         "bf16": bf16,
+        "bf16_supported": bf16_supported,
         "tolerances": {"absolute": ABS_TOL, "relative_frobenius": REL_TOL},
         "coverage": {
-            "S": [96, 192],
-            "primary_units": 24,
-            "inputs": ["exhaustive", "random"],
+            "S": list(SECONDARY_SIZES),
+            "primary_units": PRIMARY_UNITS,
+            "inputs": list(INPUT_KINDS),
             "configs": [config[2] for config in CONFIGS],
             "checks": ["finite", "J_bitwise_gather", "F_H_axis_bitwise_J",
                        "F_H_vs_independent_PyTorch_oracle"],
         },
         "records": records,
+        "contract": contract_snapshot(bf16_supported=bf16_supported),
     }
-    (output / "correctness.json").write_text(json.dumps(payload, indent=2) + "\n")
-    (output / "correctness_manifest.json").write_text(json.dumps(
-        {key: payload[key] for key in ("mode", "timing_executed", "tuning_executed",
-                                       "cuda_graphs_executed", "bf16", "tolerances", "coverage")},
-        indent=2) + "\n")
-    (output / "README.md").write_text(
+    atomic_write_json(output / "correctness.json", payload)
+    atomic_write_json(output / "correctness_manifest.json",
+        {key: payload[key] for key in ("schema", "mode", "timing_executed", "tuning_executed",
+                                       "cuda_graphs_executed", "bf16", "bf16_supported",
+                                       "tolerances", "coverage", "contract")})
+    atomic_write_text(output / "README.md",
         "# Phase A GPU correctness-only result\n\n"
         "This run executes only the exhaustive/random J/F/H correctness path. "
         "It performs no tuning, timing, CUDA graph, latency, or Phase A decision work.\n")
@@ -399,6 +459,13 @@ def git(*args):
         return "unavailable"
 
 
+def read_execution_boundary(output):
+    try:
+        return read_json(output / STATE_FILE).get("boundary", "unknown_infrastructure")
+    except (OSError, ValueError, json.JSONDecodeError):
+        return "unknown_infrastructure"
+
+
 def parse_args():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--seed", type=int, default=0)
@@ -419,45 +486,87 @@ def parse_args():
 
 def main():
     args = parse_args()
-    correctness_protocol = (args.seed == 0 and sorted(args.s) == [96, 192] and
-                            args.roles == 2 and args.kv_heads == 8 and args.head_dim == 128)
-    timing_protocol = (sorted(args.t_kv) == [4096, 16384, 32768] and
-                       set(args.cache_modes) == {"hot", "cold"} and args.warmup == 25 and
-                       args.rep == 200 and args.outer_trials == 5)
-    if not correctness_protocol or (not args.correctness_only and not timing_protocol):
-        raise ValueError("arguments do not match the declared Phase A protocol")
+    validate_correctness_arguments(
+        CorrectnessArguments(
+            correctness_only=args.correctness_only,
+            seed=args.seed,
+            secondary_sizes=tuple(args.s),
+            roles=args.roles,
+            kv_heads=args.kv_heads,
+            head_dim=args.head_dim,
+        )
+    )
+    args.output.mkdir(parents=True, exist_ok=True)
+    manifest_sha256 = os.environ.get("PHASE_A_MANIFEST_SHA256", "")
+    if re.fullmatch(r"[0-9a-f]{64}", manifest_sha256) is None:
+        record_boundary(args.output, "payload_before_cuda", error="launch manifest digest missing")
+        raise RuntimeError("PHASE_A_MANIFEST_SHA256 must bind the immutable launch manifest")
+    record_boundary(
+        args.output,
+        "payload_before_cuda",
+        launch_manifest_sha256=manifest_sha256,
+    )
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA unavailable; run only through the staged Slurm entry point")
     torch.manual_seed(0)
     torch.cuda.manual_seed_all(0)
-    args.output.mkdir(parents=True, exist_ok=True)
-    metadata = {"status": "running", "git_commit": git("rev-parse", "HEAD"),
+    metadata = {"schema": "vq-phase-a-run-metadata/v2",
+                "status": "running", "git_commit": git("rev-parse", "HEAD"),
                 "git_branch": git("branch", "--show-current"), "cwd": os.getcwd(),
+                "job_id": os.environ.get("SLURM_JOB_ID"),
+                "source_repo": os.environ.get("SOURCE_REPO"),
+                "staged_repo": os.environ.get("RESEARCH_REPRO_STAGED_DIR"),
+                "result_root": str(args.output),
                 "torch": torch.__version__, "triton": triton.__version__,
                 "cuda_runtime": torch.version.cuda, "device": torch.cuda.get_device_name(0),
                 "compute_capability": torch.cuda.get_device_capability(0),
                 "mode": "correctness-only" if args.correctness_only else "timing",
+                "correctness_only": True,
+                "launch_manifest_sha256": manifest_sha256,
                 "timing_executed": False, "tuning_executed": False,
                 "cuda_graphs_executed": False,
+                "run_complete": False,
                 "assumptions": {"quaternion": "scalar-first (w,x,y,z)", "id": "p*S+s"}}
-    (args.output / "run_metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
+    atomic_write_json(args.output / "run_metadata.json", metadata)
     print("correctness: starting", flush=True)
+    progress = lambda boundary, **details: record_boundary(
+        args.output,
+        boundary,
+        launch_manifest_sha256=manifest_sha256,
+        **details,
+    )
     try:
-        tables, correctness, bf16 = run_correctness(args)
+        tables, correctness, bf16, bf16_supported = run_correctness(args, progress)
     except BaseException as exc:
-        failure = {"status": "failed", "mode": metadata["mode"],
-                   "error_type": type(exc).__name__, "error": str(exc)}
-        (args.output / "correctness.json").write_text(json.dumps(failure, indent=2) + "\n")
-        metadata.update(status="failed", correctness="FAIL", error=failure)
-        (args.output / "run_metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
+        scientific_failure = isinstance(exc, ScientificComparisonFailure)
+        failure = {
+            "schema": "vq-phase-a-correctness/v2",
+            "status": "failed",
+            "mode": metadata["mode"],
+            "scientific_classification": "FAIL" if scientific_failure else "NO RESULT",
+            "failure_kind": "numerical_comparison" if scientific_failure else "infrastructure",
+            "failure_phase": "inside_comparison" if scientific_failure else
+                             read_execution_boundary(args.output),
+            "failed_check": exc.check if scientific_failure else None,
+            "error_type": type(exc).__name__,
+            "error": str(exc),
+        }
+        atomic_write_json(args.output / "correctness.json", failure)
+        metadata.update(
+            status="failed",
+            correctness=failure["scientific_classification"],
+            failure_phase=failure["failure_phase"],
+            error=failure,
+        )
+        atomic_write_json(args.output / "run_metadata.json", metadata)
         raise
     print(f"correctness: passed; bf16: {bf16}", flush=True)
-    if args.correctness_only:
-        write_correctness_artifacts(args.output, correctness, bf16)
-        metadata.update(status="passed", correctness="PASS")
-        (args.output / "run_metadata.json").write_text(json.dumps(metadata, indent=2) + "\n")
-        print("correctness-only: PASS; no tuning or timing executed", flush=True)
-        return
+    write_correctness_artifacts(args.output, correctness, bf16, bf16_supported)
+    progress("comparison_output_written", scientific_classification="PASS")
+    metadata.update(status="comparison-passed", correctness="PASS")
+    atomic_write_json(args.output / "run_metadata.json", metadata)
+    print("correctness-only comparisons: PASS; no tuning or timing executed", flush=True)
+    return
     selected, tuning = {}, {"configs": [c[2] for c in CONFIGS], "selection_shape_tkv": 4096, "by_s": {}}
     metadata["tuning_executed"] = True
     for s_size in args.s:

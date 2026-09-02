@@ -434,3 +434,62 @@ Exclusive terminal source:
 
 - Sole monitoring owner is task `vq-phase-a-gpu-correctness-r1` through fixed-host/fixed-job check `/home/ubuntu/.treehouse/firstmate-557e63/1/firstmate/state/vq-phase-a-gpu-correctness-r1.check.sh`, mode `0700`, SHA-256 `997b647242bd71eec798fc7b8616751cd89bd82a1d018ff95f86cf85e3514ca0`, bound by its mode-`0600` `fm-custom-check-v1` trust record.
 - The check queries only `sacct -X` for job `1579631`, stays silent for nonterminal states and transient errors, and atomically emits once for a terminal state. No conversational/manual scheduler polling, retry, requeue, or cancellation is permitted.
+
+## 2026-09-02 — Phase A clean correctness rerun preparation
+
+Current state:
+
+- Preparation only on branch `fm/cnvq-clean-rerun-prep-r1`. No stage, result, scheduler
+  attempt, GPU work, timing, event source, push, PR, or merge was created.
+- The authoritative plan, direct handoff, and independent audit were read in full. Their
+  SHA-256 values are `9fffe0a4a46ed88f10a7ad2961cad01bb9defdd89fd80b96a08bb7d6c17681ee`,
+  `37bc4521665b8c2aef98fa71d82163f5443f7c3503f6e13afd88a721cb673852`, and
+  `3e3d91c42d36301f0f5542216ed355d7e30aa32ca8178f03da2835a62007940e`.
+- Read-only Git upload-pack retrieved exact commits `e2161ae54d3b215c768b0f30584cb099b19102a3`
+  and `9dc0f26d19a49f21201d048d28059662b94abc39` from the handed scratch worktree.
+  Both commit objects rehashed to their stated IDs. Before preparation edits, the recovered
+  `experiments/phase_a_decode` tree matched `e2161ae5...` exactly at tree
+  `2e158d205fe2c7f72768c0565e8a28f953db490e`.
+
+Preparation changes:
+
+- `gpu_correctness/prepare_clean_rerun.py` creates a detached standalone clone with
+  `--no-local --no-hardlinks`, rejects external Git/object dependencies, runs the CPU
+  preflight, audits the helper-produced full stage, freezes it read-only, and binds a full
+  recursive inventory into an immutable launch manifest.
+- The manifest digest binds the submission request, exported environment, first runtime
+  artifact, run metadata, final manifest, and fsynced hash-chained attempt ledger. An
+  exclusive launch lock allows one invocation; accepted, failed, and ambiguous responses
+  cannot be retried. Raw response bytes are preserved.
+- Runtime classification now reserves scientific `FAIL` for named finite, bitwise, or fixed
+  tolerance comparisons. Environment, allocation, compilation, launch, malformed or
+  incomplete artifacts, and post-write failures are `NO RESULT`. A post-write fault keeps a
+  completed comparison `PASS` separate from overall run completion.
+- The fixed correctness contract remains `S={96,192}`, seed 0, two roles, eight KV heads,
+  head dimension 128, exhaustive/random inputs, and configs `b256-w4`/`b512-w8`. It requires
+  eight fp16 records plus eight bf16 records when supported. Fp16 thresholds remain
+  `max_abs <= 4e-3` and `relative_fro <= 1e-3`; the declared bf16 direct-float32 asymmetry is
+  unchanged. Timing paths and artifacts are rejected.
+
+Validation and remaining gate:
+
+- The standard-library behavioral suite covers external `.git` rejection, standalone clone
+  ownership, read-only stage inventory, stale scheduler evidence, manifest/request binding,
+  success and failure one-shot ledgers, scientific/infrastructure/post-write classification,
+  exact record counts, workload drift, and timing rejection.
+- Local Python has neither PyTorch nor pytest. The independent PyTorch CPU oracle therefore
+  remains a launch-time preflight gate. It must pass from the detached standalone clone at
+  final commit `R` before any stage is created.
+- `PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s
+  experiments/phase_a_decode/gpu_correctness -p 'test_clean_rerun.py' -v` passed all 18
+  preparation/protocol/classification tests. `shellcheck` and `bash -n` passed the job
+  wrapper, all seven Phase A Python entrypoints compiled from source bytes, the protocol
+  CLI exited zero, and `git diff --check` passed. No build was run because all preparation
+  changes are Python, shell, and documentation only.
+- The corresponding local CPU-oracle command stopped at import with
+  `ModuleNotFoundError: No module named 'torch'`; `python3 -m pytest` is likewise unavailable.
+  Neither missing local dependency is converted into a preflight PASS.
+- A future authorized owner must capture a fresh eligible Torralba tuple, finalize the
+  scheduler contract, run the research staging helper from the standalone clone, and inspect
+  the prepared manifest/request/ledger before deciding whether to invoke the one-shot submit
+  command. A new accepted job would require its own single event source.

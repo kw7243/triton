@@ -1,5 +1,11 @@
 # Phase A submission-free preflight
 
+Historical note: this directory preserves the pre-job-`1579631` timing-era contract and
+fixtures for lineage. It is not a clean-rerun launch gate and must not be rewritten or used
+as current authorization. The current correctness-only CPU preflight, self-contained stage
+audit, immutable manifest, and one-shot ledger path are documented in
+`../gpu_correctness/README.md`.
+
 This lane statically verifies the frozen Phase A launch contract. It is CPU-safe:
 it does not import Triton or PyTorch, contact Slurm, stage a repository, run the
 benchmark, inspect jobs, or write results. It authorizes no submission.

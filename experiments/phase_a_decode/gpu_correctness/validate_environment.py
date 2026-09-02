@@ -1,111 +1,158 @@
 #!/usr/bin/env python3
-"""Fail-closed allocated-node validation for Phase A GPU correctness."""
+"""Fail-closed allocated-node validation bound to the immutable launch manifest."""
+
+from __future__ import annotations
 
 import argparse
 import glob
-import hashlib
 import json
 import os
 import platform
 import shutil
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from prepare_clean_rerun import (
+    DEFAULT_APPROVED_ROOT,
+    inventory_digest,
+    recursive_inventory,
+    sha256,
+    verify_self_contained_repo,
+)
+from result_protocol import atomic_write_json
 
-EXPECTED_SOURCE = Path(
-    "/data/scratch-fast/kwen1/compute-native-vq/worktrees/vq-phase-a-gpu-correctness-r1")
-EXPECTED_ROOT = Path("/data/scratch-fast/kwen1/compute-native-vq")
-EXPECTED_ACCOUNT = "vision-torralba-urops-meng"
-EXPECTED_QOS = "vision-torralba-interactive"
-EXPECTED_PARTITION = "vision-torralba-rtx3090"
 
-
-def command(args):
+def command(args: list[str]) -> str:
     result = subprocess.run(args, check=True, text=True, capture_output=True, timeout=20)
     return result.stdout.strip()
 
 
-def storage(path):
+def storage(path: Path) -> dict[str, object]:
     usage = shutil.disk_usage(path)
-    return {"path": str(path), "total_bytes": usage.total, "free_bytes": usage.free,
-            "readable": os.access(path, os.R_OK), "writable": os.access(path, os.W_OK)}
+    return {
+        "path": str(path),
+        "total_bytes": usage.total,
+        "free_bytes": usage.free,
+        "readable": os.access(path, os.R_OK),
+        "writable": os.access(path, os.W_OK),
+    }
 
 
-def git(path, *args):
-    return command(["git", "-C", str(path), *args])
-
-
-def sha256(path):
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def parse_scontrol(text):
+def parse_scontrol(text: str) -> dict[str, str]:
     return dict(token.split("=", 1) for token in text.split() if "=" in token)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--source", type=Path, required=True)
     parser.add_argument("--stage", type=Path, required=True)
     parser.add_argument("--result", type=Path, required=True)
+    parser.add_argument("--manifest", type=Path, required=True)
+    parser.add_argument("--manifest-sha256", required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
-    report = {"status": "failed", "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
-              "checks": {}}
+    report: dict[str, object] = {
+        "schema": "vq-phase-a-environment-validation/v2",
+        "status": "failed",
+        "recorded_at_utc": datetime.now(timezone.utc).isoformat(),
+        "failure_phase": "payload_before_cuda",
+        "launch_manifest_sha256": args.manifest_sha256,
+        "checks": {},
+    }
     exit_code = 1
     try:
-        source, stage, result = (path.resolve(strict=True)
-                                 for path in (args.source, args.stage, args.result))
+        root = DEFAULT_APPROVED_ROOT.resolve(strict=True)
+        source, stage, result, manifest_path = (
+            path.resolve(strict=True)
+            for path in (args.source, args.stage, args.result, args.manifest)
+        )
         checks = report["checks"]
-        checks["source_exact"] = source == EXPECTED_SOURCE
-        checks["stage_parent"] = stage.parent == EXPECTED_ROOT / "staging"
-        checks["result_parent"] = result.parent == EXPECTED_ROOT / "results"
+        assert isinstance(checks, dict)
+        checks["source_parent"] = source.parent == root / "standalone-sources"
+        checks["stage_parent"] = stage.parent == root / "staging"
+        checks["result_parent"] = result.parent == root / "results"
         checks["distinct_paths"] = len({source, stage, result}) == 3
-        checks["stage_git_present"] = (stage / ".git").exists()
-        checks["stage_top_exact"] = Path(git(stage, "rev-parse", "--show-toplevel")) == stage
+        checks["manifest_in_result"] = manifest_path == result / "launch_manifest.json"
+        checks["manifest_digest"] = sha256(manifest_path) == args.manifest_sha256
+        checks["manifest_environment"] = (
+            os.environ.get("PHASE_A_MANIFEST_SHA256") == args.manifest_sha256
+        )
 
-        metadata_path = stage / "REPRODUCIBILITY_METADATA.json"
-        metadata = json.loads(metadata_path.read_text())
-        report["reproducibility"] = {
-            "path": str(metadata_path), "sha256": sha256(metadata_path), "metadata": metadata,
-            "stage_head": git(stage, "rev-parse", "HEAD"),
-            "stage_tree": git(stage, "rev-parse", "HEAD^{tree}"),
-            "stage_status": git(stage, "status", "--short"),
+        manifest = json.loads(manifest_path.read_text())
+        report["launch_manifest"] = {
+            "path": str(manifest_path),
+            "sha256": sha256(manifest_path),
+            "commit": manifest.get("commit"),
+            "tree": manifest.get("tree"),
         }
-        checks["metadata_source"] = metadata.get("source_repo") == str(source)
-        checks["metadata_stage"] = metadata.get("staged_repo") == str(stage)
-        checks["metadata_commit"] = metadata.get("git_commit_full") == report["reproducibility"]["stage_head"]
+        checks["manifest_paths"] = (
+            manifest.get("source_repo") == str(source)
+            and manifest.get("staged_repo") == str(stage)
+            and manifest.get("result_root") == str(result)
+        )
+        checks["python_identity"] = (
+            Path(sys.executable).resolve()
+            == Path(str(manifest["benchmark_argv"][0])).resolve(strict=True)
+            == Path(os.environ.get("PHASE_A_PYTHON", "")).resolve(strict=True)
+        )
+        stage_identity = verify_self_contained_repo(
+            stage,
+            str(manifest["commit"]),
+            allowed_untracked=("REPRODUCIBILITY_METADATA.json",),
+            compare_objects_with=source,
+        )
+        report["stage_identity"] = stage_identity
+        checks["stage_tree"] = stage_identity["tree"] == manifest.get("tree")
+        checks["stage_inventory"] = (
+            inventory_digest(recursive_inventory(stage))
+            == manifest.get("stage_inventory_sha256")
+        )
 
+        scheduler = manifest["scheduler_selection"]
+        resources = scheduler["resources"]
         job_id = os.environ.get("SLURM_JOB_ID", "")
         allocation_text = command(["scontrol", "show", "job", "-o", job_id])
         allocation = parse_scontrol(allocation_text)
-        report["allocation"] = {"job_id": job_id, "hostname": platform.node(),
-                                "scontrol": allocation_text,
-                                "slurm_job_gpus": os.environ.get("SLURM_JOB_GPUS"),
-                                "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES")}
+        report["allocation"] = {
+            "job_id": job_id,
+            "hostname": platform.node(),
+            "scontrol": allocation_text,
+            "slurm_job_gpus": os.environ.get("SLURM_JOB_GPUS"),
+            "cuda_visible_devices": os.environ.get("CUDA_VISIBLE_DEVICES"),
+        }
         checks["job_id_numeric"] = job_id.isdigit()
         checks["compute_host"] = not platform.node().startswith("slurm-login")
-        checks["account"] = allocation.get("Account") == EXPECTED_ACCOUNT
-        checks["qos"] = allocation.get("QOS") == EXPECTED_QOS
-        checks["partition"] = allocation.get("Partition") == EXPECTED_PARTITION
-        checks["one_node"] = allocation.get("NumNodes") == "1"
-        checks["one_task"] = allocation.get("NumTasks") == "1"
-        checks["four_cpus"] = allocation.get("NumCPUs") == "4"
-        checks["sixteen_gib"] = allocation.get("MinMemoryNode") in {"16G", "16384M"}
-        checks["fifteen_minutes"] = allocation.get("TimeLimit") == "00:15:00"
-        checks["one_gpu"] = "gres/gpu=1" in allocation.get("AllocTRES", "")
+        checks["account"] = allocation.get("Account") == scheduler["account"]
+        checks["qos"] = allocation.get("QOS") == scheduler["qos"]
+        checks["partition"] = allocation.get("Partition") == scheduler["partition"]
+        checks["one_node"] = allocation.get("NumNodes") == str(resources["nodes"])
+        checks["one_task"] = allocation.get("NumTasks") == str(resources["tasks"])
+        checks["cpus"] = allocation.get("NumCPUs") == str(resources["cpus"])
+        checks["memory"] = allocation.get("MinMemoryNode") in {
+            f"{resources['memory_gib']}G",
+            f"{resources['memory_gib'] * 1024}M",
+        }
+        checks["time_limit"] = allocation.get("TimeLimit") == f"00:{resources['time_minutes']:02d}:00"
+        checks["one_gpu_allocated"] = "gres/gpu=1" in allocation.get("AllocTRES", "")
+        checks["requeue_disabled"] = allocation.get("Requeue") == "0"
 
         devices = sorted(glob.glob("/dev/nvidia*"))
-        query = command(["nvidia-smi", "--query-gpu=index,uuid,name,driver_version,"
-                         "memory.total,memory.free,temperature.gpu,pstate,power.draw,power.limit",
-                         "--format=csv,noheader,nounits"])
-        report["nvidia"] = {"device_nodes": devices, "identity_health_query": query,
-                            "list": command(["nvidia-smi", "-L"])}
+        query = command(
+            [
+                "nvidia-smi",
+                "--query-gpu=index,uuid,name,driver_version,memory.total,memory.free,"
+                "temperature.gpu,pstate,power.draw,power.limit",
+                "--format=csv,noheader,nounits",
+            ]
+        )
+        listed = command(["nvidia-smi", "-L"])
+        report["nvidia"] = {
+            "device_nodes": devices,
+            "identity_health_query": query,
+            "list": listed,
+        }
         checks["nvidia_devices"] = bool(devices)
         checks["one_visible_nvidia_smi_gpu"] = len(query.splitlines()) == 1
 
@@ -115,27 +162,50 @@ def main():
                 key, value = line.split(":", 1)
                 meminfo[key] = value.strip()
         report["host_memory"] = meminfo
-        report["storage"] = {name: storage(path) for name, path in
-                             (("source", source), ("stage", stage), ("result", result))}
-        checks["storage_access"] = all(item["readable"] and item["writable"]
-                                       for item in report["storage"].values())
+        report["storage"] = {
+            name: storage(path)
+            for name, path in (("source", source), ("stage", stage), ("result", result))
+        }
+        checks["storage_access"] = (
+            report["storage"]["source"]["readable"]
+            and report["storage"]["stage"]["readable"]
+            and report["storage"]["result"]["readable"]
+            and report["storage"]["result"]["writable"]
+        )
 
         import torch
+        import triton
+
         cuda_available = torch.cuda.is_available()
         device_count = torch.cuda.device_count()
-        torch_data = {"torch": torch.__version__, "cuda_runtime": torch.version.cuda,
-                      "cuda_available": cuda_available, "device_count": device_count}
+        torch_data: dict[str, object] = {
+            "torch": torch.__version__,
+            "triton": triton.__version__,
+            "cuda_runtime": torch.version.cuda,
+            "cuda_available": cuda_available,
+            "device_count": device_count,
+        }
         if cuda_available and device_count == 1:
             properties = torch.cuda.get_device_properties(0)
             free_bytes, total_bytes = torch.cuda.mem_get_info(0)
-            torch_data.update({"device_name": torch.cuda.get_device_name(0),
-                               "compute_capability": torch.cuda.get_device_capability(0),
-                               "vram_property_total_bytes": properties.total_memory,
-                               "vram_free_bytes": free_bytes, "vram_total_bytes": total_bytes,
-                               "bf16_supported": torch.cuda.is_bf16_supported()})
+            torch_data.update(
+                device_name=torch.cuda.get_device_name(0),
+                compute_capability=torch.cuda.get_device_capability(0),
+                vram_property_total_bytes=properties.total_memory,
+                vram_free_bytes=free_bytes,
+                vram_total_bytes=total_bytes,
+                bf16_supported=torch.cuda.is_bf16_supported(),
+            )
         report["torch_cuda"] = torch_data
+        adequacy = scheduler["adequacy"]
         checks["torch_cuda_available"] = cuda_available
         checks["one_torch_cuda_device"] = device_count == 1
+        checks["advertised_gpu_match"] = (
+            torch_data.get("device_name") in adequacy["advertised_gpu_names"]
+        )
+        checks["minimum_vram"] = (
+            int(torch_data.get("vram_total_bytes", 0)) >= adequacy["minimum_vram_bytes"]
+        )
 
         failures = sorted(name for name, passed in checks.items() if not passed)
         if failures:
@@ -145,10 +215,7 @@ def main():
     except BaseException as exc:
         report["error"] = {"type": type(exc).__name__, "message": str(exc)}
     finally:
-        args.output.parent.mkdir(parents=True, exist_ok=True)
-        temporary = args.output.with_suffix(args.output.suffix + ".tmp")
-        temporary.write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
-        temporary.replace(args.output)
+        atomic_write_json(args.output, report)
     raise SystemExit(exit_code)
 
 
