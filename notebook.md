@@ -1943,3 +1943,52 @@ manifest and independently verified cache hashes, stage and dependency
 provenance, one-shot control and terminal records, accounting, verifier,
 standalone report, and this result notebook entry. Report SHA-256 is
 `896d74da1e00d56bb260bd39a56d0cc42e66b3554916a67c808b8b9c44d53f87`.
+
+## 2026-09-02 — Phase C selector implementation and pre-outcome freeze
+
+The clean zero-unique branch `fm/rot-phasec-selector-r1` was created at
+`origin/main` and moved to the accepted Phase B provenance tip only with
+`git rebase --onto f7cd759307ffdb534581587520b42e95a309498c origin/main`.
+The authoritative plan and accepted Phase B report matched their required
+SHA-256 values `4c0f16b...07d45` and `896d74d...d53f87` before any edit.
+
+The dependency-free selector uses only the accepted 128 Phase B map rows. It
+starts at all-`Hfull` and permits only adjacent moves
+`Hfull -> H128 -> H32 -> I`. At every step it computes incremental local-NMSE
+loss divided by the strictly positive measured transform-median saving, then
+chooses ascending `(rho, layer index, target transform rank)`. The five policies
+are the earliest prefixes at or below 0/25/50/75/100% of the summed all-`Hfull`
+transform cost. This gives nested assignments and monotone realized cost without
+post-outcome adjustment.
+
+The full predicted cost is `18.38572797179222 ms`. Frozen realized costs are
+`0`, `4.4053119868040085`, `9.177487954497337`, `13.647503986954689`, and
+`18.38572797179222 ms`, or `0`, `23.960498%`, `49.916370%`, `74.228793%`, and
+`100%`. The nine named identities (five adaptive plus four fixed) deduplicate to
+seven exact assignments; the 0%/`I` and 100%/`Hfull` identities remain explicit
+aliases. Every assignment carries 32 exact Phase B source-row hashes. The frozen
+machine contract is `data/rot-phasec-selector-r1/policy-freeze.json`, SHA-256
+`2543c2ed55a1d0b9b70189d53c91c27b88c5db4a15b152786cdbcb1b4d59a31a`.
+It was materialized before any Phase C PPL or timing outcome existed.
+
+No pinned, already-reproducible comparable MixQuant/PeRQ implementation exists
+in the accepted repository or dependency set. It is recorded as unavailable;
+no literature reproduction or approximation was started.
+
+Direct local validation passed: compileall for Phase A/B/C; all 60 inherited
+Phase A tests; all 13 inherited Phase B tests; 8 focused Phase C tests covering
+stable tie-breaking, positive-saving feasibility, monotone budgets, source-drift
+refusal, endpoint deduplication, measured schema, one-shot ownership, and literal
+C1/C2/C3/C4 logic; the accepted Phase B result verifier; CLI imports; and
+`git diff --check`. Pytest is absent from the local environment, so no pytest
+command could run. `make` was not run because this lane changes only Python,
+documentation, and data. Per intake correction, no no-mistakes run or CI gate
+was created, inspected, started, or resumed; no push or PR exists.
+
+Resource planning uses the observed Phase A `00:05:34` and Phase B `00:14:39`
+runs. Phase C has seven sequential PPL/decode measurements, releases each model,
+and does not recreate or retain the 9.1 GiB Phase B cache. The frozen request is
+two CPUs, 32 GiB (the smallest demonstrated real-model host-memory request), and
+45 minutes (20-minute estimate plus 25-minute buffer). The single immutable
+stage, staged preflight, and scheduler boundary are still pending at this entry;
+no GPU or Slurm attempt has been consumed.
