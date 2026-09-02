@@ -2089,3 +2089,16 @@ PYTHONDONTWRITEBYTECODE=1 python3 -m \
   data/rot-phasec-selector-r1/artifacts/job-1663316 \
   --policy-freeze data/rot-phasec-selector-r1/policy-freeze.json
 ```
+
+## 2026-09-02 — Phase C result provenance
+
+The local result-evidence commit is
+`5d348e7a338249635a6867e32d91b1ec04792de9`, tree
+`f12ccc3df9977efb6a8b95044835b40d1fb4f585`. It contains the exact copied
+machine measurements and raw timings, assignments, Pareto table/figure,
+literal Decision C, stage manifests, staged preflight, one-shot ledgers,
+terminal records, local owner log, accounting, independent verifier record,
+artifact hashes, report, and the result notebook entry. Report SHA-256 is
+`12e7856649d398a182cbf26672ab636e437d0118d42af983e6613845bca7ad67`.
+This final notebook-only provenance commit is identified as `HEAD`, since a
+commit cannot embed its own hash.
