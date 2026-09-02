@@ -1345,3 +1345,19 @@ binding/builder bytes, third-party attribution, generated Ninja artifact,
 machine-readable terminal evidence, updated report and hashes, and the
 47-test CPU/static validation record. This follow-up changes only the notebook
 provenance pointer.
+
+## 2026-09-02 — Relaunched real-model lane blocked before scheduler mutation
+
+Status: `blocked-pre-scheduler-command-construction`. The relaunched lane
+verified the required ancestry, fast-forwarded only to accepted source commit
+`2e1e5f10b83593f404bdd4e387b9bf95de1baee4`, and passed all 54 local Phase A
+CPU/static tests. Read-only handoff inspection confirmed the accepted packed
+W4A4 extension SHA-256 and pinned project/dependency commits. Preparation then
+stopped because a malformed remote heredoc and a malformed inline Python
+one-liner repeated the same remote command-construction/quoting obstacle. No
+further remote command is permitted until recovery uses a locally tested,
+hashed script instead of inline Python. Slurm/scheduler queries and mutations,
+`salloc`, `srun`, `sbatch`, allocations, scientific-driver invocations, and GPU
+attempts for this relaunched lane remain exactly zero. The single existing
+tmux-owned SSH route remains open for supervisor-directed recovery and was not
+retired.
