@@ -12,6 +12,11 @@ keeps `max_abs <= 4e-3` and `relative_fro <= 1e-3`; bf16 keeps the previously de
 quantized-oracle checks and records the direct-float32 metric without adding a threshold.
 Timing, tuning, CUDA graphs, plots, speedups, and GO/OPTIMIZE/KILL decisions are rejected.
 
+Every preparer or source-inventory Python process must set
+`PYTHONDONTWRITEBYTECODE=1` and pass `-B`. The preparer also disables bytecode writes
+before importing repo-local modules, so verification cannot add ignored `__pycache__`
+content to a source or stage.
+
 ## Preparation gates
 
 Run these only after a separate launch authorization. Use new canonical paths under
@@ -21,7 +26,8 @@ Run these only after a separate launch authorization. Use new canonical paths un
 2. Create a new standalone source clone from the clean research worktree:
 
    ```bash
-   python3 experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py \
+   PYTHONDONTWRITEBYTECODE=1 python3 -B \
+     experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py \
      clone-source \
      --source "$SOURCE_WORKTREE" \
      --destination "$STANDALONE_SOURCE" \
@@ -35,7 +41,8 @@ Run these only after a separate launch authorization. Use new canonical paths un
 3. From the detached standalone clone, run the CPU preflight with CUDA hidden:
 
    ```bash
-   "$PYTHON" experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py \
+   PYTHONDONTWRITEBYTECODE=1 "$PYTHON" -B \
+     experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py \
      cpu-preflight \
      --repo "$STANDALONE_SOURCE" \
      --output "$RESULT_ROOT/cpu_preflight.json" \
@@ -92,7 +99,8 @@ Run these only after a separate launch authorization. Use new canonical paths un
      /afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh \
        --repo-root "$STANDALONE_SOURCE" \
        --staging-parent /data/scratch-fast/kwen1/compute-native-vq/staging \
-       -- "$PYTHON" experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py \
+       -- env PYTHONDONTWRITEBYTECODE=1 "$PYTHON" -B \
+         experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py \
          freeze-stage \
          --source "$STANDALONE_SOURCE" \
          --result "$RESULT_ROOT" \
@@ -136,7 +144,8 @@ Run these only after a separate launch authorization. Use new canonical paths un
    FINISHED_AT_UTC="$(date -u +%Y-%m-%dT%H:%M:%S%z)"
    STAGE="<fresh path printed by the helper>"
 
-   "$PYTHON" "$STANDALONE_SOURCE/experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py" \
+   PYTHONDONTWRITEBYTECODE=1 "$PYTHON" -B \
+     "$STANDALONE_SOURCE/experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py" \
      attest-stage-only \
      --source "$STANDALONE_SOURCE" \
      --stage "$STAGE" \
@@ -156,7 +165,8 @@ Run these only after a separate launch authorization. Use new canonical paths un
      cd "$STAGE"
      export RESEARCH_REPRO_STAGED_DIR="$STAGE"
      export RESEARCH_REPRO_SOURCE_REPO="$STANDALONE_SOURCE"
-     "$PYTHON" experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py \
+     PYTHONDONTWRITEBYTECODE=1 "$PYTHON" -B \
+       experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py \
        freeze-stage \
        --stage-only-continuation \
        --stage-only-attestation "$RESULT_ROOT/stage_only_attestation.json" \

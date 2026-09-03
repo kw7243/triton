@@ -552,3 +552,27 @@ Correction:
 - The correctness workload, record counts, fp16 thresholds, bf16 policy, no-timing scope,
   one-submission ledger, TIG default-`ALL` export behavior, and Phase B prohibition are
   unchanged.
+
+## 2026-09-03 — Bytecode-free source verification
+
+Current state:
+
+- The resumable-source comparison found only three ignored verifier bytecode files under
+  `experiments/phase_a_decode/gpu_correctness/__pycache__`. Their embedded source paths
+  made the otherwise complete trees differ by three bytes.
+- The preparer now disables bytecode writes before importing repo-local modules. Every
+  launch-time preparer and inventory process also runs with `PYTHONDONTWRITEBYTECODE=1`
+  and Python `-B`.
+- A subprocess regression removes ambient bytecode suppression, invokes the preparer
+  entrypoint, and requires its complete source inventory to remain unchanged.
+- Local validation passed 29 behavioral preparation/protocol/classification tests,
+  `shellcheck` and `bash -n` for the Phase A batch script, source-byte compilation of all
+  11 Phase A Python files, both contract/preparer CLIs, and `git diff --check`.
+- The fixed workload, thresholds, record counts, bf16 policy, correctness-only scope,
+  single-submit policy, and Phase B prohibition remain unchanged.
+
+Next step:
+
+- Commit the verifier fix, refresh and hash the resumable scratch source to that exact
+  commit, then create one new helper-owned immutable stage. No submission occurs before
+  the stage and task-owned terminal checker both pass.

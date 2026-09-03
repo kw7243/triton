@@ -18,6 +18,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable, Sequence
 
+# Source verification must not create ignored bytecode inside an otherwise exact tree.
+sys.dont_write_bytecode = True
+
 try:
     from .protocol import FORBIDDEN_ARTIFACTS, benchmark_argv, contract_snapshot
     from .result_protocol import atomic_write_json, atomic_write_text, read_json, utc_now

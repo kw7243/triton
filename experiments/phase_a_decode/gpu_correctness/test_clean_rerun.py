@@ -285,6 +285,45 @@ class ResultClassificationTests(unittest.TestCase):
         self.assertEqual(state["boundary"], "after_artifact_writing")
 
 
+class SourceMutationTests(unittest.TestCase):
+    def test_preparer_entrypoint_does_not_mutate_source_tree(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "verifier"
+            source.mkdir()
+            module_root = Path(__file__).resolve().parent
+            for name in ("prepare_clean_rerun.py", "protocol.py", "result_protocol.py"):
+                shutil.copy2(module_root / name, source / name)
+
+            def inventory() -> dict[str, tuple[str, int, int, str | None]]:
+                records = {}
+                for path in sorted(
+                    source.rglob("*"), key=lambda item: os.fsencode(str(item))
+                ):
+                    info = path.lstat()
+                    records[str(path.relative_to(source))] = (
+                        "directory" if path.is_dir() else "file",
+                        stat.S_IMODE(info.st_mode),
+                        info.st_size,
+                        None if path.is_dir() else sha256(path),
+                    )
+                return records
+
+            before = inventory()
+            environment = os.environ.copy()
+            environment.pop("PYTHONDONTWRITEBYTECODE", None)
+            completed = subprocess.run(
+                [sys.executable, str(source / "prepare_clean_rerun.py"), "--help"],
+                cwd=source,
+                env=environment,
+                text=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+            )
+            self.assertEqual(completed.returncode, 0, completed.stderr)
+            self.assertEqual(inventory(), before)
+
+
 class PreparationTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
