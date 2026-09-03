@@ -526,13 +526,25 @@ Current state:
 Correction:
 
 - `freeze-stage --stage-only-continuation` accepts only that exact empty helper command and
-  rechecks every source, stage, Git, metadata, scheduler, tracked-content, and complete-tree
-  byte gate. Symlinks, partial copies, mismatched invocation state, and nonempty commands
-  are rejected.
-- Before freezing, continuation exclusively creates mode-`0444` `stage_verification.json`.
-  It records the helper metadata, complete-tree digest, and exact separate Python argv,
-  working directory, and helper-equivalent environment; the launch manifest binds its hash.
-  Once that record exists, a second binding is forbidden even after interruption.
+  requires an immutable `stage_only_attestation.json`, and rechecks every source, stage,
+  Git, metadata, scheduler, tracked-content, and complete-tree byte gate. The attestation
+  binds the exact required helper path and approved SHA-256, wrapper path and hash, complete
+  helper log and hash, foreground timing, zero exit, empty helper command, and fresh stage
+  identity. Symlinks, partial copies, mismatched invocation state, and nonempty commands are
+  rejected.
+- Before freezing, continuation exclusively creates mode-`0444` `stage_verification.json`
+  inside the stage. It records the helper attestation, metadata, complete-tree digest, and
+  exact separate Python argv, working directory, and helper-equivalent environment; the
+  launch manifest binds both hashes. The stage-local record prevents a second result root
+  from rebinding the same stage, including after an interrupted post-binding preparation.
+- The submitter rejects every ambient `SBATCH_*` variable before creating its launch lock
+  or appending the ledger. Scheduler resource counts, memory, wall time, and minimum VRAM
+  accept only JSON integers, never booleans or floating-point values.
+- Local validation passed 27 behavioral preparation/protocol/classification tests,
+  `shellcheck` and `bash -n` for both Phase A batch scripts, source-byte compilation of all
+  11 Phase A Python files, the correctness-contract CLI, the preparation CLI, and
+  `git diff --check`. No native build was needed because this correction changes only
+  Python and documentation.
 - The correctness workload, record counts, fp16 thresholds, bf16 policy, no-timing scope,
   one-submission ledger, TIG default-`ALL` export behavior, and Phase B prohibition are
   unchanged.

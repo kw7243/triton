@@ -13,6 +13,7 @@ import tempfile
 import unittest
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from unittest.mock import patch
 
 from experiments.phase_a_decode.gpu_correctness.prepare_clean_rerun import (
     EXECUTABLE_INPUTS,
@@ -22,9 +23,11 @@ from experiments.phase_a_decode.gpu_correctness.prepare_clean_rerun import (
     PREPARER,
     PREFLIGHT_LABELS,
     REQUEST_NAME,
+    STAGE_ATTESTATION_NAME,
     STAGE_VERIFICATION_NAME,
     PreparationError,
     clone_standalone_source,
+    create_stage_only_attestation,
     prepare_frozen_stage,
     read_ledger,
     run_cpu_preflight,
@@ -283,8 +286,49 @@ class PreparationTests(unittest.TestCase):
     def setUp(self) -> None:
         self.temporary = tempfile.TemporaryDirectory()
         self.root = Path(self.temporary.name) / "compute-native-vq"
-        for name in ("worktrees", "standalone-sources", "staging", "results"):
+        for name in (
+            "worktrees",
+            "standalone-sources",
+            "staging",
+            "results",
+            "tools",
+            "run-state",
+        ):
             (self.root / name).mkdir(parents=True, exist_ok=True)
+        self.helper = self.root / "tools" / "stage_and_run.sh"
+        self.helper.write_text("#!/bin/sh\nexit 0\n")
+        self.helper.chmod(0o755)
+        self.wrapper = self.root / "tools" / "rsync-wrapper" / "rsync"
+        self.wrapper.parent.mkdir()
+        self.wrapper.write_text("#!/bin/sh\nexec /usr/bin/rsync --info=progress2 \"$@\"\n")
+        self.wrapper.chmod(0o500)
+        self.helper_patch = patch(
+            "experiments.phase_a_decode.gpu_correctness.prepare_clean_rerun.REQUIRED_STAGE_HELPER",
+            self.helper,
+        )
+        self.helper_patch.start()
+        self.addCleanup(self.helper_patch.stop)
+        self.helper_hash_patch = patch(
+            "experiments.phase_a_decode.gpu_correctness.prepare_clean_rerun."
+            "REQUIRED_STAGE_HELPER_SHA256",
+            sha256(self.helper),
+        )
+        self.helper_hash_patch.start()
+        self.addCleanup(self.helper_hash_patch.stop)
+        self.wrapper_path_patch = patch(
+            "experiments.phase_a_decode.gpu_correctness.prepare_clean_rerun."
+            "REQUIRED_RSYNC_WRAPPER",
+            self.wrapper,
+        )
+        self.wrapper_path_patch.start()
+        self.addCleanup(self.wrapper_path_patch.stop)
+        self.wrapper_hash_patch = patch(
+            "experiments.phase_a_decode.gpu_correctness.prepare_clean_rerun."
+            "REQUIRED_RSYNC_WRAPPER_SHA256",
+            sha256(self.wrapper),
+        )
+        self.wrapper_hash_patch.start()
+        self.addCleanup(self.wrapper_hash_patch.stop)
         self.source = self.root / "worktrees" / "source"
         self.source.mkdir()
         run_git(self.source, "init")
@@ -397,6 +441,38 @@ class PreparationTests(unittest.TestCase):
                 },
             },
         )
+        if stage_only:
+            log = self.root / "run-state" / "stage-only.log"
+            log.write_text(
+                "\n".join(
+                    (
+                        "Staging repository:",
+                        f"  source: {self.standalone}",
+                        f"  target: {stage}",
+                        f"Staging complete: {stage}",
+                        str(stage),
+                        "",
+                    )
+                )
+            )
+            started = datetime.now(timezone.utc)
+            finished = started + timedelta(seconds=1)
+            create_stage_only_attestation(
+                self.standalone,
+                stage,
+                result / STAGE_ATTESTATION_NAME,
+                self.helper,
+                sha256(self.helper),
+                self.wrapper,
+                sha256(self.wrapper),
+                log,
+                sha256(log),
+                0,
+                started.isoformat(),
+                finished.isoformat(),
+                1.0,
+                self.root,
+            )
         return stage, result, preflight
 
     def stage_only_invocation(
@@ -410,6 +486,8 @@ class PreparationTests(unittest.TestCase):
                 PREPARER,
                 "freeze-stage",
                 "--stage-only-continuation",
+                "--stage-only-attestation",
+                str(result / STAGE_ATTESTATION_NAME),
                 "--source",
                 str(self.standalone),
                 "--result",
@@ -462,6 +540,7 @@ class PreparationTests(unittest.TestCase):
             sys.executable,
             self.root,
             self.stage_only_invocation(stage, result, preflight),
+            result / STAGE_ATTESTATION_NAME,
         )
         return stage, result, prepared
 
@@ -502,7 +581,7 @@ class PreparationTests(unittest.TestCase):
 
     def test_stage_only_continuation_binds_exact_split_boundary_once(self) -> None:
         stage, result, _ = self.prepare_stage_only()
-        verification_path = result / STAGE_VERIFICATION_NAME
+        verification_path = stage / STAGE_VERIFICATION_NAME
         verification = json.loads(verification_path.read_text())
         manifest = json.loads((result / MANIFEST_NAME).read_text())
         self.assertEqual(stat.S_IMODE(verification_path.stat().st_mode), 0o444)
@@ -521,6 +600,10 @@ class PreparationTests(unittest.TestCase):
                 "mode": "stage-only-continuation",
                 "verification_file": STAGE_VERIFICATION_NAME,
                 "verification_sha256": sha256(verification_path),
+                "helper_attestation_file": STAGE_ATTESTATION_NAME,
+                "helper_attestation_sha256": sha256(
+                    result / STAGE_ATTESTATION_NAME
+                ),
             },
         )
         with self.assertRaisesRegex(PreparationError, "already bound"):
@@ -535,6 +618,52 @@ class PreparationTests(unittest.TestCase):
                 sys.executable,
                 self.root,
                 verification["separate_freeze_invocation"],
+                result / STAGE_ATTESTATION_NAME,
+            )
+
+    def test_stage_only_continuation_binding_is_stage_scoped(self) -> None:
+        stage, result, _ = self.prepare_stage_only()
+        verification = json.loads((stage / STAGE_VERIFICATION_NAME).read_text())
+        second_result = self.root / "results" / "second-attempt"
+        second_result.mkdir(mode=0o700)
+        for name in (
+            "cpu_preflight.json",
+            "scheduler_preflight.txt",
+            "scheduler_selection.json",
+            STAGE_ATTESTATION_NAME,
+        ):
+            shutil.copy2(result / name, second_result / name)
+        with self.assertRaisesRegex(PreparationError, "already bound"):
+            prepare_frozen_stage(
+                self.standalone,
+                stage,
+                second_result,
+                second_result / "cpu_preflight.json",
+                second_result / "scheduler_selection.json",
+                self.commit,
+                self.tree,
+                sys.executable,
+                self.root,
+                verification["separate_freeze_invocation"],
+                second_result / STAGE_ATTESTATION_NAME,
+            )
+
+    def test_stage_only_continuation_rejects_changed_helper_bytes(self) -> None:
+        stage, result, preflight = self.make_stage_inputs(stage_only=True)
+        self.helper.write_text("#!/bin/sh\nexit 1\n")
+        with self.assertRaisesRegex(PreparationError, "stage helper SHA-256 mismatch"):
+            prepare_frozen_stage(
+                self.standalone,
+                stage,
+                result,
+                preflight,
+                result / "scheduler_selection.json",
+                self.commit,
+                self.tree,
+                sys.executable,
+                self.root,
+                self.stage_only_invocation(stage, result, preflight),
+                result / STAGE_ATTESTATION_NAME,
             )
 
     def test_stage_only_continuation_rejects_nonempty_unrelated_command(self) -> None:
@@ -555,6 +684,7 @@ class PreparationTests(unittest.TestCase):
                 sys.executable,
                 self.root,
                 self.stage_only_invocation(stage, result, preflight),
+                result / STAGE_ATTESTATION_NAME,
             )
 
     def test_stage_only_continuation_rejects_invocation_mismatch(self) -> None:
@@ -573,6 +703,7 @@ class PreparationTests(unittest.TestCase):
                 sys.executable,
                 self.root,
                 invocation,
+                result / STAGE_ATTESTATION_NAME,
             )
 
     def test_stage_only_continuation_rejects_symlinked_metadata(self) -> None:
@@ -594,6 +725,7 @@ class PreparationTests(unittest.TestCase):
                 sys.executable,
                 self.root,
                 self.stage_only_invocation(stage, result, preflight),
+                result / STAGE_ATTESTATION_NAME,
             )
 
     def test_stage_only_continuation_rejects_partial_stage(self) -> None:
@@ -611,6 +743,7 @@ class PreparationTests(unittest.TestCase):
                 sys.executable,
                 self.root,
                 self.stage_only_invocation(stage, result, preflight),
+                result / STAGE_ATTESTATION_NAME,
             )
 
     def test_submit_once_records_one_response_and_refuses_retry(self) -> None:
@@ -688,6 +821,36 @@ class PreparationTests(unittest.TestCase):
         encoded = records[-1]["payload"]["stderr_base64"]
         self.assertEqual(base64.b64decode(encoded), b"exact failure bytes\n")
 
+    def test_ambient_sbatch_variables_stop_before_attempt_is_consumed(self) -> None:
+        stage, result, _ = self.prepare()
+        calls = []
+
+        def fake_runner(
+            argv: list[str], cwd: Path, environment: dict[str, str]
+        ) -> subprocess.CompletedProcess[str]:
+            calls.append((argv, cwd, environment))
+            return subprocess.CompletedProcess(argv, 0, "424242\n", "")
+
+        previous = Path.cwd()
+        try:
+            os.chdir(stage)
+            with patch.dict(os.environ, {"SBATCH_EXPORT": "NONE"}):
+                with self.assertRaisesRegex(PreparationError, "ambient SBATCH_\\*"):
+                    submit_once(
+                        result / MANIFEST_NAME,
+                        result / REQUEST_NAME,
+                        result / LEDGER_NAME,
+                        runner=fake_runner,
+                    )
+        finally:
+            os.chdir(previous)
+        self.assertEqual(calls, [])
+        self.assertFalse((result / ".launch.lock").exists())
+        self.assertEqual(
+            [record["event"] for record in read_ledger(result / LEDGER_NAME)],
+            ["prepared"],
+        )
+
     def test_stage_inventory_drift_stops_before_submission(self) -> None:
         stage, result, _ = self.prepare()
         make_writable(stage)
@@ -724,6 +887,22 @@ class PreparationTests(unittest.TestCase):
         ).isoformat()
         with self.assertRaisesRegex(PreparationError, "within 15 minutes"):
             validate_scheduler_contract(contract, result)
+
+    def test_scheduler_selection_rejects_boolean_and_float_resources(self) -> None:
+        _, result, _ = self.make_stage_inputs()
+        contract = json.loads((result / "scheduler_selection.json").read_text())
+        for key, value in (("nodes", True), ("cpus", 4.0)):
+            rejected = json.loads(json.dumps(contract))
+            rejected["resources"][key] = value
+            with self.subTest(key=key, value=value):
+                with self.assertRaisesRegex(
+                    PreparationError, "non-boolean integers"
+                ):
+                    validate_scheduler_contract(rejected, result)
+        rejected = json.loads(json.dumps(contract))
+        rejected["adequacy"]["minimum_vram_bytes"] = True
+        with self.assertRaisesRegex(PreparationError, "at least"):
+            validate_scheduler_contract(rejected, result)
 
     def test_incomplete_reproducibility_metadata_fails_before_stage_freeze(self) -> None:
         stage, result, preflight = self.make_stage_inputs()

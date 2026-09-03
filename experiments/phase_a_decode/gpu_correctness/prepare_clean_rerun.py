@@ -7,6 +7,7 @@ import argparse
 import base64
 import hashlib
 import json
+import math
 import os
 import re
 import shlex
@@ -33,8 +34,22 @@ MANIFEST_DIGEST_NAME = "launch_manifest.sha256"
 REQUEST_NAME = "submission_request.json"
 LEDGER_NAME = "attempt_ledger.jsonl"
 STAGE_VERIFICATION_NAME = "stage_verification.json"
+STAGE_ATTESTATION_NAME = "stage_only_attestation.json"
 RUNNER = "experiments/phase_a_decode/gpu_correctness/run_gpu_correctness.sbatch"
 PREPARER = "experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py"
+REQUIRED_STAGE_HELPER = Path(
+    "/afs/csail.mit.edu/u/k/kwen1/.codex/skills/"
+    "research-reproducibility/scripts/stage_and_run.sh"
+)
+REQUIRED_STAGE_HELPER_SHA256 = (
+    "44e5dc6f1a958b1f4b32e8dceeb49814885ad8dcca59716090ca87b1033731fa"
+)
+REQUIRED_RSYNC_WRAPPER = (
+    DEFAULT_APPROVED_ROOT / "tools" / "cnvq-clean-rerun-rsync-progress-r1" / "rsync"
+)
+REQUIRED_RSYNC_WRAPPER_SHA256 = (
+    "8f98d17eafac255f294735aba35dfe97657b56bb9757ce1afee4ef6591225caf"
+)
 EXECUTABLE_INPUTS = (
     "experiments/phase_a_decode/benchmark.py",
     "experiments/phase_a_decode/cpu_correctness/oracle.py",
@@ -411,8 +426,13 @@ def validate_scheduler_contract(contract: dict[str, Any], root: Path) -> dict[st
     if "torralba" not in contract["partition"].lower():
         raise PreparationError("selected partition must be explicitly Torralba-only")
     resources = contract.get("resources")
+    resource_keys = ("nodes", "tasks", "cpus", "gpus", "memory_gib", "time_minutes")
+    if not isinstance(resources, dict) or any(
+        type(resources.get(key)) is not int for key in resource_keys
+    ):
+        raise PreparationError("scheduler resources must be non-boolean integers")
     expected = {"nodes": 1, "tasks": 1, "gpus": 1}
-    if not isinstance(resources, dict) or any(resources.get(key) != value for key, value in expected.items()):
+    if any(resources.get(key) != value for key, value in expected.items()):
         raise PreparationError("scheduler resources must request one node, task, and GPU")
     if resources.get("cpus", 0) > 4 or resources.get("cpus", 0) < 1:
         raise PreparationError("scheduler request must use 1-4 CPUs")
@@ -427,7 +447,7 @@ def validate_scheduler_contract(contract: dict[str, Any], root: Path) -> dict[st
     if not isinstance(names, list) or not names or not all(isinstance(name, str) and name for name in names):
         raise PreparationError("adequacy needs advertised GPU names")
     if (
-        not isinstance(adequacy.get("minimum_vram_bytes"), int)
+        type(adequacy.get("minimum_vram_bytes")) is not int
         or adequacy["minimum_vram_bytes"] < MINIMUM_VRAM_BYTES
     ):
         raise PreparationError(
@@ -634,6 +654,310 @@ def _create_immutable_json(path: Path, payload: dict[str, Any]) -> None:
     _fsync_directory(path.parent)
 
 
+def _require_sha256(value: str, path: Path, label: str) -> str:
+    if re.fullmatch(r"[0-9a-f]{64}", value) is None or value != sha256(path):
+        raise PreparationError(f"{label} SHA-256 mismatch")
+    return value
+
+
+def _validate_stage_only_log(log: Path, source: Path, stage: Path) -> None:
+    lines = log.read_text(encoding="utf-8", errors="replace").replace("\r", "\n").splitlines()
+    expected_lines = (
+        "Staging repository:",
+        f"  source: {source}",
+        f"  target: {stage}",
+        f"Staging complete: {stage}",
+        str(stage),
+    )
+    if any(lines.count(line) != 1 for line in expected_lines) or any(
+        sum(line.startswith(prefix) for line in lines) != 1
+        for prefix in (
+            "Staging repository:",
+            "  source: ",
+            "  target: ",
+            "Staging complete: ",
+        )
+    ):
+        raise PreparationError("stage log does not prove one complete helper stage-only invocation")
+
+
+def create_stage_only_attestation(
+    source: Path,
+    stage: Path,
+    output: Path,
+    helper: Path,
+    helper_sha256: str,
+    wrapper: Path,
+    wrapper_sha256: str,
+    log: Path,
+    log_sha256: str,
+    exit_code: int,
+    started_at_utc: str,
+    finished_at_utc: str,
+    elapsed_seconds: float,
+    approved_root: Path,
+) -> dict[str, Any]:
+    raw_paths = {
+        "standalone source": source,
+        "stage": stage,
+        "attestation output": output,
+        "stage helper": helper,
+        "rsync wrapper": wrapper,
+        "stage log": log,
+    }
+    for label, path in raw_paths.items():
+        if path.is_symlink():
+            raise PreparationError(f"{label} must not be a symlink")
+    source = _canonical_child(source, approved_root / "standalone-sources", "standalone source")
+    stage = _canonical_child(stage, approved_root / "staging", "stage")
+    result = _canonical_child(output.parent, approved_root / "results", "result")
+    output = result / output.name
+    if output.name != STAGE_ATTESTATION_NAME or os.path.lexists(output):
+        raise PreparationError("stage-only attestation output must be a fresh canonical file")
+    if stat.S_IMODE(result.stat().st_mode) != 0o700:
+        raise PreparationError("stage-only attestation result root must have mode 0700")
+    helper = helper.resolve(strict=True)
+    if helper != REQUIRED_STAGE_HELPER.resolve(strict=True) or not helper.is_file():
+        raise PreparationError("stage helper path does not match the required helper")
+    wrapper = _canonical_child(wrapper, approved_root / "tools", "rsync wrapper")
+    log = _canonical_child(log, approved_root / "run-state", "stage log")
+    for label, path in (("rsync wrapper", wrapper), ("stage log", log)):
+        if not path.is_file() or path.stat().st_uid != os.getuid():
+            raise PreparationError(f"{label} must be a regular owned file")
+    if helper_sha256 != REQUIRED_STAGE_HELPER_SHA256:
+        raise PreparationError("stage helper does not match the approved SHA-256")
+    _require_sha256(helper_sha256, helper, "stage helper")
+    if (
+        wrapper != REQUIRED_RSYNC_WRAPPER.resolve(strict=True)
+        or wrapper_sha256 != REQUIRED_RSYNC_WRAPPER_SHA256
+    ):
+        raise PreparationError("rsync wrapper does not match the approved path and SHA-256")
+    _require_sha256(wrapper_sha256, wrapper, "rsync wrapper")
+    _require_sha256(log_sha256, log, "stage log")
+    if type(exit_code) is not int or exit_code != 0:
+        raise PreparationError("stage helper attestation requires exit code zero")
+    if (
+        isinstance(elapsed_seconds, bool)
+        or not isinstance(elapsed_seconds, (int, float))
+        or not math.isfinite(elapsed_seconds)
+        or elapsed_seconds <= 0
+    ):
+        raise PreparationError("stage helper attestation elapsed time is invalid")
+    started = _parse_timestamp(started_at_utc)
+    finished = _parse_timestamp(finished_at_utc)
+    duration = (finished - started).total_seconds()
+    if duration <= 0 or abs(duration - elapsed_seconds) > 2:
+        raise PreparationError("stage helper attestation timestamps and elapsed time differ")
+
+    metadata_path = stage / METADATA_NAME
+    if metadata_path.is_symlink() or not metadata_path.is_file():
+        raise PreparationError("stage helper metadata must be a regular file")
+    metadata = read_json(metadata_path)
+    if (
+        metadata.get("source_repo") != str(source)
+        or metadata.get("staged_repo") != str(stage)
+        or metadata.get("command") != ""
+    ):
+        raise PreparationError("stage helper metadata does not describe this stage-only copy")
+    _validate_stage_only_log(log, source, stage)
+    helper_argv = [
+        str(helper),
+        "--repo-root",
+        str(source),
+        "--staging-parent",
+        str(approved_root.resolve(strict=True) / "staging"),
+        "--stage-only",
+    ]
+    attestation = {
+        "schema": "vq-phase-a-stage-only-helper-attestation/v1",
+        "created_at_utc": utc_now(),
+        "source_repo": str(source),
+        "staged_repo": str(stage),
+        "helper": {
+            "path": str(helper),
+            "sha256": helper_sha256,
+            "argv": helper_argv,
+            "exit_code": exit_code,
+        },
+        "rsync_progress_wrapper": {
+            "path": str(wrapper),
+            "sha256": wrapper_sha256,
+            "path_prefix": str(wrapper.parent),
+        },
+        "transport": {
+            "foreground": True,
+            "started_at_utc": started_at_utc,
+            "finished_at_utc": finished_at_utc,
+            "elapsed_seconds": elapsed_seconds,
+            "log_path": str(log),
+            "log_sha256": log_sha256,
+            "log_bytes": log.stat().st_size,
+        },
+        "reproducibility_metadata": {
+            "path": METADATA_NAME,
+            "sha256": sha256(metadata_path),
+            "command": "",
+        },
+    }
+    _create_immutable_json(output, attestation)
+    return attestation
+
+
+def validate_stage_only_attestation(
+    path: Path,
+    *,
+    source: Path,
+    stage: Path,
+    result: Path,
+    approved_root: Path,
+) -> dict[str, Any]:
+    if path.is_symlink() or path.name != STAGE_ATTESTATION_NAME:
+        raise PreparationError("stage-only attestation must be a canonical regular file")
+    path = path.resolve(strict=True)
+    if path.parent != result or not path.is_file():
+        raise PreparationError("stage-only attestation must be in the result root")
+    attestation = read_json(path)
+    if set(attestation) != {
+        "schema",
+        "created_at_utc",
+        "source_repo",
+        "staged_repo",
+        "helper",
+        "rsync_progress_wrapper",
+        "transport",
+        "reproducibility_metadata",
+    }:
+        raise PreparationError("stage-only attestation fields mismatch")
+    if (
+        attestation.get("schema") != "vq-phase-a-stage-only-helper-attestation/v1"
+        or attestation.get("source_repo") != str(source)
+        or attestation.get("staged_repo") != str(stage)
+    ):
+        raise PreparationError("stage-only attestation identity mismatch")
+    created = _parse_timestamp(attestation.get("created_at_utc"))
+    age = datetime.now(timezone.utc) - created
+    if age.total_seconds() < -60 or age.total_seconds() > 15 * 60:
+        raise PreparationError("stage-only attestation must be captured within 15 minutes")
+
+    helper_record = attestation.get("helper")
+    if not isinstance(helper_record, dict) or set(helper_record) != {
+        "path",
+        "sha256",
+        "argv",
+        "exit_code",
+    }:
+        raise PreparationError("stage-only attestation helper record is missing")
+    helper_path = Path(str(helper_record.get("path", "")))
+    if helper_path.is_symlink():
+        raise PreparationError("stage helper must not be a symlink")
+    helper_path = helper_path.resolve(strict=True)
+    if helper_path != REQUIRED_STAGE_HELPER.resolve(strict=True) or not helper_path.is_file():
+        raise PreparationError("stage helper path does not match the required helper")
+    helper_sha = str(helper_record.get("sha256", ""))
+    if helper_sha != REQUIRED_STAGE_HELPER_SHA256:
+        raise PreparationError("stage helper does not match the approved SHA-256")
+    _require_sha256(helper_sha, helper_path, "stage helper")
+    expected_helper_argv = [
+        str(helper_path),
+        "--repo-root",
+        str(source),
+        "--staging-parent",
+        str(approved_root.resolve(strict=True) / "staging"),
+        "--stage-only",
+    ]
+    if (
+        helper_record.get("argv") != expected_helper_argv
+        or type(helper_record.get("exit_code")) is not int
+        or helper_record["exit_code"] != 0
+    ):
+        raise PreparationError("stage helper invocation or exit evidence mismatch")
+
+    wrapper_record = attestation.get("rsync_progress_wrapper")
+    if not isinstance(wrapper_record, dict) or set(wrapper_record) != {
+        "path",
+        "sha256",
+        "path_prefix",
+    }:
+        raise PreparationError("stage-only attestation wrapper record is missing")
+    wrapper_path = Path(str(wrapper_record.get("path", "")))
+    if wrapper_path.is_symlink():
+        raise PreparationError("rsync wrapper must not be a symlink")
+    wrapper_path = _canonical_child(wrapper_path, approved_root / "tools", "rsync wrapper")
+    if not wrapper_path.is_file() or wrapper_path.stat().st_uid != os.getuid():
+        raise PreparationError("rsync wrapper must be a regular owned file")
+    wrapper_sha = str(wrapper_record.get("sha256", ""))
+    if (
+        wrapper_path != REQUIRED_RSYNC_WRAPPER.resolve(strict=True)
+        or wrapper_sha != REQUIRED_RSYNC_WRAPPER_SHA256
+    ):
+        raise PreparationError("rsync wrapper does not match the approved path and SHA-256")
+    _require_sha256(wrapper_sha, wrapper_path, "rsync wrapper")
+    if wrapper_record.get("path_prefix") != str(wrapper_path.parent):
+        raise PreparationError("rsync wrapper PATH prefix mismatch")
+
+    transport = attestation.get("transport")
+    if (
+        not isinstance(transport, dict)
+        or set(transport)
+        != {
+            "foreground",
+            "started_at_utc",
+            "finished_at_utc",
+            "elapsed_seconds",
+            "log_path",
+            "log_sha256",
+            "log_bytes",
+        }
+        or transport.get("foreground") is not True
+    ):
+        raise PreparationError("stage-only transport evidence must be foreground")
+    log_path = Path(str(transport.get("log_path", "")))
+    if log_path.is_symlink():
+        raise PreparationError("stage log must not be a symlink")
+    log_path = _canonical_child(log_path, approved_root / "run-state", "stage log")
+    if not log_path.is_file() or log_path.stat().st_uid != os.getuid():
+        raise PreparationError("stage log must be a regular owned file")
+    _require_sha256(str(transport.get("log_sha256", "")), log_path, "stage log")
+    if (
+        type(transport.get("log_bytes")) is not int
+        or transport["log_bytes"] != log_path.stat().st_size
+    ):
+        raise PreparationError("stage log byte count mismatch")
+    elapsed = transport.get("elapsed_seconds")
+    if (
+        isinstance(elapsed, bool)
+        or not isinstance(elapsed, (int, float))
+        or not math.isfinite(elapsed)
+        or elapsed <= 0
+    ):
+        raise PreparationError("stage-only transport elapsed time is invalid")
+    started = _parse_timestamp(transport.get("started_at_utc"))
+    finished = _parse_timestamp(transport.get("finished_at_utc"))
+    if (finished - started).total_seconds() <= 0 or abs(
+        (finished - started).total_seconds() - elapsed
+    ) > 2:
+        raise PreparationError("stage-only transport timestamps and elapsed time differ")
+    if created < finished - timedelta(seconds=2) or created > finished + timedelta(minutes=2):
+        raise PreparationError("stage-only attestation creation time is inconsistent")
+    _validate_stage_only_log(log_path, source, stage)
+
+    metadata_record = attestation.get("reproducibility_metadata")
+    metadata_path = stage / METADATA_NAME
+    if (
+        not isinstance(metadata_record, dict)
+        or set(metadata_record) != {"path", "sha256", "command"}
+        or metadata_path.is_symlink()
+    ):
+        raise PreparationError("stage helper metadata attestation is missing")
+    if (
+        metadata_record.get("path") != METADATA_NAME
+        or metadata_record.get("command") != ""
+        or metadata_record.get("sha256") != sha256(metadata_path)
+    ):
+        raise PreparationError("stage helper metadata attestation mismatch")
+    return attestation
+
+
 def create_ledger(path: Path, payload: dict[str, Any]) -> dict[str, Any]:
     record = _ledger_record(0, None, "prepared", payload)
     descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
@@ -727,6 +1051,7 @@ def _expected_stage_only_continuation_args(
     result: Path,
     cpu_preflight: Path,
     scheduler_contract: Path,
+    stage_attestation: Path,
     expected_commit: str,
     expected_tree: str,
     python: str,
@@ -735,6 +1060,8 @@ def _expected_stage_only_continuation_args(
     arguments = [
         "freeze-stage",
         "--stage-only-continuation",
+        "--stage-only-attestation",
+        str(stage_attestation),
         "--source",
         str(source),
         "--result",
@@ -763,6 +1090,7 @@ def validate_stage_only_continuation_invocation(
     result: Path,
     cpu_preflight: Path,
     scheduler_contract: Path,
+    stage_attestation: Path,
     expected_commit: str,
     expected_tree: str,
     python: str,
@@ -788,6 +1116,7 @@ def validate_stage_only_continuation_invocation(
         result,
         cpu_preflight,
         scheduler_contract,
+        stage_attestation,
         expected_commit,
         expected_tree,
         python,
@@ -822,14 +1151,19 @@ def prepare_frozen_stage(
     python: str,
     approved_root: Path,
     stage_only_continuation: dict[str, Any] | None = None,
+    stage_only_attestation_path: Path | None = None,
 ) -> dict[str, Any]:
-    if stage_only_continuation is not None:
+    continuation = stage_only_continuation is not None
+    if continuation != (stage_only_attestation_path is not None):
+        raise PreparationError("stage-only continuation requires exactly one helper attestation")
+    if continuation:
         for label, path in (
             ("standalone source", source),
             ("stage", stage),
             ("result", result),
             ("CPU preflight", cpu_preflight),
             ("scheduler contract", scheduler_contract_path),
+            ("helper attestation", stage_only_attestation_path),
         ):
             if path.is_symlink():
                 raise PreparationError(f"stage-only continuation {label} must not be a symlink")
@@ -855,12 +1189,15 @@ def prepare_frozen_stage(
         raise PreparationError("source, stage, and result paths must be distinct")
     if cpu_preflight.parent != result or scheduler_contract_path.parent != result:
         raise PreparationError("preflight and scheduler contract must be in the result root")
-    stage_verification_path = result / STAGE_VERIFICATION_NAME
-    if stage_only_continuation is not None:
+    stage_verification_path = stage / STAGE_VERIFICATION_NAME
+    if continuation:
         if stage_verification_path.is_symlink():
             raise PreparationError("stage-only continuation binding must not be a symlink")
         if stage_verification_path.exists():
             raise PreparationError("stage-only continuation is already bound")
+        stage_only_attestation_path = stage_only_attestation_path.resolve(strict=True)
+        if stage_only_attestation_path.parent != result:
+            raise PreparationError("stage-only helper attestation must be in the result root")
 
     source_identity = verify_self_contained_repo(source, expected_commit)
     stage_identity = verify_self_contained_repo(
@@ -873,7 +1210,7 @@ def prepare_frozen_stage(
         raise PreparationError("source/stage tree does not match the declared launch tree")
 
     metadata_path = stage / METADATA_NAME
-    if stage_only_continuation is not None and metadata_path.is_symlink():
+    if continuation and metadata_path.is_symlink():
         raise PreparationError("stage-only continuation metadata must not be a symlink")
     metadata = read_json(metadata_path)
     required_metadata = {
@@ -898,7 +1235,7 @@ def prepare_frozen_stage(
         raise PreparationError("reproducibility metadata creation time is in the future")
     if not isinstance(metadata.get("hostname"), str) or not metadata["hostname"].strip():
         raise PreparationError("reproducibility metadata needs nonempty hostname")
-    if stage_only_continuation is not None:
+    if continuation:
         expected_metadata_keys = {
             "command",
             "created_at_utc",
@@ -973,6 +1310,8 @@ def prepare_frozen_stage(
     initial_result_files = {path.name for path in result.iterdir()}
     scheduler_evidence = scheduler["selection_evidence"]["file"]
     expected_initial = {cpu_preflight.name, scheduler_contract_path.name, scheduler_evidence}
+    if continuation:
+        expected_initial.add(stage_only_attestation_path.name)
     if initial_result_files != expected_initial:
         raise PreparationError(
             f"result root is not fresh: found {sorted(initial_result_files)}, "
@@ -984,7 +1323,14 @@ def prepare_frozen_stage(
     if (source_count, source_hash) != (stage_count, stage_hash):
         raise PreparationError("source/stage tracked content differs")
 
-    if stage_only_continuation is not None:
+    if continuation:
+        helper_attestation = validate_stage_only_attestation(
+            stage_only_attestation_path,
+            source=source,
+            stage=stage,
+            result=result,
+            approved_root=approved_root.resolve(strict=True),
+        )
         source_complete = complete_tree_aggregate(source, reject_symlinks=True)
         stage_complete = complete_tree_aggregate(
             stage,
@@ -1000,6 +1346,7 @@ def prepare_frozen_stage(
             result=result,
             cpu_preflight=cpu_preflight,
             scheduler_contract=scheduler_contract_path,
+            stage_attestation=stage_only_attestation_path,
             expected_commit=expected_commit,
             expected_tree=expected_tree,
             python=python,
@@ -1020,6 +1367,11 @@ def prepare_frozen_stage(
             },
             "tracked_files": stage_count,
             "tracked_content_sha256": stage_hash,
+            "helper_attestation": {
+                "file": stage_only_attestation_path.name,
+                "sha256": sha256(stage_only_attestation_path),
+                "schema": helper_attestation["schema"],
+            },
             "separate_freeze_invocation": invocation,
             "binding_policy": {
                 "exclusive_create": True,
@@ -1033,6 +1385,8 @@ def prepare_frozen_stage(
             "mode": "stage-only-continuation",
             "verification_file": STAGE_VERIFICATION_NAME,
             "verification_sha256": sha256(stage_verification_path),
+            "helper_attestation_file": stage_only_attestation_path.name,
+            "helper_attestation_sha256": sha256(stage_only_attestation_path),
         }
     else:
         stage_boundary = {
@@ -1044,7 +1398,9 @@ def prepare_frozen_stage(
     stage_identity = verify_self_contained_repo(
         stage,
         expected_commit,
-        allowed_untracked=(METADATA_NAME,),
+        allowed_untracked=(METADATA_NAME, STAGE_VERIFICATION_NAME)
+        if continuation
+        else (METADATA_NAME,),
         compare_objects_with=source,
     )
     inventory = recursive_inventory(stage)
@@ -1196,6 +1552,12 @@ def submit_once(
         raise PreparationError("attempt ledger is not bound to the prepared request")
     if any(record["event"] in {"submission_started", "submission_finished", "accepted"} for record in records):
         raise PreparationError("attempt ledger already records a submission; retry is forbidden")
+    ambient_sbatch = sorted(key for key in os.environ if key.startswith("SBATCH_"))
+    if ambient_sbatch:
+        raise PreparationError(
+            "ambient SBATCH_* variables are forbidden before submission: "
+            + ", ".join(ambient_sbatch)
+        )
 
     lock = root / ".launch.lock"
     lock_fd = os.open(lock, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o400)
@@ -1273,8 +1635,25 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     preflight.add_argument("--output", type=Path, required=True)
     preflight.add_argument("--commit", required=True)
 
+    attest = subparsers.add_parser("attest-stage-only")
+    attest.add_argument("--source", type=Path, required=True)
+    attest.add_argument("--stage", type=Path, required=True)
+    attest.add_argument("--output", type=Path, required=True)
+    attest.add_argument("--helper", type=Path, required=True)
+    attest.add_argument("--helper-sha256", required=True)
+    attest.add_argument("--wrapper", type=Path, required=True)
+    attest.add_argument("--wrapper-sha256", required=True)
+    attest.add_argument("--log", type=Path, required=True)
+    attest.add_argument("--log-sha256", required=True)
+    attest.add_argument("--exit-code", type=int, required=True)
+    attest.add_argument("--started-at-utc", required=True)
+    attest.add_argument("--finished-at-utc", required=True)
+    attest.add_argument("--elapsed-seconds", type=float, required=True)
+    attest.add_argument("--approved-root", type=Path, default=DEFAULT_APPROVED_ROOT)
+
     freeze = subparsers.add_parser("freeze-stage")
     freeze.add_argument("--stage-only-continuation", action="store_true")
+    freeze.add_argument("--stage-only-attestation", type=Path)
     freeze.add_argument("--source", type=Path, required=True)
     freeze.add_argument(
         "--stage",
@@ -1300,6 +1679,23 @@ def main(argv: Sequence[str] | None = None) -> int:
         result = clone_standalone_source(args.source, args.destination, args.commit, args.approved_root)
     elif args.command == "cpu-preflight":
         result = run_cpu_preflight(args.repo, args.output, args.commit)
+    elif args.command == "attest-stage-only":
+        result = create_stage_only_attestation(
+            args.source,
+            args.stage,
+            args.output,
+            args.helper,
+            args.helper_sha256,
+            args.wrapper,
+            args.wrapper_sha256,
+            args.log,
+            args.log_sha256,
+            args.exit_code,
+            args.started_at_utc,
+            args.finished_at_utc,
+            args.elapsed_seconds,
+            args.approved_root,
+        )
     else:
         if args.stage is None:
             raise PreparationError(
@@ -1307,6 +1703,10 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
         continuation = None
         if args.stage_only_continuation:
+            if args.stage_only_attestation is None:
+                raise PreparationError(
+                    "--stage-only-continuation requires --stage-only-attestation"
+                )
             continuation = {
                 "schema": "vq-phase-a-stage-only-continuation-invocation/v1",
                 "argv": [sys.executable, sys.argv[0], *process_args],
@@ -1320,6 +1720,10 @@ def main(argv: Sequence[str] | None = None) -> int:
                     ),
                 },
             }
+        elif args.stage_only_attestation is not None:
+            raise PreparationError(
+                "--stage-only-attestation requires --stage-only-continuation"
+            )
         result = prepare_frozen_stage(
             args.source,
             args.stage,
@@ -1331,6 +1735,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.python,
             args.approved_root,
             continuation,
+            args.stage_only_attestation,
         )
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0

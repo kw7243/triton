@@ -112,18 +112,45 @@ Run these only after a separate launch authorization. Use new canonical paths un
 
    If the copy and verifier cannot fit in one foreground SSH transport, use the helper's
    documented `--stage-only` boundary exactly once. Do not edit its metadata. The helper
-   must exit zero with an empty `command` field, then the separate verifier must use this
-   exact argument order and the same two environment values the helper normally exports:
+   must have SHA-256
+   `44e5dc6f1a958b1f4b32e8dceeb49814885ad8dcca59716090ca87b1033731fa`,
+   exit zero with an empty `command` field, and run in the foreground through the already
+   hashed progress wrapper. Preserve its complete log and exact timestamps, then create the
+   immutable attestation before the separate verifier:
 
    ```bash
+   STAGE_LOG="/data/scratch-fast/kwen1/compute-native-vq/run-state/<fresh>.log"
+   HELPER="/afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh"
+   WRAPPER="/data/scratch-fast/kwen1/compute-native-vq/tools/cnvq-clean-rerun-rsync-progress-r1/rsync"
+   STARTED_AT_UTC="$(date -u +%Y-%m-%dT%H:%M:%S%z)"
+   STARTED_EPOCH="$(date +%s)"
    (
      cd "$STANDALONE_SOURCE"
-     /afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh \
+     PATH="$(dirname "$WRAPPER"):$PATH" "$HELPER" \
        --repo-root "$STANDALONE_SOURCE" \
        --staging-parent /data/scratch-fast/kwen1/compute-native-vq/staging \
        --stage-only
-   )
+   ) 2>&1 | tee "$STAGE_LOG"
+   test "${PIPESTATUS[0]}" -eq 0
+   FINISHED_EPOCH="$(date +%s)"
+   FINISHED_AT_UTC="$(date -u +%Y-%m-%dT%H:%M:%S%z)"
    STAGE="<fresh path printed by the helper>"
+
+   "$PYTHON" "$STANDALONE_SOURCE/experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py" \
+     attest-stage-only \
+     --source "$STANDALONE_SOURCE" \
+     --stage "$STAGE" \
+     --output "$RESULT_ROOT/stage_only_attestation.json" \
+     --helper "$HELPER" \
+     --helper-sha256 "$(sha256sum "$HELPER" | awk '{print $1}')" \
+     --wrapper "$WRAPPER" \
+     --wrapper-sha256 "$(sha256sum "$WRAPPER" | awk '{print $1}')" \
+     --log "$STAGE_LOG" \
+     --log-sha256 "$(sha256sum "$STAGE_LOG" | awk '{print $1}')" \
+     --exit-code 0 \
+     --started-at-utc "$STARTED_AT_UTC" \
+     --finished-at-utc "$FINISHED_AT_UTC" \
+     --elapsed-seconds "$((FINISHED_EPOCH - STARTED_EPOCH))"
 
    (
      cd "$STAGE"
@@ -132,6 +159,7 @@ Run these only after a separate launch authorization. Use new canonical paths un
      "$PYTHON" experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py \
        freeze-stage \
        --stage-only-continuation \
+       --stage-only-attestation "$RESULT_ROOT/stage_only_attestation.json" \
        --source "$STANDALONE_SOURCE" \
        --result "$RESULT_ROOT" \
        --cpu-preflight "$RESULT_ROOT/cpu_preflight.json" \
@@ -142,12 +170,15 @@ Run these only after a separate launch authorization. Use new canonical paths un
    )
    ```
 
-   Continuation mode requires fresh scheduler and helper evidence, exact source/stage
-   identities, a complete byte-for-byte tree match, and no symlinks. Before changing stage
-   modes, it exclusively creates immutable `stage_verification.json` with the truthful empty
-   helper command and the exact second-process argv, working directory, and environment.
-   A mismatch, partial stage, unrelated nonempty command, existing binding, or interrupted
-   post-binding preparation stops permanently; the stage cannot be repaired or rebound.
+   Continuation mode rehashes the exact helper, wrapper, helper log, and metadata; requires
+   fresh scheduler and helper evidence, exact source/stage identities, a complete
+   byte-for-byte tree match, and no symlinks; and binds the attestation hash into the
+   manifest. Before changing stage modes, it exclusively creates immutable
+   `stage_verification.json` inside the stage with the truthful empty helper command and the
+   exact second-process argv, working directory, and environment. That stage-local record
+   makes rebinding through another result root impossible. A mismatch, partial stage,
+   unrelated nonempty command, existing binding, or interrupted post-binding preparation
+   stops permanently; the stage cannot be repaired or rebound.
 
 ## Prepared launch boundary
 
@@ -166,7 +197,9 @@ exclusive-create launch lock and append-only writer in `submit_from_stage.py`. A
 ambiguous, or accepted invocation permanently consumes the attempt; a second invocation
 is rejected. The submitter sets the added variables in the `sbatch` process environment
 and omits `--export`, so Slurm's safe default `ALL` export applies; `--export=ALL,...`,
-`--export=NONE`, and `--export=NIL` are not used.
+`--export=NONE`, and `--export=NIL` are not used. Any ambient `SBATCH_*` variable rejects
+the submission before the launch lock or ledger is changed. Scheduler counts, memory, and
+wall time must be JSON integers; booleans and floating-point values are rejected.
 
 Submission remains a separate launch-time action. If freshly authorized, run the prepared
 submit command once from the frozen stage. After an accepted numeric ID, register exactly
