@@ -52,6 +52,9 @@ from experiments.phase_a_decode.gpu_correctness.result_protocol import (
     mark_payload_complete,
     record_boundary,
 )
+from experiments.phase_a_decode.gpu_correctness.validate_environment import (
+    validated_stage_untracked,
+)
 
 
 def run_git(repo: Path, *args: str) -> str:
@@ -606,6 +609,10 @@ class PreparationTests(unittest.TestCase):
                 ),
             },
         )
+        self.assertEqual(
+            validated_stage_untracked(manifest, stage),
+            ("REPRODUCIBILITY_METADATA.json", STAGE_VERIFICATION_NAME),
+        )
         with self.assertRaisesRegex(PreparationError, "already bound"):
             prepare_frozen_stage(
                 self.standalone,
@@ -620,6 +627,13 @@ class PreparationTests(unittest.TestCase):
                 verification["separate_freeze_invocation"],
                 result / STAGE_ATTESTATION_NAME,
             )
+
+    def test_runtime_validation_rejects_stage_binding_hash_mismatch(self) -> None:
+        stage, result, _ = self.prepare_stage_only()
+        manifest = json.loads((result / MANIFEST_NAME).read_text())
+        manifest["stage_boundary"]["verification_sha256"] = "0" * 64
+        with self.assertRaisesRegex(RuntimeError, "verification hash mismatch"):
+            validated_stage_untracked(manifest, stage)
 
     def test_stage_only_continuation_binding_is_stage_scoped(self) -> None:
         stage, result, _ = self.prepare_stage_only()

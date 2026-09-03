@@ -540,7 +540,11 @@ Correction:
 - The submitter rejects every ambient `SBATCH_*` variable before creating its launch lock
   or appending the ledger. Scheduler resource counts, memory, wall time, and minimum VRAM
   accept only JSON integers, never booleans or floating-point values.
-- Local validation passed 27 behavioral preparation/protocol/classification tests,
+- Allocated-node validation recognizes the stage-local binding only when the continuation
+  manifest names `stage_verification.json` and its SHA-256 matches. The file remains covered
+  by the full immutable stage inventory; any absent, renamed, symlinked, or changed binding
+  is `NO RESULT` before CUDA.
+- Local validation passed 28 behavioral preparation/protocol/classification tests,
   `shellcheck` and `bash -n` for both Phase A batch scripts, source-byte compilation of all
   11 Phase A Python files, the correctness-contract CLI, the preparation CLI, and
   `git diff --check`. No native build was needed because this correction changes only

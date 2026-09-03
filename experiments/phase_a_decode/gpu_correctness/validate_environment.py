@@ -14,14 +14,26 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from prepare_clean_rerun import (
-    DEFAULT_APPROVED_ROOT,
-    inventory_digest,
-    recursive_inventory,
-    sha256,
-    verify_self_contained_repo,
-)
-from result_protocol import atomic_write_json
+try:
+    from .prepare_clean_rerun import (
+        DEFAULT_APPROVED_ROOT,
+        STAGE_VERIFICATION_NAME,
+        inventory_digest,
+        recursive_inventory,
+        sha256,
+        verify_self_contained_repo,
+    )
+    from .result_protocol import atomic_write_json
+except ImportError:
+    from prepare_clean_rerun import (
+        DEFAULT_APPROVED_ROOT,
+        STAGE_VERIFICATION_NAME,
+        inventory_digest,
+        recursive_inventory,
+        sha256,
+        verify_self_contained_repo,
+    )
+    from result_protocol import atomic_write_json
 
 
 def command(args: list[str]) -> str:
@@ -42,6 +54,21 @@ def storage(path: Path) -> dict[str, object]:
 
 def parse_scontrol(text: str) -> dict[str, str]:
     return dict(token.split("=", 1) for token in text.split() if "=" in token)
+
+
+def validated_stage_untracked(manifest: dict[str, object], stage: Path) -> tuple[str, ...]:
+    allowed = ("REPRODUCIBILITY_METADATA.json",)
+    boundary = manifest.get("stage_boundary")
+    if not isinstance(boundary, dict) or boundary.get("mode") != "stage-only-continuation":
+        return allowed
+    if boundary.get("verification_file") != STAGE_VERIFICATION_NAME:
+        raise RuntimeError("stage-only verification filename mismatch")
+    verification = stage / STAGE_VERIFICATION_NAME
+    if verification.is_symlink() or not verification.is_file():
+        raise RuntimeError("stage-only verification must be a regular file")
+    if boundary.get("verification_sha256") != sha256(verification):
+        raise RuntimeError("stage-only verification hash mismatch")
+    return (*allowed, STAGE_VERIFICATION_NAME)
 
 
 def main() -> None:
@@ -97,10 +124,11 @@ def main() -> None:
             == Path(str(manifest["benchmark_argv"][0])).resolve(strict=True)
             == Path(os.environ.get("PHASE_A_PYTHON", "")).resolve(strict=True)
         )
+        allowed_untracked = validated_stage_untracked(manifest, stage)
         stage_identity = verify_self_contained_repo(
             stage,
             str(manifest["commit"]),
-            allowed_untracked=("REPRODUCIBILITY_METADATA.json",),
+            allowed_untracked=allowed_untracked,
             compare_objects_with=source,
         )
         report["stage_identity"] = stage_identity
