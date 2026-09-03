@@ -117,15 +117,17 @@ A successful preparation creates these files in the fresh result root:
 - `launch_manifest.json` and `launch_manifest.sha256`: immutable commit/tree, stage
   inventory, metadata/preflight/config hashes, selected scheduler tuple, exact benchmark
   argv, result schema, and correctness/no-timing contract;
-- `submission_request.json`: exact one-shot `sbatch` argv with the manifest digest exported
-  into the allocation;
+- `submission_request.json`: exact one-shot `sbatch` argv and manifest-bound submission
+  environment;
 - `attempt_ledger.jsonl`: an fsynced hash chain beginning with zero submissions and no
   accepted job ID.
 
 The manifest and request are mode `0444`. The ledger is only extended through the
 exclusive-create launch lock and append-only writer in `submit_from_stage.py`. A failed,
 ambiguous, or accepted invocation permanently consumes the attempt; a second invocation
-is rejected.
+is rejected. The submitter sets the added variables in the `sbatch` process environment
+and omits `--export`, so Slurm's safe default `ALL` export applies; `--export=ALL,...`,
+`--export=NONE`, and `--export=NIL` are not used.
 
 Submission remains a separate launch-time action. If freshly authorized, run the prepared
 submit command once from the frozen stage. After an accepted numeric ID, register exactly

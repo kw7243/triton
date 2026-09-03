@@ -614,11 +614,7 @@ def append_ledger(path: Path, event: str, payload: dict[str, Any]) -> dict[str, 
 
 def _sbatch_argv(
     scheduler: dict[str, Any],
-    source: Path,
-    stage: Path,
     result: Path,
-    manifest_sha256: str,
-    python: str,
 ) -> list[str]:
     resources = scheduler["resources"]
     return [
@@ -636,14 +632,25 @@ def _sbatch_argv(
         f"--time=00:{resources['time_minutes']:02d}:00",
         f"--output={result}/slurm-%j.out",
         f"--error={result}/slurm-%j.out",
-        (
-            "--export=ALL,"
-            f"SOURCE_REPO={source},RESEARCH_REPRO_STAGED_DIR={stage},RESULT_DIR={result},"
-            f"PHASE_A_MANIFEST_PATH={result / MANIFEST_NAME},"
-            f"PHASE_A_MANIFEST_SHA256={manifest_sha256},PHASE_A_PYTHON={python}"
-        ),
         RUNNER,
     ]
+
+
+def _sbatch_environment(
+    source: Path,
+    stage: Path,
+    result: Path,
+    manifest_sha256: str,
+    python: str,
+) -> dict[str, str]:
+    return {
+        "SOURCE_REPO": str(source),
+        "RESEARCH_REPRO_STAGED_DIR": str(stage),
+        "RESULT_DIR": str(result),
+        "PHASE_A_MANIFEST_PATH": str(result / MANIFEST_NAME),
+        "PHASE_A_MANIFEST_SHA256": manifest_sha256,
+        "PHASE_A_PYTHON": python,
+    }
 
 
 def prepare_frozen_stage(
@@ -847,8 +854,9 @@ def prepare_frozen_stage(
     request = {
         "schema": "vq-phase-a-submission-request/v2",
         "launch_manifest_sha256": manifest_sha256,
-        "sbatch_argv": _sbatch_argv(
-            scheduler, source, stage, result, manifest_sha256, str(python_path)
+        "sbatch_argv": _sbatch_argv(scheduler, result),
+        "sbatch_environment": _sbatch_environment(
+            source, stage, result, manifest_sha256, str(python_path)
         ),
         "benchmark_argv": manifest["benchmark_argv"],
     }
@@ -878,7 +886,9 @@ def submit_once(
     request_path: Path,
     ledger_path: Path,
     *,
-    runner: Callable[[list[str], Path], subprocess.CompletedProcess[Any]] | None = None,
+    runner: Callable[
+        [list[str], Path, dict[str, str]], subprocess.CompletedProcess[Any]
+    ] | None = None,
 ) -> str:
     manifest_path = manifest_path.resolve(strict=True)
     request_path = request_path.resolve(strict=True)
@@ -902,6 +912,9 @@ def submit_once(
         raise PreparationError("frozen stage inventory changed after preparation")
     expected_request = _sbatch_argv(
         manifest["scheduler_selection"],
+        Path(manifest["result_root"]),
+    )
+    expected_environment = _sbatch_environment(
         Path(manifest["source_repo"]),
         Path(manifest["staged_repo"]),
         Path(manifest["result_root"]),
@@ -910,6 +923,10 @@ def submit_once(
     )
     if request.get("sbatch_argv") != expected_request:
         raise PreparationError("submission argv differs from the immutable manifest")
+    if request.get("sbatch_environment") != expected_environment:
+        raise PreparationError("submission environment differs from the immutable manifest")
+    if any(argument.startswith("--export") for argument in expected_request):
+        raise PreparationError("submission argv must use sbatch's safe default ALL export")
     if request.get("benchmark_argv") != manifest.get("benchmark_argv"):
         raise PreparationError("benchmark argv differs from the immutable manifest")
     validate_scheduler_contract(manifest["scheduler_selection"], root)
@@ -938,12 +955,24 @@ def submit_once(
     append_ledger(
         ledger_path,
         "submission_started",
-        {"sbatch_argv": argv, "accepted_job_id_before": None},
+        {
+            "sbatch_argv": argv,
+            "sbatch_environment": expected_environment,
+            "accepted_job_id_before": None,
+        },
     )
     if runner is None:
-        def runner(command: list[str], cwd: Path) -> subprocess.CompletedProcess[bytes]:
-            return subprocess.run(command, cwd=cwd, capture_output=True, check=False)
-    completed = runner(argv, Path(manifest["staged_repo"]))
+        def runner(
+            command: list[str], cwd: Path, environment: dict[str, str]
+        ) -> subprocess.CompletedProcess[bytes]:
+            return subprocess.run(
+                command,
+                cwd=cwd,
+                env={**os.environ, **environment},
+                capture_output=True,
+                check=False,
+            )
+    completed = runner(argv, Path(manifest["staged_repo"]), expected_environment)
     stdout_bytes = (
         completed.stdout.encode("utf-8")
         if isinstance(completed.stdout, str)

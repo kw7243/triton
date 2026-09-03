@@ -437,8 +437,11 @@ class PreparationTests(unittest.TestCase):
         request = json.loads((result / REQUEST_NAME).read_text())
         self.assertEqual(request["launch_manifest_sha256"], sha256(manifest_path))
         self.assertIn("--no-requeue", request["sbatch_argv"])
-        export = next(item for item in request["sbatch_argv"] if item.startswith("--export="))
-        self.assertIn(sha256(manifest_path), export)
+        self.assertFalse(any(item.startswith("--export") for item in request["sbatch_argv"]))
+        self.assertEqual(
+            request["sbatch_environment"]["PHASE_A_MANIFEST_SHA256"],
+            sha256(manifest_path),
+        )
         self.assertEqual(prepared["manifest_sha256"], sha256(manifest_path))
         records = read_ledger(result / LEDGER_NAME)
         self.assertEqual([record["event"] for record in records], ["prepared"])
@@ -448,8 +451,10 @@ class PreparationTests(unittest.TestCase):
         stage, result, _ = self.prepare()
         calls = []
 
-        def fake_runner(argv: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
-            calls.append((argv, cwd))
+        def fake_runner(
+            argv: list[str], cwd: Path, environment: dict[str, str]
+        ) -> subprocess.CompletedProcess[str]:
+            calls.append((argv, cwd, environment))
             return subprocess.CompletedProcess(argv, 0, "424242\n", "fixture\n")
 
         previous = Path.cwd()
@@ -483,8 +488,10 @@ class PreparationTests(unittest.TestCase):
         stage, result, _ = self.prepare()
         calls = []
 
-        def fake_runner(argv: list[str], cwd: Path) -> subprocess.CompletedProcess[bytes]:
-            calls.append((argv, cwd))
+        def fake_runner(
+            argv: list[str], cwd: Path, environment: dict[str, str]
+        ) -> subprocess.CompletedProcess[bytes]:
+            calls.append((argv, cwd, environment))
             return subprocess.CompletedProcess(argv, 9, b"", b"exact failure bytes\n")
 
         previous = Path.cwd()
@@ -521,8 +528,10 @@ class PreparationTests(unittest.TestCase):
         (stage / EXECUTABLE_INPUTS[0]).write_text("tampered\n")
         calls = []
 
-        def fake_runner(argv: list[str], cwd: Path) -> subprocess.CompletedProcess[str]:
-            calls.append((argv, cwd))
+        def fake_runner(
+            argv: list[str], cwd: Path, environment: dict[str, str]
+        ) -> subprocess.CompletedProcess[str]:
+            calls.append((argv, cwd, environment))
             return subprocess.CompletedProcess(argv, 0, "424242\n", "")
 
         previous = Path.cwd()

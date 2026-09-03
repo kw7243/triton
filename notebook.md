@@ -493,3 +493,17 @@ Validation and remaining gate:
   scheduler contract, run the research staging helper from the standalone clone, and inspect
   the prepared manifest/request/ledger before deciding whether to invoke the one-shot submit
   command. A new accepted job would require its own single event source.
+
+## 2026-09-03 — Phase A clean correctness rerun authorization
+
+- The captain authorized exactly one fresh Phase A correctness-only run from preparation
+  commit `337f6a738ad069c443b71e761d2c96ef7d20c22f`. The correctness workload, thresholds,
+  record counts, failure taxonomy, immutable-stage gate, and prohibition on timing, tuning,
+  Phase B, retry, requeue, and cancellation remain unchanged.
+- Before staging, the one-shot submitter was corrected to follow the TIG environment rule:
+  the immutable request omits every `sbatch --export` option and supplies its manifest-bound
+  variables in the `sbatch` process environment, allowing Slurm's safe default `ALL` export.
+- A new final source commit and tree will be detached into a standalone scratch clone. A
+  fresh CPU preflight, live Torralba selection, complete stage audit, immutable launch
+  manifest, and registered task-owned terminal checker remain mandatory before the sole
+  submission.
