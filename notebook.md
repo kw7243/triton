@@ -507,3 +507,32 @@ Validation and remaining gate:
   fresh CPU preflight, live Torralba selection, complete stage audit, immutable launch
   manifest, and registered task-owned terminal checker remain mandatory before the sole
   submission.
+
+## 2026-09-03 — Phase A stage-only continuation correction
+
+Current state:
+
+- The task-owned progress wrapper let the required helper finish `--stage-only` in 54.37
+  seconds at fresh stage `20260903_141105-83ea60-0d79ada-code`; its SHA-256 remained
+  `8f98d17eafac255f294735aba35dfe97657b56bb9757ce1afee4ef6591225caf`.
+- Read-only verification matched 2,193 source/stage paths and 37,662,404 content bytes at
+  commit `0d79adad95c5d699fb21c9bd5d9aa8965f7fa211`, tree
+  `7df1e089186a93615a7e9cf167a3de254f7fa5b3`, with a clean tracked state, owned `.git`,
+  full `git fsck`, and no alternates.
+- The separate verifier correctly stopped because stage-only helper metadata truthfully has
+  an empty command while the old gate accepted only an in-helper `freeze-stage` command.
+  No checker, `sbatch`, GPU work, timing, retry, repair, or access to job `1579631` occurred.
+
+Correction:
+
+- `freeze-stage --stage-only-continuation` accepts only that exact empty helper command and
+  rechecks every source, stage, Git, metadata, scheduler, tracked-content, and complete-tree
+  byte gate. Symlinks, partial copies, mismatched invocation state, and nonempty commands
+  are rejected.
+- Before freezing, continuation exclusively creates mode-`0444` `stage_verification.json`.
+  It records the helper metadata, complete-tree digest, and exact separate Python argv,
+  working directory, and helper-equivalent environment; the launch manifest binds its hash.
+  Once that record exists, a second binding is forbidden even after interruption.
+- The correctness workload, record counts, fp16 thresholds, bf16 policy, no-timing scope,
+  one-submission ledger, TIG default-`ALL` export behavior, and Phase B prohibition are
+  unchanged.

@@ -19,8 +19,10 @@ from experiments.phase_a_decode.gpu_correctness.prepare_clean_rerun import (
     LEDGER_NAME,
     MANIFEST_NAME,
     MINIMUM_VRAM_BYTES,
+    PREPARER,
     PREFLIGHT_LABELS,
     REQUEST_NAME,
+    STAGE_VERIFICATION_NAME,
     PreparationError,
     clone_standalone_source,
     prepare_frozen_stage,
@@ -307,13 +309,13 @@ class PreparationTests(unittest.TestCase):
         make_writable(self.root)
         self.temporary.cleanup()
 
-    def make_stage_inputs(self) -> tuple[Path, Path, Path]:
+    def make_stage_inputs(self, *, stage_only: bool = False) -> tuple[Path, Path, Path]:
         stage = self.root / "staging" / "stage-code"
         shutil.copytree(self.standalone, stage, symlinks=True)
         atomic_write_json(
             stage / "REPRODUCIBILITY_METADATA.json",
             {
-                "command": f"{sys.executable} prepare_clean_rerun.py freeze-stage",
+                "command": "" if stage_only else f"{sys.executable} prepare_clean_rerun.py freeze-stage",
                 "created_at_utc": datetime.now(timezone.utc).isoformat(),
                 "cwd": str(self.standalone),
                 "git_commit_full": self.commit,
@@ -397,6 +399,41 @@ class PreparationTests(unittest.TestCase):
         )
         return stage, result, preflight
 
+    def stage_only_invocation(
+        self, stage: Path, result: Path, preflight: Path
+    ) -> dict[str, object]:
+        scheduler = result / "scheduler_selection.json"
+        return {
+            "schema": "vq-phase-a-stage-only-continuation-invocation/v1",
+            "argv": [
+                sys.executable,
+                PREPARER,
+                "freeze-stage",
+                "--stage-only-continuation",
+                "--source",
+                str(self.standalone),
+                "--result",
+                str(result),
+                "--cpu-preflight",
+                str(preflight),
+                "--scheduler-contract",
+                str(scheduler),
+                "--commit",
+                self.commit,
+                "--tree",
+                self.tree,
+                "--python",
+                sys.executable,
+                "--approved-root",
+                str(self.root),
+            ],
+            "cwd": str(stage),
+            "environment": {
+                "RESEARCH_REPRO_STAGED_DIR": str(stage),
+                "RESEARCH_REPRO_SOURCE_REPO": str(self.standalone),
+            },
+        }
+
     def prepare(self) -> tuple[Path, Path, dict[str, object]]:
         stage, result, preflight = self.make_stage_inputs()
         prepared = prepare_frozen_stage(
@@ -409,6 +446,22 @@ class PreparationTests(unittest.TestCase):
             self.tree,
             sys.executable,
             self.root,
+        )
+        return stage, result, prepared
+
+    def prepare_stage_only(self) -> tuple[Path, Path, dict[str, object]]:
+        stage, result, preflight = self.make_stage_inputs(stage_only=True)
+        prepared = prepare_frozen_stage(
+            self.standalone,
+            stage,
+            result,
+            preflight,
+            result / "scheduler_selection.json",
+            self.commit,
+            self.tree,
+            sys.executable,
+            self.root,
+            self.stage_only_invocation(stage, result, preflight),
         )
         return stage, result, prepared
 
@@ -446,6 +499,119 @@ class PreparationTests(unittest.TestCase):
         records = read_ledger(result / LEDGER_NAME)
         self.assertEqual([record["event"] for record in records], ["prepared"])
         self.assertEqual(records[0]["payload"]["sbatch_invocations"], 0)
+
+    def test_stage_only_continuation_binds_exact_split_boundary_once(self) -> None:
+        stage, result, _ = self.prepare_stage_only()
+        verification_path = result / STAGE_VERIFICATION_NAME
+        verification = json.loads(verification_path.read_text())
+        manifest = json.loads((result / MANIFEST_NAME).read_text())
+        self.assertEqual(stat.S_IMODE(verification_path.stat().st_mode), 0o444)
+        self.assertEqual(verification["mode"], "stage-only-continuation")
+        self.assertEqual(verification["helper_metadata"]["command"], "")
+        self.assertEqual(
+            verification["separate_freeze_invocation"]["environment"],
+            {
+                "RESEARCH_REPRO_STAGED_DIR": str(stage),
+                "RESEARCH_REPRO_SOURCE_REPO": str(self.standalone),
+            },
+        )
+        self.assertEqual(
+            manifest["stage_boundary"],
+            {
+                "mode": "stage-only-continuation",
+                "verification_file": STAGE_VERIFICATION_NAME,
+                "verification_sha256": sha256(verification_path),
+            },
+        )
+        with self.assertRaisesRegex(PreparationError, "already bound"):
+            prepare_frozen_stage(
+                self.standalone,
+                stage,
+                result,
+                result / "cpu_preflight.json",
+                result / "scheduler_selection.json",
+                self.commit,
+                self.tree,
+                sys.executable,
+                self.root,
+                verification["separate_freeze_invocation"],
+            )
+
+    def test_stage_only_continuation_rejects_nonempty_unrelated_command(self) -> None:
+        stage, result, preflight = self.make_stage_inputs(stage_only=True)
+        metadata_path = stage / "REPRODUCIBILITY_METADATA.json"
+        metadata = json.loads(metadata_path.read_text())
+        metadata["command"] = "python unrelated.py"
+        atomic_write_json(metadata_path, metadata)
+        with self.assertRaisesRegex(PreparationError, "requires an empty helper command"):
+            prepare_frozen_stage(
+                self.standalone,
+                stage,
+                result,
+                preflight,
+                result / "scheduler_selection.json",
+                self.commit,
+                self.tree,
+                sys.executable,
+                self.root,
+                self.stage_only_invocation(stage, result, preflight),
+            )
+
+    def test_stage_only_continuation_rejects_invocation_mismatch(self) -> None:
+        stage, result, preflight = self.make_stage_inputs(stage_only=True)
+        invocation = self.stage_only_invocation(stage, result, preflight)
+        invocation["environment"]["RESEARCH_REPRO_SOURCE_REPO"] = "/wrong/source"
+        with self.assertRaisesRegex(PreparationError, "environment mismatch"):
+            prepare_frozen_stage(
+                self.standalone,
+                stage,
+                result,
+                preflight,
+                result / "scheduler_selection.json",
+                self.commit,
+                self.tree,
+                sys.executable,
+                self.root,
+                invocation,
+            )
+
+    def test_stage_only_continuation_rejects_symlinked_metadata(self) -> None:
+        stage, result, preflight = self.make_stage_inputs(stage_only=True)
+        metadata_path = stage / "REPRODUCIBILITY_METADATA.json"
+        target = self.root / "metadata-target.json"
+        target.write_bytes(metadata_path.read_bytes())
+        metadata_path.unlink()
+        metadata_path.symlink_to(target)
+        with self.assertRaisesRegex(PreparationError, "metadata must not be a symlink"):
+            prepare_frozen_stage(
+                self.standalone,
+                stage,
+                result,
+                preflight,
+                result / "scheduler_selection.json",
+                self.commit,
+                self.tree,
+                sys.executable,
+                self.root,
+                self.stage_only_invocation(stage, result, preflight),
+            )
+
+    def test_stage_only_continuation_rejects_partial_stage(self) -> None:
+        stage, result, preflight = self.make_stage_inputs(stage_only=True)
+        (stage / EXECUTABLE_INPUTS[0]).unlink()
+        with self.assertRaisesRegex(PreparationError, "repository status entries"):
+            prepare_frozen_stage(
+                self.standalone,
+                stage,
+                result,
+                preflight,
+                result / "scheduler_selection.json",
+                self.commit,
+                self.tree,
+                sys.executable,
+                self.root,
+                self.stage_only_invocation(stage, result, preflight),
+            )
 
     def test_submit_once_records_one_response_and_refuses_retry(self) -> None:
         stage, result, _ = self.prepare()

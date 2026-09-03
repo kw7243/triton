@@ -32,7 +32,9 @@ MANIFEST_NAME = "launch_manifest.json"
 MANIFEST_DIGEST_NAME = "launch_manifest.sha256"
 REQUEST_NAME = "submission_request.json"
 LEDGER_NAME = "attempt_ledger.jsonl"
+STAGE_VERIFICATION_NAME = "stage_verification.json"
 RUNNER = "experiments/phase_a_decode/gpu_correctness/run_gpu_correctness.sbatch"
+PREPARER = "experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py"
 EXECUTABLE_INPUTS = (
     "experiments/phase_a_decode/benchmark.py",
     "experiments/phase_a_decode/cpu_correctness/oracle.py",
@@ -158,7 +160,8 @@ def verify_self_contained_repo(
     compare_objects_with: Path | None = None,
 ) -> dict[str, Any]:
     repo = repo.resolve(strict=True)
-    if not (repo / ".git").is_dir():
+    git_dir = repo / ".git"
+    if git_dir.is_symlink() or not git_dir.is_dir():
         raise PreparationError(f"{repo}/.git must be a directory, not a worktree pointer")
     top = _git_path(repo, "--show-toplevel")
     common = _git_path(repo, "--git-common-dir")
@@ -169,7 +172,7 @@ def verify_self_contained_repo(
         if path != repo and repo not in path.parents:
             raise PreparationError(f"{label} escapes repository: {path}")
     alternates = objects / "info" / "alternates"
-    if alternates.exists():
+    if os.path.lexists(alternates):
         raise PreparationError(f"borrowed Git object store is forbidden: {alternates}")
     head = _git(repo, "rev-parse", "HEAD")
     tree = _git(repo, "rev-parse", "HEAD^{tree}")
@@ -485,6 +488,48 @@ def tracked_aggregate(repo: Path) -> tuple[int, str]:
     return len(paths), digest.hexdigest()
 
 
+def complete_tree_aggregate(
+    root: Path,
+    *,
+    excluded: Iterable[str] = (),
+    reject_symlinks: bool = False,
+) -> tuple[int, int, str]:
+    root = root.resolve(strict=True)
+    excluded_paths = set(excluded)
+    digest = hashlib.sha256()
+    records = 0
+    content_bytes = 0
+    for path in sorted(root.rglob("*"), key=lambda item: os.fsencode(str(item.relative_to(root)))):
+        relative = str(path.relative_to(root))
+        if relative in excluded_paths:
+            continue
+        info = path.lstat()
+        digest.update(os.fsencode(relative))
+        digest.update(b"\0")
+        digest.update(format(stat.S_IMODE(info.st_mode), "04o").encode())
+        digest.update(b"\0")
+        if path.is_symlink():
+            if reject_symlinks:
+                raise PreparationError(f"stage-only continuation forbids symlinks: {relative}")
+            target = os.readlink(path)
+            encoded = os.fsencode(target)
+            digest.update(b"link\0")
+            digest.update(encoded)
+            content_bytes += len(encoded)
+        elif path.is_dir():
+            digest.update(b"directory\0")
+        elif path.is_file():
+            digest.update(b"file\0")
+            digest.update(str(info.st_size).encode())
+            digest.update(b"\0")
+            digest.update(bytes.fromhex(sha256(path)))
+            content_bytes += info.st_size
+        else:
+            raise PreparationError(f"unsupported repository path type: {path}")
+        records += 1
+    return records, content_bytes, digest.hexdigest()
+
+
 def _freeze_stage(stage: Path) -> None:
     paths = sorted(stage.rglob("*"), key=lambda item: len(item.parts), reverse=True)
     for path in paths:
@@ -563,6 +608,30 @@ def _fsync_directory(path: Path) -> None:
         os.fsync(descriptor)
     finally:
         os.close(descriptor)
+
+
+def _create_immutable_json(path: Path, payload: dict[str, Any]) -> None:
+    encoded = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode()
+    try:
+        descriptor = os.open(
+            path,
+            os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0),
+            0o400,
+        )
+    except FileExistsError as exc:
+        raise PreparationError("stage-only continuation is already bound") from exc
+    try:
+        remaining = memoryview(encoded)
+        while remaining:
+            written = os.write(descriptor, remaining)
+            if written <= 0:
+                raise PreparationError("stage verification write made no progress")
+            remaining = remaining[written:]
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+    path.chmod(0o444)
+    _fsync_directory(path.parent)
 
 
 def create_ledger(path: Path, payload: dict[str, Any]) -> dict[str, Any]:
@@ -653,6 +722,95 @@ def _sbatch_environment(
     }
 
 
+def _expected_stage_only_continuation_args(
+    source: Path,
+    result: Path,
+    cpu_preflight: Path,
+    scheduler_contract: Path,
+    expected_commit: str,
+    expected_tree: str,
+    python: str,
+    approved_root: Path,
+) -> list[str]:
+    arguments = [
+        "freeze-stage",
+        "--stage-only-continuation",
+        "--source",
+        str(source),
+        "--result",
+        str(result),
+        "--cpu-preflight",
+        str(cpu_preflight),
+        "--scheduler-contract",
+        str(scheduler_contract),
+        "--commit",
+        expected_commit,
+        "--tree",
+        expected_tree,
+        "--python",
+        python,
+    ]
+    if approved_root.resolve() != DEFAULT_APPROVED_ROOT.resolve(strict=False):
+        arguments.extend(("--approved-root", str(approved_root)))
+    return arguments
+
+
+def validate_stage_only_continuation_invocation(
+    invocation: dict[str, Any],
+    *,
+    source: Path,
+    stage: Path,
+    result: Path,
+    cpu_preflight: Path,
+    scheduler_contract: Path,
+    expected_commit: str,
+    expected_tree: str,
+    python: str,
+    approved_root: Path,
+) -> dict[str, Any]:
+    expected_keys = {"schema", "argv", "cwd", "environment"}
+    if set(invocation) != expected_keys:
+        raise PreparationError("stage-only continuation invocation fields mismatch")
+    if invocation.get("schema") != "vq-phase-a-stage-only-continuation-invocation/v1":
+        raise PreparationError("stage-only continuation invocation schema mismatch")
+    argv = invocation.get("argv")
+    if not isinstance(argv, list) or len(argv) < 3 or not all(isinstance(item, str) for item in argv):
+        raise PreparationError("stage-only continuation invocation argv is invalid")
+    python_path = Path(python).resolve(strict=True)
+    if Path(argv[0]).resolve(strict=True) != python_path:
+        raise PreparationError("stage-only continuation Python mismatch")
+    script = Path(argv[1])
+    script = (stage / script).resolve(strict=True) if not script.is_absolute() else script.resolve(strict=True)
+    if script != (stage / PREPARER).resolve(strict=True):
+        raise PreparationError("stage-only continuation preparer path mismatch")
+    expected_args = _expected_stage_only_continuation_args(
+        source,
+        result,
+        cpu_preflight,
+        scheduler_contract,
+        expected_commit,
+        expected_tree,
+        python,
+        approved_root,
+    )
+    if argv[2:] != expected_args:
+        raise PreparationError("stage-only continuation freeze argv mismatch")
+    if invocation.get("cwd") != str(stage):
+        raise PreparationError("stage-only continuation cwd mismatch")
+    expected_environment = {
+        "RESEARCH_REPRO_STAGED_DIR": str(stage),
+        "RESEARCH_REPRO_SOURCE_REPO": str(source),
+    }
+    if invocation.get("environment") != expected_environment:
+        raise PreparationError("stage-only continuation environment mismatch")
+    return {
+        "schema": invocation["schema"],
+        "argv": list(argv),
+        "cwd": invocation["cwd"],
+        "environment": dict(expected_environment),
+    }
+
+
 def prepare_frozen_stage(
     source: Path,
     stage: Path,
@@ -663,7 +821,18 @@ def prepare_frozen_stage(
     expected_tree: str,
     python: str,
     approved_root: Path,
+    stage_only_continuation: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    if stage_only_continuation is not None:
+        for label, path in (
+            ("standalone source", source),
+            ("stage", stage),
+            ("result", result),
+            ("CPU preflight", cpu_preflight),
+            ("scheduler contract", scheduler_contract_path),
+        ):
+            if path.is_symlink():
+                raise PreparationError(f"stage-only continuation {label} must not be a symlink")
     source = _canonical_child(source, approved_root / "standalone-sources", "standalone source")
     stage = _canonical_child(stage, approved_root / "staging", "stage")
     result = _canonical_child(result, approved_root / "results", "result")
@@ -686,6 +855,12 @@ def prepare_frozen_stage(
         raise PreparationError("source, stage, and result paths must be distinct")
     if cpu_preflight.parent != result or scheduler_contract_path.parent != result:
         raise PreparationError("preflight and scheduler contract must be in the result root")
+    stage_verification_path = result / STAGE_VERIFICATION_NAME
+    if stage_only_continuation is not None:
+        if stage_verification_path.is_symlink():
+            raise PreparationError("stage-only continuation binding must not be a symlink")
+        if stage_verification_path.exists():
+            raise PreparationError("stage-only continuation is already bound")
 
     source_identity = verify_self_contained_repo(source, expected_commit)
     stage_identity = verify_self_contained_repo(
@@ -698,6 +873,8 @@ def prepare_frozen_stage(
         raise PreparationError("source/stage tree does not match the declared launch tree")
 
     metadata_path = stage / METADATA_NAME
+    if stage_only_continuation is not None and metadata_path.is_symlink():
+        raise PreparationError("stage-only continuation metadata must not be a symlink")
     metadata = read_json(metadata_path)
     required_metadata = {
         "source_repo": str(source),
@@ -719,15 +896,36 @@ def prepare_frozen_stage(
     created_at = _parse_timestamp(metadata.get("created_at_utc"))
     if created_at > datetime.now(timezone.utc) + timedelta(minutes=1):
         raise PreparationError("reproducibility metadata creation time is in the future")
-    for key in ("command", "hostname"):
-        if not isinstance(metadata.get(key), str) or not metadata[key].strip():
-            raise PreparationError(f"reproducibility metadata needs nonempty {key}")
-    try:
-        metadata_command = shlex.split(metadata["command"])
-    except ValueError as exc:
-        raise PreparationError("reproducibility metadata command is malformed") from exc
-    if "freeze-stage" not in metadata_command:
-        raise PreparationError("reproducibility metadata command is not the stage verifier")
+    if not isinstance(metadata.get("hostname"), str) or not metadata["hostname"].strip():
+        raise PreparationError("reproducibility metadata needs nonempty hostname")
+    if stage_only_continuation is not None:
+        expected_metadata_keys = {
+            "command",
+            "created_at_utc",
+            "cwd",
+            "git_commit_full",
+            "git_commit_short",
+            "git_status_short",
+            "hostname",
+            "source_repo",
+            "staged_repo",
+        }
+        if set(metadata) != expected_metadata_keys:
+            raise PreparationError("stage-only continuation metadata fields mismatch")
+        if metadata.get("command") != "":
+            raise PreparationError("stage-only continuation requires an empty helper command")
+        age = datetime.now(timezone.utc) - created_at
+        if age.total_seconds() < -60 or age.total_seconds() > 15 * 60:
+            raise PreparationError("stage-only continuation metadata must be captured within 15 minutes")
+    else:
+        if not isinstance(metadata.get("command"), str) or not metadata["command"].strip():
+            raise PreparationError("reproducibility metadata needs nonempty command")
+        try:
+            metadata_command = shlex.split(metadata["command"])
+        except ValueError as exc:
+            raise PreparationError("reproducibility metadata command is malformed") from exc
+        if "freeze-stage" not in metadata_command:
+            raise PreparationError("reproducibility metadata command is not the stage verifier")
 
     preflight = read_json(cpu_preflight)
     if (
@@ -786,6 +984,62 @@ def prepare_frozen_stage(
     if (source_count, source_hash) != (stage_count, stage_hash):
         raise PreparationError("source/stage tracked content differs")
 
+    if stage_only_continuation is not None:
+        source_complete = complete_tree_aggregate(source, reject_symlinks=True)
+        stage_complete = complete_tree_aggregate(
+            stage,
+            excluded=(METADATA_NAME,),
+            reject_symlinks=True,
+        )
+        if source_complete != stage_complete:
+            raise PreparationError("stage-only continuation complete source/stage bytes differ")
+        invocation = validate_stage_only_continuation_invocation(
+            stage_only_continuation,
+            source=source,
+            stage=stage,
+            result=result,
+            cpu_preflight=cpu_preflight,
+            scheduler_contract=scheduler_contract_path,
+            expected_commit=expected_commit,
+            expected_tree=expected_tree,
+            python=python,
+            approved_root=approved_root.resolve(strict=True),
+        )
+        stage_verification = {
+            "schema": "vq-phase-a-stage-only-continuation/v1",
+            "bound_at_utc": utc_now(),
+            "mode": "stage-only-continuation",
+            "helper_metadata": metadata,
+            "helper_metadata_sha256": sha256(metadata_path),
+            "source_identity": source_identity,
+            "stage_identity_before_freeze": stage_identity,
+            "complete_tree": {
+                "path_records": source_complete[0],
+                "content_bytes": source_complete[1],
+                "sha256": source_complete[2],
+            },
+            "tracked_files": stage_count,
+            "tracked_content_sha256": stage_hash,
+            "separate_freeze_invocation": invocation,
+            "binding_policy": {
+                "exclusive_create": True,
+                "repeat_forbidden": True,
+                "partial_stage_forbidden": True,
+                "symlinks_forbidden": True,
+            },
+        }
+        _create_immutable_json(stage_verification_path, stage_verification)
+        stage_boundary = {
+            "mode": "stage-only-continuation",
+            "verification_file": STAGE_VERIFICATION_NAME,
+            "verification_sha256": sha256(stage_verification_path),
+        }
+    else:
+        stage_boundary = {
+            "mode": "single-helper-command",
+            "helper_command": metadata["command"],
+        }
+
     _freeze_stage(stage)
     stage_identity = verify_self_contained_repo(
         stage,
@@ -810,6 +1064,7 @@ def prepare_frozen_stage(
         "tracked_content_sha256": stage_hash,
         "stage_inventory": inventory,
         "stage_inventory_sha256": inventory_digest(inventory),
+        "stage_boundary": stage_boundary,
         "reproducibility_metadata_sha256": sha256(metadata_path),
         "cpu_preflight": {"file": cpu_preflight.name, "sha256": sha256(cpu_preflight)},
         "environment_identity": environment_identity,
@@ -1019,6 +1274,7 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     preflight.add_argument("--commit", required=True)
 
     freeze = subparsers.add_parser("freeze-stage")
+    freeze.add_argument("--stage-only-continuation", action="store_true")
     freeze.add_argument("--source", type=Path, required=True)
     freeze.add_argument(
         "--stage",
@@ -1038,7 +1294,8 @@ def _parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = _parse_args(argv)
+    process_args = list(sys.argv[1:] if argv is None else argv)
+    args = _parse_args(process_args)
     if args.command == "clone-source":
         result = clone_standalone_source(args.source, args.destination, args.commit, args.approved_root)
     elif args.command == "cpu-preflight":
@@ -1048,6 +1305,21 @@ def main(argv: Sequence[str] | None = None) -> int:
             raise PreparationError(
                 "--stage or RESEARCH_REPRO_STAGED_DIR is required for freeze-stage"
             )
+        continuation = None
+        if args.stage_only_continuation:
+            continuation = {
+                "schema": "vq-phase-a-stage-only-continuation-invocation/v1",
+                "argv": [sys.executable, sys.argv[0], *process_args],
+                "cwd": str(Path.cwd().resolve()),
+                "environment": {
+                    "RESEARCH_REPRO_STAGED_DIR": os.environ.get(
+                        "RESEARCH_REPRO_STAGED_DIR", ""
+                    ),
+                    "RESEARCH_REPRO_SOURCE_REPO": os.environ.get(
+                        "RESEARCH_REPRO_SOURCE_REPO", ""
+                    ),
+                },
+            }
         result = prepare_frozen_stage(
             args.source,
             args.stage,
@@ -1058,6 +1330,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             args.tree,
             args.python,
             args.approved_root,
+            continuation,
         )
     print(json.dumps(result, indent=2, sort_keys=True))
     return 0

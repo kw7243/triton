@@ -110,13 +110,52 @@ Run these only after a separate launch authorization. Use new canonical paths un
    makes the entire stage read-only and binds its recursive path/type/mode/size/SHA-256
    inventory into `launch_manifest.json`.
 
+   If the copy and verifier cannot fit in one foreground SSH transport, use the helper's
+   documented `--stage-only` boundary exactly once. Do not edit its metadata. The helper
+   must exit zero with an empty `command` field, then the separate verifier must use this
+   exact argument order and the same two environment values the helper normally exports:
+
+   ```bash
+   (
+     cd "$STANDALONE_SOURCE"
+     /afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh \
+       --repo-root "$STANDALONE_SOURCE" \
+       --staging-parent /data/scratch-fast/kwen1/compute-native-vq/staging \
+       --stage-only
+   )
+   STAGE="<fresh path printed by the helper>"
+
+   (
+     cd "$STAGE"
+     export RESEARCH_REPRO_STAGED_DIR="$STAGE"
+     export RESEARCH_REPRO_SOURCE_REPO="$STANDALONE_SOURCE"
+     "$PYTHON" experiments/phase_a_decode/gpu_correctness/prepare_clean_rerun.py \
+       freeze-stage \
+       --stage-only-continuation \
+       --source "$STANDALONE_SOURCE" \
+       --result "$RESULT_ROOT" \
+       --cpu-preflight "$RESULT_ROOT/cpu_preflight.json" \
+       --scheduler-contract "$RESULT_ROOT/scheduler_selection.json" \
+       --commit "$R" \
+       --tree "$T" \
+       --python "$PYTHON"
+   )
+   ```
+
+   Continuation mode requires fresh scheduler and helper evidence, exact source/stage
+   identities, a complete byte-for-byte tree match, and no symlinks. Before changing stage
+   modes, it exclusively creates immutable `stage_verification.json` with the truthful empty
+   helper command and the exact second-process argv, working directory, and environment.
+   A mismatch, partial stage, unrelated nonempty command, existing binding, or interrupted
+   post-binding preparation stops permanently; the stage cannot be repaired or rebound.
+
 ## Prepared launch boundary
 
 A successful preparation creates these files in the fresh result root:
 
 - `launch_manifest.json` and `launch_manifest.sha256`: immutable commit/tree, stage
-  inventory, metadata/preflight/config hashes, selected scheduler tuple, exact benchmark
-  argv, result schema, and correctness/no-timing contract;
+  inventory, stage-boundary evidence, metadata/preflight/config hashes, selected scheduler
+  tuple, exact benchmark argv, result schema, and correctness/no-timing contract;
 - `submission_request.json`: exact one-shot `sbatch` argv and manifest-bound submission
   environment;
 - `attempt_ledger.jsonl`: an fsynced hash chain beginning with zero submissions and no
