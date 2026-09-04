@@ -576,3 +576,23 @@ Next step:
 - Commit the verifier fix, refresh and hash the resumable scratch source to that exact
   commit, then create one new helper-owned immutable stage. No submission occurs before
   the stage and task-owned terminal checker both pass.
+
+## 2026-09-04 — Phase A clean correctness rerun terminal disposition
+
+- Job `1681752` completed with payload exit `0` and scientific classification `PASS`.
+  All eight fp16 and eight bf16 records passed the fixed bitwise, axis, finite, and
+  declared oracle/tolerance checks.
+- The exact source and immutable stage both resolve to commit
+  `febb7c231d116da54e6b0954d7d4d82c082cfdb9`, tree
+  `fe286e082e1302f23e9f66985ee209ff8cd7e0f5`. The durable result root is
+  `/data/scratch-fast/kwen1/compute-native-vq/results/20260903_202836-febb7c2-vq-phase-a-clean-correctness-r1`.
+- A read-only terminal audit returned `PASS` with no artifact errors. It verified the
+  self-contained source/stage Git identities, frozen stage inventory, hash-chained
+  one-submit ledger, manifest bindings, stable artifact hashes, and mutation-free audit.
+  Launch manifest SHA-256 is
+  `a15c2696093d9009f2241707db79ebba3ebe4ae635efe8f9d81de68bbd4c2bc1`; final result
+  manifest SHA-256 is
+  `fe747a3e651e63f90614288ca36b50b0a21bd47d76d544b5d72dbb6de3b8ecc0`.
+- Timing, tuning, and CUDA graphs were not executed, and no forbidden timing or decision
+  artifact was present. No Phase B work was started; the fleet remains paused for the
+  approved storage cutover.
