@@ -742,3 +742,35 @@ Remaining issue:
 - No cancellation, requeue, automatic retry, alternate tuple, second allocation, second
   `srun`, correctness rerun, H-cache, fused attention, model evaluation, or later-phase
   work is authorized. Any other gate failure ends as `NO RESULT`.
+
+### Terminal disposition
+
+- `NO RESULT`. The sole helper invocation targeted
+  `/data/scratch-fast/kwen1/compute-native-vq/staging/20260906T161727Z-phase-a-timing-gate-retry1/20260906_122318-d7b996-ea9c634b8-code`
+  and ended without `Staging complete`. The leaf has no
+  `REPRODUCIBILITY_METADATA.json`; its 119-byte `.git` remains an external pointer to the
+  foreign canonical Git store. It was not completed, repaired, frozen, or reused.
+- The preparation source was commit
+  `ea9c634b8cb07a3c5795827d3527b484e15990eb`, tree
+  `41f4bad6e38adecb8e4c0cdadbcf996807300cc0`. The helper SHA-256 was
+  `44e5dc6f1a958b1f4b32e8dceeb49814885ad8dcca59716090ca87b1033731fa`.
+- Canonical failure evidence is owner-only at
+  `/data/vision/torralba/u/kwen1/compute-native-vq/results/20260906T161727Z-phase-a-timing-gate-retry1`.
+  `NO_RESULT.md` SHA-256 is
+  `d6d928d503e39d9d40bea8e711d5f36382e7115738c653fe12fe81b7f9db44e7`;
+  `partial_stage_inventory.json` SHA-256 is
+  `2d313e3931d77e4551c8faf9cd479d190cf26acf137aebdf567b0c76bebd0905`;
+  `staging_failure.json` SHA-256 is
+  `4033194cad4b2847a699986b91ce1cb818fc94e701a7f426d90789c94d8cd3f7`;
+  `evidence.sha256` SHA-256 is
+  `36823994810a30f9209ec40effbd6a61f4a7a56a3ad95e784df07e119ea35c85`.
+- The partial-stage inventory records 1,864 entries, 26,746,098 regular-file bytes,
+  and content digest
+  `c6be4ac5702a49f8ede536fa660a47586296f4b74ea79fcc0085e28c75b6b98a`.
+- Before staging, 12 timing-gate tests, ShellCheck, `bash -n`, source-byte compilation,
+  and `git diff --check` passed. No native build was needed because only Python, shell,
+  tests, and the notebook changed.
+- No scheduler census, manifest, ledger, submission, job/allocation, checker, runtime
+  artifact, timing output, table, or plot exists for this retry. Payload-start count is
+  zero. The launch-only interactive fallback is ineligible after a staging failure.
+  J/F/H remains unmeasured, and Phase C plus every later lane remains blocked.
