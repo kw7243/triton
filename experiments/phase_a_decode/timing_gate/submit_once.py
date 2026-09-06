@@ -79,10 +79,17 @@ def main() -> int:
         raise RuntimeError("submission budget is already consumed")
     if any(name.startswith("SBATCH_") for name in os.environ):
         raise RuntimeError("ambient SBATCH_* variables are forbidden")
-    if any(argument.startswith("--export") for argument in request["sbatch_argv"]):
-        raise RuntimeError("submission must use the site's default clean export")
-    if request.get("export_policy") != "default-ALL; no --export option":
+    exports = [
+        argument for argument in request["sbatch_argv"] if argument.startswith("--export")
+    ]
+    if exports != ["--export=NIL"]:
+        raise RuntimeError("submission must use exactly literal --export=NIL")
+    if request.get("export_policy") != (
+        "literal --export=NIL; required values assigned in script"
+    ):
         raise RuntimeError("submission export policy mismatch")
+    if request.get("launch_route") != "batch-primary":
+        raise RuntimeError("submission route mismatch")
     stage = Path(request["cwd"]).resolve(strict=True)
     if Path.cwd().resolve(strict=True) != stage:
         raise RuntimeError("submission must run from the frozen stage")
@@ -99,8 +106,9 @@ def main() -> int:
         raise RuntimeError("prepared ledger already records a submission")
     append(
         args.ledger,
-        "submission_started",
+        "route_selected",
         {
+            "launch_route": "batch-primary",
             "launch_manifest_sha256": digest,
             "submission_request_sha256": file_sha256(args.request),
             "sbatch_invocations": 1,
@@ -108,12 +116,10 @@ def main() -> int:
             "sbatch_argv": request["sbatch_argv"],
         },
     )
-    environment = dict(os.environ)
-    environment.update(request["environment"])
     completed = subprocess.run(
         request["sbatch_argv"],
         cwd=stage,
-        env=environment,
+        env=dict(os.environ),
         text=True,
         capture_output=True,
         check=False,

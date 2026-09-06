@@ -1,16 +1,38 @@
 #!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
 
 set -euo pipefail
 umask 077
 
-SOURCE_REPO=${SOURCE_REPO:?SOURCE_REPO is required}
-STAGED_REPO=${RESEARCH_REPRO_STAGED_DIR:?RESEARCH_REPRO_STAGED_DIR is required}
-RESULT_DIR=${RESULT_DIR:?RESULT_DIR is required}
-MANIFEST_PATH=${PHASE_A_MANIFEST_PATH:?PHASE_A_MANIFEST_PATH is required}
-MANIFEST_SHA256=${PHASE_A_MANIFEST_SHA256:?PHASE_A_MANIFEST_SHA256 is required}
-PYTHON=${PHASE_A_PYTHON:?PHASE_A_PYTHON is required}
-CACHE_ROOT=${PHASE_A_CACHE_ROOT:?PHASE_A_CACHE_ROOT is required}
-TMP_CHILD=${PHASE_A_TMP_CHILD:?PHASE_A_TMP_CHILD is required}
+if [[ "$#" -ne 9 ]]; then
+  echo "usage: run_timing.sbatch SOURCE STAGE RESULT MANIFEST MANIFEST_SHA256 PYTHON CACHE_ROOT TMP_CHILD ROUTE" >&2
+  exit 2
+fi
+
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+SOURCE_REPO="$1"
+STAGED_REPO="$2"
+RESULT_DIR="$3"
+MANIFEST_PATH="$4"
+MANIFEST_SHA256="$5"
+PYTHON="$6"
+CACHE_ROOT="$7"
+TMP_CHILD="$8"
+LAUNCH_ROUTE="$9"
+export SOURCE_REPO
+export RESEARCH_REPRO_STAGED_DIR="$STAGED_REPO"
+export RESULT_DIR
+export PHASE_A_MANIFEST_PATH="$MANIFEST_PATH"
+export PHASE_A_MANIFEST_SHA256="$MANIFEST_SHA256"
+export PHASE_A_PYTHON="$PYTHON"
+export PHASE_A_CACHE_ROOT="$CACHE_ROOT"
+export PHASE_A_TMP_CHILD="$TMP_CHILD"
+export PHASE_A_LAUNCH_ROUTE="$LAUNCH_ROUTE"
+case "$LAUNCH_ROUTE" in
+  batch-primary|interactive-fallback) ;;
+  *) echo "invalid launch route: $LAUNCH_ROUTE" >&2; exit 2 ;;
+esac
 RUNTIME="$STAGED_REPO/experiments/phase_a_decode/timing_gate/runtime.py"
 VALIDATOR="$STAGED_REPO/experiments/phase_a_decode/timing_gate/validate_environment.py"
 BENCHMARK="$STAGED_REPO/experiments/phase_a_decode/timing_gate/run_timing.py"
@@ -80,6 +102,12 @@ mkdir -m 700 "$PIP_CACHE_DIR" "$TRITON_CACHE_DIR" "$XDG_CACHE_HOME" \
   --output "$RESULT_DIR/environment_validation.json"
 
 cd "$STAGED_REPO"
+"$PYTHON" -B "$RUNTIME" payload-start \
+  --result "$RESULT_DIR" \
+  --manifest-sha256 "$MANIFEST_SHA256" \
+  --source "$SOURCE_REPO" \
+  --stage "$STAGED_REPO" \
+  --route "$LAUNCH_ROUTE"
 "$PYTHON" -B "$BENCHMARK" \
   --output "$RESULT_DIR" \
   --seed 0 \

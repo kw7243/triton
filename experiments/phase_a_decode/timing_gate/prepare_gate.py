@@ -271,6 +271,9 @@ def build_manifest(args: argparse.Namespace) -> None:
             "retry": False,
             "alternate_tuple": False,
             "manual_polling_after_acceptance": False,
+            "payload_starts_maximum_across_ladder": 1,
+            "recovery_ladder": ["batch-primary", "interactive-fallback"],
+            "fallback_requires_terminal_batch_without_payload_start": True,
         },
     }
     atomic_write(manifest_path, manifest, mode=0o400)
@@ -296,8 +299,18 @@ def build_manifest(args: argparse.Namespace) -> None:
         f"--mem={selected['memory']}",
         f"--time={selected['wall_time']}",
         "--no-requeue",
+        "--export=NIL",
         f"--output={stdout}",
         str(stage / "experiments/phase_a_decode/timing_gate/run_timing.sbatch"),
+        str(source),
+        str(stage),
+        str(result),
+        str(manifest_path),
+        manifest_digest,
+        str(args.python.resolve(strict=True)),
+        str(args.cache_root),
+        args.tmp_child,
+        "batch-primary",
     ]
     request = {
         "schema": "vq-phase-a-timing-submission/v1",
@@ -306,17 +319,8 @@ def build_manifest(args: argparse.Namespace) -> None:
         "launch_manifest": str(manifest_path),
         "cwd": str(stage),
         "sbatch_argv": sbatch,
-        "export_policy": "default-ALL; no --export option",
-        "environment": {
-            "SOURCE_REPO": str(source),
-            "RESEARCH_REPRO_STAGED_DIR": str(stage),
-            "RESULT_DIR": str(result),
-            "PHASE_A_MANIFEST_PATH": str(manifest_path),
-            "PHASE_A_MANIFEST_SHA256": manifest_digest,
-            "PHASE_A_PYTHON": str(args.python.resolve(strict=True)),
-            "PHASE_A_CACHE_ROOT": str(args.cache_root),
-            "PHASE_A_TMP_CHILD": args.tmp_child,
-        },
+        "launch_route": "batch-primary",
+        "export_policy": "literal --export=NIL; required values assigned in script",
         "benchmark_argv": benchmark,
     }
     atomic_write(request_path, request, mode=0o400)

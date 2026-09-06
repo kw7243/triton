@@ -7,7 +7,7 @@ import pytest
 
 from contract import SECONDARY_SIZES, benchmark_argv, classify, snapshot
 from inventory import build
-from runtime import atomic_json, finalize, start, validate_timing
+from runtime import atomic_json, finalize, payload_start, start, validate_timing
 
 
 def rows(speedups=(1.0, 1.0), stable=True):
@@ -118,9 +118,17 @@ def test_timing_validation_and_final_manifest(tmp_path, monkeypatch):
     assert classification == "GO"
     assert errors == []
     monkeypatch.setenv("SLURM_JOB_ID", "123")
+    atomic_json(
+        tmp_path / "environment_validation.json",
+        {"status": "passed", "launch_manifest_sha256": digest},
+    )
+    payload_start(
+        tmp_path, digest, "/research/source", "/scratch/stage", "batch-primary"
+    )
     final = finalize(tmp_path, 0, digest, "/research/source", "/scratch/stage")
     assert final["classification"] == "GO"
     assert final["job_id"] == "123"
+    assert final["payload_start_count"] == 1
     assert json.loads((tmp_path / "final_result_manifest.json").read_text()) == final
 
 
@@ -137,3 +145,26 @@ def test_declared_decision_drift_fails_closed(tmp_path):
     classification, errors = validate_timing(tmp_path, digest)
     assert classification == "NO RESULT"
     assert "declared classification differs" in errors[0]
+
+
+def test_payload_start_is_manifest_bound_and_exclusive(tmp_path, monkeypatch):
+    digest = "d" * 64
+    monkeypatch.setenv("SLURM_JOB_ID", "456")
+    atomic_json(
+        tmp_path / "environment_validation.json",
+        {"status": "passed", "launch_manifest_sha256": digest},
+    )
+    payload_start(
+        tmp_path, digest, "/research/source", "/scratch/stage", "batch-primary"
+    )
+    latch = json.loads((tmp_path / "payload_start_latch.json").read_text())
+    assert latch["launch_manifest_sha256"] == digest
+    assert latch["payload_start_ordinal"] == 1
+    with pytest.raises(FileExistsError):
+        payload_start(
+            tmp_path,
+            digest,
+            "/research/source",
+            "/scratch/stage",
+            "interactive-fallback",
+        )

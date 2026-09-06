@@ -18,6 +18,7 @@ from contract import FINAL_SCHEMA, RESULT_SCHEMA, SECONDARY_SIZES, classify, sna
 
 
 FINAL_NAME = "final_result_manifest.json"
+PAYLOAD_START_NAME = "payload_start_latch.json"
 
 
 def utc_now() -> str:
@@ -61,6 +62,28 @@ def atomic_json(path: Path, value: dict[str, Any], mode: int = 0o600) -> None:
         json.dumps(value, indent=2, sort_keys=True, allow_nan=False) + "\n",
         mode,
     )
+
+
+def exclusive_json(path: Path, value: dict[str, Any], mode: int = 0o400) -> None:
+    """Create a durable one-time record without an overwrite path."""
+    descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, mode)
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
+            json.dump(value, stream, indent=2, sort_keys=True, allow_nan=False)
+            stream.write("\n")
+            stream.flush()
+            os.fsync(stream.fileno())
+        parent = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(parent)
+        finally:
+            os.close(parent)
+    except BaseException:
+        try:
+            path.unlink()
+        except FileNotFoundError:
+            pass
+        raise
 
 
 def read_json(path: Path) -> dict[str, Any]:
@@ -108,6 +131,36 @@ def start(root: Path, digest: str, source: str, stage: str) -> None:
             "boundary": "runtime_started_before_validation",
             "recorded_at_utc": utc_now(),
             "launch_manifest_sha256": digest,
+        },
+    )
+
+
+def payload_start(root: Path, digest: str, source: str, stage: str, route: str) -> None:
+    """Consume the single scientific-payload budget immediately before benchmark exec."""
+    if re.fullmatch(r"[0-9a-f]{64}", digest) is None:
+        raise ValueError("invalid launch manifest SHA-256")
+    if route not in {"batch-primary", "interactive-fallback"}:
+        raise ValueError("invalid launch route")
+    job_id = os.environ.get("SLURM_JOB_ID")
+    if not job_id or re.fullmatch(r"[0-9]+", job_id) is None:
+        raise RuntimeError("numeric SLURM_JOB_ID is required")
+    validation = read_json(root / "environment_validation.json")
+    if validation.get("status") != "passed":
+        raise RuntimeError("environment validation did not pass")
+    if validation.get("launch_manifest_sha256") != digest:
+        raise RuntimeError("environment validation manifest binding mismatch")
+    exclusive_json(
+        root / PAYLOAD_START_NAME,
+        {
+            "schema": "vq-phase-a-timing-payload-start/v1",
+            "recorded_at_utc": utc_now(),
+            "job_id": job_id,
+            "launch_route": route,
+            "launch_manifest_sha256": digest,
+            "source_repo": source,
+            "staged_repo": stage,
+            "result_root": str(root),
+            "payload_start_ordinal": 1,
         },
     )
 
@@ -206,6 +259,7 @@ def finalize(
         "source_repo": source,
         "staged_repo": stage,
         "result_root": str(root),
+        "payload_start_count": int((root / PAYLOAD_START_NAME).is_file()),
         "files": files,
     }
     atomic_json(root / FINAL_NAME, value)
@@ -216,16 +270,27 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
     begin = sub.add_parser("start")
+    payload = sub.add_parser("payload-start")
     finish = sub.add_parser("finalize")
-    for current in (begin, finish):
+    for current in (begin, payload, finish):
         current.add_argument("--result", type=Path, required=True)
         current.add_argument("--manifest-sha256", required=True)
         current.add_argument("--source", required=True)
         current.add_argument("--stage", required=True)
+    payload.add_argument("--route", required=True)
     finish.add_argument("--payload-exit-code", type=int, required=True)
     args = parser.parse_args()
     if args.command == "start":
         start(args.result, args.manifest_sha256, args.source, args.stage)
+        return 0
+    if args.command == "payload-start":
+        payload_start(
+            args.result,
+            args.manifest_sha256,
+            args.source,
+            args.stage,
+            args.route,
+        )
         return 0
     value = finalize(
         args.result,

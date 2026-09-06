@@ -15,6 +15,7 @@ from typing import Any
 
 from inventory import build, file_sha256
 from runtime import atomic_json
+from runtime import PAYLOAD_START_NAME
 
 
 TERMINAL_STATES = {
@@ -130,12 +131,14 @@ def main() -> int:
         else {}
     )
     runtime = safe_object(root / "runtime_start.json", "runtime start", errors)
+    payload_start = safe_object(root / PAYLOAD_START_NAME, "payload start", errors)
     environment = safe_object(
         root / "environment_validation.json", "environment validation", errors
     )
     for name, value in (
         ("final result", final),
         ("runtime start", runtime),
+        ("payload start", payload_start),
         ("environment validation", environment),
     ):
         if value.get("launch_manifest_sha256") != args.manifest_sha256:
@@ -144,6 +147,12 @@ def main() -> int:
         errors.append("timing output manifest binding mismatch")
     if final.get("job_id") != args.job_id or runtime.get("job_id") != args.job_id:
         errors.append("runtime/final job ID mismatch")
+    if payload_start.get("job_id") != args.job_id:
+        errors.append("payload-start job ID mismatch")
+    if payload_start.get("payload_start_ordinal") != 1:
+        errors.append("payload-start ordinal mismatch")
+    if final.get("payload_start_count") != 1:
+        errors.append("final result does not record exactly one payload start")
     if environment.get("status") != "passed" and final.get("classification") != "NO RESULT":
         errors.append("scientific classification exists without environment PASS")
     for name, expected in final.get("files", {}).items():
@@ -170,9 +179,9 @@ def main() -> int:
         errors.append(f"attempt ledger invalid: {exc}")
         values = []
     accepted = [value for value in values if value.get("event") == "accepted"]
-    started = [value for value in values if value.get("event") == "submission_started"]
+    started = [value for value in values if value.get("event") == "route_selected"]
     if len(started) != 1 or len(accepted) != 1:
-        errors.append("ledger does not contain exactly one submission and acceptance")
+        errors.append("ledger does not contain exactly one selected route and acceptance")
     elif accepted[0].get("payload", {}).get("accepted_job_id") != args.job_id:
         errors.append("ledger accepted job differs")
     accounting_value, accounting_errors = accounting(args.accounting, args.job_id)
@@ -219,6 +228,7 @@ def main() -> int:
         "classification": final.get("classification") if not errors else "NO RESULT",
         "job_id": args.job_id,
         "launch_manifest_sha256": args.manifest_sha256,
+        "payload_start_count": int(bool(payload_start)),
         "accounting": accounting_value,
         "stage_inventory_digest": current.get("content_digest"),
         "artifact_records": artifact_records,

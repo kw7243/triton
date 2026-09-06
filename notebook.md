@@ -715,3 +715,29 @@ Remaining issue:
 - Phase A J/F/H latency and speedup are still unmeasured. A future timing attempt
   requires separate captain authority and a fresh task; this task makes no
   optimization or fused-attention recommendation.
+
+## 2026-09-06 — Authorized bounded Phase A timing retry
+
+- The captain authorized one bounded recovery ladder for the same post-correctness J/F/H
+  timing gate. This is not a second scientific attempt: one manifest-bound atomic latch
+  limits the entire ladder to at most one benchmark payload start. Correctness job
+  `1681752`, cancelled job `1579631`, and both historical timing stage/result trees remain
+  final, byte-preserved evidence and will not be queried or reused.
+- Canonical source remains the clean owner-only worktree
+  `/data/vision/torralba/u/kwen1/compute-native-vq/worktrees/20260906T014200Z-phase-a-scientific-gate`
+  on `fm/phase-a-scientific-gate`. The foreign dirty root checkout remains untouched.
+- New stage is predeclared as
+  `/data/scratch-fast/kwen1/compute-native-vq/staging/20260906T161727Z-phase-a-timing-gate-retry1`;
+  new result root is
+  `/data/vision/torralba/u/kwen1/compute-native-vq/results/20260906T161727Z-phase-a-timing-gate-retry1`.
+- The primary route is exactly one unattended `sbatch --parsable ... --no-requeue
+  --export=NIL` using one selected Torralba GPU and a fixed tuple recorded after the live
+  read-only scheduler census. Every required non-Slurm value is assigned inside the batch
+  script from manifest-bound positional arguments after all `#SBATCH` directives.
+- The fallback is exactly one `salloc` and at most one `srun --pty` on that same tuple. It
+  is eligible only if batch is unavailable before acceptance or one accepted batch job is
+  durably terminal and its shared payload-start latch is absent. A live, missing,
+  nonterminal, or ambiguous batch record forbids fallback.
+- No cancellation, requeue, automatic retry, alternate tuple, second allocation, second
+  `srun`, correctness rerun, H-cache, fused attention, model evaluation, or later-phase
+  work is authorized. Any other gate failure ends as `NO RESULT`.
