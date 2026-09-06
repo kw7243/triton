@@ -726,9 +726,10 @@ Remaining issue:
 - Canonical source remains the clean owner-only worktree
   `/data/vision/torralba/u/kwen1/compute-native-vq/worktrees/20260906T014200Z-phase-a-scientific-gate`
   on `fm/phase-a-scientific-gate`. The foreign dirty root checkout remains untouched.
-- New stage is predeclared as
+- New owner-only staging namespace is predeclared as
   `/data/scratch-fast/kwen1/compute-native-vq/staging/20260906T161727Z-phase-a-timing-gate-retry1`;
-  new result root is
+  the required reproducibility helper owns the fresh timestamped leaf recorded in the
+  immutable manifest. New result root is
   `/data/vision/torralba/u/kwen1/compute-native-vq/results/20260906T161727Z-phase-a-timing-gate-retry1`.
 - The primary route is exactly one unattended `sbatch --parsable ... --no-requeue
   --export=NIL` using one selected Torralba GPU and a fixed tuple recorded after the live
