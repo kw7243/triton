@@ -596,3 +596,67 @@ Next step:
 - Timing, tuning, and CUDA graphs were not executed, and no forbidden timing or decision
   artifact was present. No Phase B work was started; the fleet remains paused for the
   approved storage cutover.
+
+## 2026-09-06 — Post-correctness Phase A timing-gate preparation
+
+Current state:
+
+- The preserved source at `/home/ubuntu/.treehouse/triton-ff92c5/15/triton` was read-only
+  verified clean at correctness commit `8d5797fe094220f4d85ec0e74815d7a85c2405e6`,
+  tree `77a21f79ed6d8639fec234bd50ac67bb3ec97a9a`, and parent
+  `febb7c231d116da54e6b0954d7d4d82c082cfdb9`. Its recorded job-`1681752`
+  classification is `PASS`; neither the job nor its historical artifacts were queried.
+- Canonical research repo:
+  `/data/vision/torralba/u/kwen1/compute-native-vq/triton`; branch
+  `fm/phase-a-scientific-gate`. The dirty migrated checkout was left untouched.
+- Canonical owner-only worktree:
+  `/data/vision/torralba/u/kwen1/compute-native-vq/worktrees/20260906T014200Z-phase-a-scientific-gate`.
+- Planned immutable execution stage:
+  `/data/scratch-fast/kwen1/compute-native-vq/staging/20260906T014200Z-phase-a-timing-gate`.
+- Planned canonical result root:
+  `/data/vision/torralba/u/kwen1/compute-native-vq/results/20260906T014200Z-phase-a-timing-gate`.
+
+Timing contract:
+
+- Run timing only for J/F/H, fp16, `S={96,192}`, `Tkv=32768`, two roles, eight KV
+  heads, head dimension 128, and the correctness-approved fixed `b512-w8` launch.
+- Each launch decodes 16,777,216 indices. Each variant gets 100 ms warmup, 500 ms
+  measurement, and nine outer trials with randomized variant order.
+- No correctness rerun, configuration sweep, CUDA graph, H-cache, fused attention,
+  profiling, model evaluation, Phase B/C/D work, or retry is present.
+- All six J/F/H timing records must pass 5% within-trial dispersion and 5%
+  outer-trial stability. The decision uses the best stable J/H speedup:
+  `GO` at `>=1.25x`, `OPTIMIZE-ONCE` at `>=1.10x` and `<1.25x`, otherwise `KILL`.
+
+Validation and environment:
+
+- The fixed benchmark environment remains unchanged at
+  `/data/scratch-fast/kwen1/compute-native-vq/env/phase-a`.
+- Pytest was absent from that environment and system Python. The captain authorized a
+  test-only target at
+  `/data/scratch-fast/kwen1/compute-native-vq/test-envs/20260906T020404Z-pytest-8.4.2`.
+  The sole top-level requirement was `pytest==8.4.2`; resolved packages are
+  `iniconfig==2.3.0`, `packaging==26.3`, `pluggy==1.6.0`, `Pygments==2.21.0`, and
+  `pytest==8.4.2`.
+- Test dependency evidence:
+  `pip-report.json` SHA-256
+  `e35a46c8bb4c8277ba1c0e8214794b9e92fe0aa1bd7678aa6ecd1a4b1d5cba41`;
+  `package-lock.txt` SHA-256
+  `4ef534add869a64dd4957ea986f7ada98dffd41f89021e1719d02d9c2062a0db`.
+- Ten timing contract, inventory, classification, and finalization unit tests passed
+  with the isolated target. Source-byte compilation and `bash -n` passed. No native
+  build was run because all changes are Python and shell experiment code.
+- The test scratch root is
+  `/data/scratch-fast/kwen1/compute-native-vq/tmp/20260906T014200Z-phase-a-scientific-gate-tests`.
+  The temporary remote patch tool is
+  `/data/scratch-fast/kwen1/compute-native-vq/tools/20260906T014200Z-phase-a-scientific-gate/apply_patch`,
+  SHA-256 `bbc3341e44c9ead340ed9570c17be936e37870f570751a941699ffd04d672827`.
+- Checkpoint transfer evidence is retained owner-only at
+  `/data/vision/torralba/u/kwen1/compute-native-vq/incoming/20260906T014200Z-phase-a-scientific-gate/checkpoint.bundle`,
+  SHA-256 `e6ff1c6d136131518161e756d7e2cd2a7bea914bad2b5280a4ebc18665a884a6`.
+
+Next step:
+
+- Finish static validation and commit this preparation. Then create and freeze one
+  self-contained scratch stage, inspect the live scheduler once before submission,
+  bind one immutable manifest/request/ledger, and permit at most one `sbatch`.
