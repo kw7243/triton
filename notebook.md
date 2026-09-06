@@ -660,3 +660,58 @@ Next step:
 - Finish static validation and commit this preparation. Then create and freeze one
   self-contained scratch stage, inspect the live scheduler once before submission,
   bind one immutable manifest/request/ledger, and permit at most one `sbatch`.
+
+## 2026-09-06 — Phase A timing gate stopped during staging
+
+Outcome:
+
+- `NO RESULT`. The sole required staging-helper invocation ended before `Staging
+  complete` and before creating `REPRODUCIBILITY_METADATA.json`.
+- No stage repair, continuation, replacement stage, scheduler inspection, manifest,
+  request, ledger, `sbatch`, job, checker, benchmark, timing, table, plot, or
+  GO/OPTIMIZE-ONCE/KILL decision followed.
+
+Evidence:
+
+- Research implementation commit:
+  `987a477d55fce98c5c855d82c87683f57687f750`; tree
+  `c223a5b4607146fcdcd2df144e78384d5011829f`; parent is the accepted
+  correctness commit `8d5797fe094220f4d85ec0e74815d7a85c2405e6`.
+- Exact helper:
+  `/afs/csail.mit.edu/u/k/kwen1/.codex/skills/research-reproducibility/scripts/stage_and_run.sh`,
+  SHA-256 `44e5dc6f1a958b1f4b32e8dceeb49814885ad8dcca59716090ca87b1033731fa`.
+- Exact command:
+  `/bin/bash <helper> --repo-root /data/vision/torralba/u/kwen1/compute-native-vq/worktrees/20260906T014200Z-phase-a-scientific-gate --staging-parent /data/scratch-fast/kwen1/compute-native-vq/staging --stage-only`.
+- Preserved partial stage:
+  `/data/scratch-fast/kwen1/compute-native-vq/staging/20260905_220950-ef241a-987a477d5-code`.
+  It has mode `0700`, no reproducibility metadata, and a `.git` file pointing
+  outside the stage. It is neither immutable nor runnable.
+- The read-only partial-stage inventory records 2,164 entries, 28,794,234
+  regular-file bytes, and content digest
+  `ce30870121165196b7e378e8acb52473ba7aeed303695a34824572a96178a93c`.
+- Canonical failure result:
+  `/data/vision/torralba/u/kwen1/compute-native-vq/results/20260906T014200Z-phase-a-timing-gate`.
+  `NO_RESULT.md` SHA-256
+  `6a18c87cf0281ace18bc40cbb4beb44c2edb07f5c79f9c389595459719dbc230`;
+  `partial_stage_inventory.json` SHA-256
+  `7d3d3a02f2605e9f36b60ecff506e0e7140bd464f97a10ec315f3df274f8faa9`;
+  `staging_failure.json` SHA-256
+  `a5ce00ae7d315dad4eebb26afa06d991b4288300e1a258f0b88571efa355cd3e`;
+  `evidence.sha256` SHA-256
+  `6c544160ae8987364f724016dd86e892e107553730bac1ea39ad12344c59fb77`.
+
+Problems and fixes:
+
+- Missing pytest was resolved without changing the benchmark environment or system
+  Python by using the isolated, pinned scratch target recorded above.
+- Unit validation found and fixed a literal-newline serialization error before
+  staging. Eleven tests, source compilation, `bash -n`, ShellCheck, and diff checks
+  passed before the preparation commit.
+- The stage helper did not complete. The fail-closed contract permits no retry or
+  weakening, so the partial bytes remain untouched.
+
+Remaining issue:
+
+- Phase A J/F/H latency and speedup are still unmeasured. A future timing attempt
+  requires separate captain authority and a fresh task; this task makes no
+  optimization or fused-attention recommendation.
