@@ -774,3 +774,184 @@ Remaining issue:
   artifact, timing output, table, or plot exists for this retry. Payload-start count is
   zero. The launch-only interactive fallback is ineligible after a staging failure.
   J/F/H remains unmeasured, and Phase C plus every later lane remains blocked.
+
+## 2026-09-06 — Bounded staging-failure diagnosis (corr=76b002184a76b996)
+
+Outcome:
+
+- The failure boundary is the helper's `rsync -a` at lines 84–95, before the metadata
+  writer at line 98. The evidence does not identify the exact signal, remote exit status,
+  or which side closed the SSH channel.
+- Leading explanation: the foreground SSH/PTTY owner ended while the cross-export NFS
+  copy was still active. The direct owner and helper were not interruption-safe, so that
+  termination left a partial destination with no durable exit record.
+- The copied `.git` pointer did not cause the failure. It is an expected early rsync copy
+  from a linked-worktree source and is a downstream incompleteness symptom. A proven-good
+  run copied the same kind of pointer, completed the helper, then replaced it with an
+  independent Git directory.
+- This diagnosis created no stage, manifest, scheduler census, Slurm resource, checker,
+  payload, table, or plot. Neither incomplete stage nor either historical result was
+  modified, repaired, completed, or deleted.
+
+Expected and observed behavior:
+
+- Expected helper control flow: create one leaf, print source/target, finish `rsync -a`,
+  write `REPRODUCIBILITY_METADATA.json`, print `Staging complete`, print the leaf, and
+  exit zero. The project-specific continuation would then install and validate an owned,
+  no-hardlink Git object store before freezing anything.
+- Observed combined PTY transcript, recovered from
+  `/home/ubuntu/.codex/sessions/2026/09/06/rollout-2026-09-06T16-12-49-01a0777e-6eba-7d42-a75c-0c8a2f38583a.jsonl`, was exactly the
+  following combined output, with one empty 20-second poll between the target and close:
+
+  ```text
+  Staging repository:
+    source: /data/vision/torralba/u/kwen1/compute-native-vq/worktrees/20260906T014200Z-phase-a-scientific-gate
+    target: /data/scratch-fast/kwen1/compute-native-vq/staging/20260906T161727Z-phase-a-timing-gate-retry1/20260906_122318-d7b996-ea9c634b8-code
+  Connection to slurm-login-0.csail.mit.edu closed.
+  ```
+
+  There was no rsync diagnostic, metadata message, completion marker, or staged-leaf
+  return value.
+- The invocation began at `2026-09-06T16:23:16.832Z`. Copied-entry ctimes span
+  `16:23:19.534Z` through `16:24:02.242Z`; the connection-close record is timestamped
+  `16:24:02.254Z`, 12 ms after the last copied-entry ctime.
+- Exact exit status is unavailable. The first tool result retained session ID `17547`,
+  but the terminal waits serialized only `r.output`; the final result object's exit-code
+  field was discarded. `ssh -tt` also merged remote stdout/stderr, so separate streams
+  cannot be recovered. No value is inferred for either missing field.
+- Repeatability is intentionally unknown: the captain authorized one stage attempt and
+  forbade rerunning it. Historical similar terminations are context, not repetitions of
+  this exact input.
+
+Failed-copy evidence:
+
+- Source was the clean dedicated worktree at preparation commit
+  `ea9c634b8cb07a3c5795827d3527b484e15990eb`, tree
+  `41f4bad6e38adecb8e4c0cdadbcf996807300cc0`. Its `.git` was a 119-byte linked-worktree
+  pointer on the Torralba NFS export. The target was a different NFSv4.2 export under
+  `/data/scratch-fast`.
+- Exact comparison with the preparation commit found 1,792 tracked blobs: 1,485 arrived
+  byte-exact, 307 were absent, and zero present blobs mismatched. Missing paths are
+  concentrated in `third_party` (289), `unittest` (16), and `utils` (2).
+- The stage inventory has 1,864 total entries and 26,746,098 regular-file bytes. The
+  source and copied `.git` pointers have identical SHA-256
+  `4b05921afb51876e7b566775f9823a231cf8d73bdfba9dbf2b308a27f32f72a8`.
+- No extra path, half-written regular file, metadata file, independent Git directory, or
+  freeze marker was found. The earliest meaningful divergence is therefore incomplete
+  rsync data, not the later metadata or Git-materialization steps.
+
+Proven-good comparator:
+
+- Comparator:
+  `/home/ubuntu/.treehouse/triton-ff92c5/14/triton/staging/20260902_045702-d08f86-f893845b9b-code`.
+  It used helper SHA-256
+  `44e5dc6f1a958b1f4b32e8dceeb49814885ad8dcca59716090ca87b1033731fa`,
+  byte-identical to the failed remote helper and its retained Firstmate copy.
+- Its transcript contains `Staging complete`; its metadata records helper completion at
+  `2026-09-02T04:57:03.337514Z`. The source and target were both local ext4. The source
+  was a linked worktree with preserved untracked research inputs, so a worktree-pointer
+  source shape did not prevent helper completion.
+- The follow-on materializer at SHA-256
+  `62ef79f4a1be1dfc3875c78ef4763f7003b1fb2428bcdbcd5725f1559cccb2d8`
+  preserved the copied pointer as a sidecar and installed a `git clone --no-local
+  --no-hardlinks` object store. The resulting 2,149-entry, 173,797,101-byte stage has
+  `.git` as an internal directory, no `commondir`, no alternates, zero hard-linked regular
+  files, and `git fsck` passes at commit
+  `f893845b9b91599ebd3b7a9c7f28164f39c7ed94`, tree
+  `40643eead696d632a9edee002c9f9b8a671c6bec`.
+- The materialized comparator is larger than the failed source. The material difference
+  for the helper step is local ext4 versus Torralba-to-scratch cross-export NFS plus the
+  failed run's SSH-owned process lifetime.
+
+Implementation history and invariant:
+
+- The installed helper is not inside a Git repository, so helper blame and commit history
+  are unavailable. Three content-addressed copies—the remote AFS executable, local Codex
+  executable, and retained Firstmate copy—are byte-identical at SHA-256
+  `44e5dc6f1a958b1f4b32e8dceeb49814885ad8dcca59716090ca87b1033731fa`.
+- Timing commit `987a477d55fce98c5c855d82c87683f57687f750` introduced
+  `prepare_gate.py:91-113`, which requires the stage/source commit and tree to match and
+  declares `git-clone-no-local-no-hardlinks` plus self-contained Git. Earlier correctness
+  commits `e53c3c85de` and `779d18e0bc` added the staged-continuation and attestation path;
+  `verify_self_contained_repo` rejects a `.git` file, external common/object directories,
+  alternates, shared inodes, hard-linked objects, wrong commit, or unexpected status.
+- The helper itself only rsyncs through line 95 and therefore cannot satisfy that Git
+  invariant for a linked-worktree source without the follow-on materialization step. The
+  failed run never reached either helper metadata or that follow-on step.
+
+Trigger, mask, and symptom:
+
+- Initiating trigger: termination of the remote helper/SSH session while rsync was still
+  creating entries. Evidence is the last stage ctime immediately preceding the channel
+  close, 307 absent tail files, and no subsequent helper artifact. Whether the original
+  initiator was transport loss, remote process termination, or a signal remains unknown.
+- Masking conditions: the helper creates the final-looking leaf before copy completion,
+  copies a linked-worktree `.git` pointer early, and has no external durable journal or
+  atomic incoming-to-final promotion. The direct PTY owner had no remote transcript, and
+  the local wait path discarded the exit-code field and merged output streams.
+- Visible symptom: a plausible owner-only repository directory containing many exact
+  files, but no reproducibility metadata, 307 missing blobs, and an external `.git`
+  pointer. The pointer exposes the incomplete boundary; it did not initiate it.
+- Cross-export NFS latency is a contributing exposure, not a proven initiating fault.
+  Current capacity checks show 2,095,410,048 KiB available on Torralba and 1,256,733,184
+  KiB on scratch, with ample inodes, so exhaustion is not supported.
+
+Disconfirming and falsifying evidence:
+
+- A no-write rsync using the same paths, options, and excludes exited zero in 10.372 s and
+  reported exactly 307 files to create. This rejects a deterministic traversal, pathname,
+  or current permission failure, but does not test the original write path.
+- All 307 missing source files are currently readable; their 2,059,739 bytes produced
+  aggregate SHA-256
+  `773c46dabc34e75b684294c9971335441d4b0d0805b198131c5d17cf8f658c42`.
+  This rejects persistent source unreadability, not a transient NFS fault.
+- The identical helper completed on the larger ext4 comparator, and its copied pointer
+  was successfully materialized later. This rejects helper syntax and `.git` pointer
+  shape as sufficient causes.
+- The leading owner-termination explanation would be falsified by a recovered original
+  exit record showing a deterministic rsync error with matching stderr, or evidence that
+  rsync completed before a metadata-writer failure. Neither exists; 307 missing blobs
+  directly contradict completed rsync.
+- A successful, durably logged Torralba-to-scratch copy would disconfirm cross-export NFS
+  as a necessary cause. No such same-shape comparator is available, so filesystem
+  contribution remains uncertain.
+
+Implementation-ready recommendation, not implemented:
+
+- Fix the central staging helper, not the timing payload. Build the stage under a fresh
+  hidden incoming leaf on scratch, record stdout, stderr, timestamps, PID/host, exact argv,
+  and exit/signal in an fsynced journal outside that leaf, and publish the final stage name
+  only by same-filesystem atomic rename after every validation passes.
+- Preserve the helper's dirty-source capability by rsyncing the worktree with `/.git`
+  excluded, then install `.git` from `git clone --no-local --no-hardlinks --no-checkout`,
+  detach at the exact source commit, remove `origin`, and require staged status to match the
+  pre-copy source status. For this timing lane, keep the stronger prerequisite that source
+  status is empty.
+- Before publish, require exact commit/tree, internal top/common/object paths, `git fsck`,
+  no `commondir`, alternates, shared object inode, hard-linked object, unknown entry, or
+  source/stage inventory mismatch. Write and hash reproducibility metadata only after
+  those checks, then freeze and verify it read-only.
+- Run the transaction under one CSAIL-resident durable owner with a verified Firstmate
+  wake path. Client disconnect must not kill the copy, and no automatic restart or resume
+  may consume another staging authorization.
+- Add tests for a linked-worktree source, preserved tracked/untracked edits, independent
+  Git objects, exact status/inventory equality, owner-only modes, failure injection during
+  rsync and Git materialization, atomic-final-path absence on failure, durable exit/signal
+  capture, and refusal to reuse an incoming or final path.
+
+Prerequisites before any future retry authorization:
+
+- The helper fix and tests are separately reviewed, committed, installed on CSAIL, and
+  pinned by SHA-256. This diagnosis does not authorize that work.
+- A separately authorized, submission-free fixture proves the fixed helper once across
+  the same Torralba-source to scratch-stage exports under the durable owner. It must leave
+  no final path on injected failure and one complete self-contained path on success.
+- A future timing source commit must descend from diagnosis commit recorded below, remain
+  clean on `fm/phase-a-scientific-gate`, and use wholly new timestamped stage/result/state
+  paths. Neither incomplete stage may be reused.
+- Before any scheduler inspection, the fresh stage must have a captured zero exit,
+  completion marker, immutable metadata and inventory hashes, exact commit/tree, clean
+  detached status, owned object store, no external pointer/alternate/hardlink, owner-only
+  permissions, and unchanged post-freeze verification.
+- Only a new captain dispatch may authorize another stage or scientific launch. Phase C
+  and every later lane remain blocked.
