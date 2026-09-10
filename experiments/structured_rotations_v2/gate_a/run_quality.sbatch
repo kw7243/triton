@@ -19,7 +19,16 @@ export TRITON_CACHE_DIR=/data/scratch-fast/kwen1/.cache/triton/structured-rotati
 export XDG_CACHE_HOME=/data/scratch-fast/kwen1/.cache
 export PYTHONNOUSERSITE=1
 
-stage_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd -P)"
+stage_root="$(pwd -P)"
+staging_parent=/data/scratch-fast/kwen1/structured-rotations-v2/staging
+if [[ "$(dirname "$stage_root")" != "$staging_parent" ]]; then
+  echo "job working directory is not a direct child of the frozen staging parent" >&2
+  exit 2
+fi
+if [[ ! -d "$stage_root/.git" || -f "$stage_root/.git" ]]; then
+  echo "job working directory is not a self-contained repository stage" >&2
+  exit 2
+fi
 python_bin=/data/scratch-fast/kwen1/structured-rotations-v2/envs/gate-a-quality/bin/python
 retained_root=/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-quality-r1
 result_directory="$retained_root/runs/slurm-$SLURM_JOB_ID"
@@ -34,4 +43,3 @@ exec "$python_bin" \
   "$stage_root/experiments/structured_rotations_v2/gate_a/quality.py" \
   --contract "$stage_root/experiments/structured_rotations_v2/gate_a/contract.json" \
   --result-directory "$result_directory"
-

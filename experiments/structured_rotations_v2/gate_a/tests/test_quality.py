@@ -74,6 +74,9 @@ class QualityContractTests(unittest.TestCase):
     def test_batch_script_keeps_scope_and_export_boundary(self):
         script = (CONTRACT.parent / "run_quality.sbatch").read_text(encoding="utf-8")
         self.assertIn("#SBATCH --no-requeue", script)
+        self.assertIn('stage_root="$(pwd -P)"', script)
+        self.assertNotIn("BASH_SOURCE", script)
+        self.assertIn("staging_parent=", script)
         self.assertNotIn("salloc", script)
         self.assertNotIn("srun", script)
         self.assertNotIn("--export=NONE", script)
