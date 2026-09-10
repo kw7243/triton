@@ -1,0 +1,114 @@
+{
+  "schema_version": "structured-rotations-v2-gate-a-execution-contract-v1",
+  "frozen_at_utc": "2026-09-10T22:55:00Z",
+  "scope": {
+    "experiment": "A2",
+    "target": "FFN down-projection producer/transform/quantize/pack/consumer and whole-model latency",
+    "execution_kinds": ["native_segment", "native_end_to_end"],
+    "excluded": [
+      "activation-quality experiments",
+      "Gate B representative bridges",
+      "per-layer transform selection",
+      "candidate kernel development",
+      "broad backend rewrite"
+    ]
+  },
+  "quality_contract": {
+    "path": "experiments/structured_rotations_v2/gate_a/contract.json",
+    "source_commit": "a144c465ccd8bd1633b63c0266c256143fd375c3",
+    "sha256": "ed49c72bf9dba32e8d154e5205ddeaba2449c83363068c6b05d40a2a3b010878",
+    "result_sha256": "51c94593a17e855c650ff1c23518a955d9a58dd2df249ac6bd52035ea1180ee4"
+  },
+  "model": {
+    "repository": "Qwen/Qwen3-8B",
+    "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "snapshot": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218",
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "layers": 36,
+    "hidden_size": 4096,
+    "ffn_intermediate_size": 12288,
+    "down_output_size": 4096
+  },
+  "tensor_contract": {
+    "producer_input": ["M", 4096],
+    "gate_weight": [12288, 4096],
+    "up_weight": [12288, 4096],
+    "gated_activation": ["M", 12288],
+    "packed_activation": ["M", 6144],
+    "packed_down_weight": [4096, 6144],
+    "consumer_output": ["M", 4096],
+    "rows": {
+      "prefill_b1_s2048": 2048,
+      "decode_b1_ctx2048": 1,
+      "decode_b8_ctx2048": 8
+    }
+  },
+  "backend": {
+    "kind": "QuaRot CUTLASS signed-int4 tensor-core GEMM with int32 accumulation",
+    "artifact": "inputs/phase_a_w4a4_cuda.so",
+    "artifact_sha256": "10a961e8855d7349708412aa8c21a38667fb75c94c372180dd6f992913e0a8e0",
+    "native_targets": ["sm80", "sm86"],
+    "selected_target": "sm86",
+    "weight_quantizer": "A1 symmetric narrow INT4 [-7,7], per output channel, 21-factor MSE clip search",
+    "activation_quantizer": "A1 dynamic per-row asymmetric unsigned INT4 [0,15]",
+    "asymmetric_mapping": "pack q_u-8 as signed INT4, consume natively, then add exact (8-zp)*sum(q_w) correction before dequantization",
+    "fusion": "same separate transform, common quantize-pack, native consumer, and correction-dequant boundaries for every baseline"
+  },
+  "methods": {
+    "segment": [
+      "identity",
+      "full_hadamard",
+      "local_h32",
+      "local_h128",
+      "perq_h32",
+      "perq_h128"
+    ],
+    "end_to_end": ["identity", "full_hadamard", "local_h32", "local_h128"],
+    "perq_limitation": "PeRQ is native_segment only because A1 froze permutations only for six sampled layers; no unfrozen all-layer calibration is allowed in A2.",
+    "original_implementation_control": "torch_full_reference transform-only timing, supporting evidence only"
+  },
+  "inputs": {
+    "quality_layer0_cache": "inputs/quality/layer-00.pt",
+    "quality_layer0_cache_sha256": "ac76a0aee1260dd9947c1cde11a4d54535d859fa277ce61c9402cfcb7e23b7d7",
+    "prompt_source": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-validation.arrow",
+    "prompt_source_sha256": "8e136ab7130c5fca602eb406ce2557967a974d901b53c4f2992f87b873e0fe5b"
+  },
+  "workloads": {
+    "prefill_b1_s2048": {"batch": 1, "prompt_tokens": 2048},
+    "decode_b1_ctx2048": {"batch": 1, "context_tokens": 2048, "timed_tokens": 8},
+    "decode_b8_ctx2048": {"batch": 8, "context_tokens": 2048, "timed_tokens": 8, "cache_construction": "repeat one real 2K cache across eight identical requests before timing"}
+  },
+  "timing": {
+    "clock": "CUDA events with terminal synchronization",
+    "segment_warmups": 3,
+    "segment_samples_prefill": 12,
+    "segment_samples_decode": 30,
+    "method_order": "forward/reverse alternating each round",
+    "end_to_end_visits": 2,
+    "end_to_end_samples_per_visit": 2,
+    "end_to_end_order": "forward then reverse",
+    "reported": ["median_ms", "p10_ms", "p90_ms", "median_absolute_deviation_ms"]
+  },
+  "storage": {
+    "staging_parent": "/data/scratch-fast/kwen1/structured-rotations-v2/staging",
+    "environment": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing",
+    "cache_root": "/data/scratch-fast/kwen1/.cache",
+    "retained_root": "/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r1"
+  },
+  "budget": {
+    "gate_a_total_active_gpu_hours": [4, 10],
+    "gpus": 1,
+    "wall_time_limit_hours": 2,
+    "cpus": 4,
+    "memory_gib": 32,
+    "requeue": false,
+    "attempt_limit": 1
+  },
+  "decision_a": {
+    "go": "Full rotation remains useful, PeRQ-32 loses material quality, and larger/global transforms cost noticeably more.",
+    "quality_at_fixed_cost": "Runtime headroom is small but substantial quality headroom remains at fixed latency.",
+    "stop": "PeRQ-32 already matches full and is cheap, only an unfused baseline exposes overhead, or no native path exists."
+  },
+  "next_experiment": "Exactly one evidence-selected Gate B configuration if and only if combined Decision A is GO; otherwise no next GPU experiment."
+}
