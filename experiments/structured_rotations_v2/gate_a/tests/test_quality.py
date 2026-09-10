@@ -60,6 +60,17 @@ class QualityContractTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(sorted(first), list(range(8)))
 
+    def test_article_hashes_do_not_split_section_headings(self):
+        texts = [
+            "= Article A =",
+            "lead",
+            "= = Section = =",
+            "body",
+            "= Article B =",
+            "other",
+        ]
+        self.assertEqual(len(quality._article_hashes(texts)), 2)
+
     def test_batch_script_keeps_scope_and_export_boundary(self):
         script = (CONTRACT.parent / "run_quality.sbatch").read_text(encoding="utf-8")
         self.assertIn("#SBATCH --no-requeue", script)
@@ -72,4 +83,3 @@ class QualityContractTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

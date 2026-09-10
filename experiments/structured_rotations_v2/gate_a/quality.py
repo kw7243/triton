@@ -425,7 +425,14 @@ def _article_hashes(texts: Sequence[str]) -> set[str]:
     current: list[str] = []
     for text in texts:
         stripped = text.strip()
-        if stripped.startswith("=") and stripped.endswith("=") and current:
+        # WikiText encodes article titles as ``= Title =`` and nested section
+        # headings as ``= = Section = =``.  Only the former starts a document.
+        is_article_title = (
+            stripped.startswith("= ")
+            and not stripped.startswith("= =")
+            and stripped.endswith(" =")
+        )
+        if is_article_title and current:
             articles.append(current)
             current = []
         current.append(text)
@@ -1054,4 +1061,3 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
