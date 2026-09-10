@@ -1,7 +1,7 @@
 # Gate A execution decision
 
-Status: Decision A not reached; A2 is blocked by an execution-environment
-dependency failure. Gate B remains closed.
+Status: Decision A not reached; the authorized replacement A2 is pending after
+a successful scheduler-tracked CPU environment preflight. Gate B remains closed.
 
 ## Evidence
 
@@ -27,11 +27,12 @@ quality contrast, but A2 supplied no matched native cost evidence. The old
 isolated timings, old low-quality baseline, and rejected selector do not fill
 that gap.
 
-The failure is not evidence against the native W4A4 path. The selected scratch
-environment omitted PyArrow; the frozen A1 environment has the same core stack
-plus `pyarrow==17.0.0`. The smallest repair is to use that environment and add a
-CPU dependency preflight before requesting another GPU.
+The failure is not evidence against the native W4A4 path. CPU-only Slurm job
+`1825764` proved that the frozen A1 environment imports the complete required
+A2 stack, including `pyarrow==17.0.0`, and loads the byte-verified A1 layer-0
+input. The replacement changes only the environment path; all scientific A2
+methods, workloads, quantizer semantics, native consumer, and timing settings
+remain frozen.
 
-Exactly one next experiment: after a new attempt is authorized, run one
-replacement of the unchanged frozen A2 workloads from a fresh complete stage
-using the matching A1 scratch environment and a passed CPU import preflight.
+Exactly one next experiment: run the authorized single replacement of the
+unchanged frozen A2 workloads from a fresh complete CSAIL stage.

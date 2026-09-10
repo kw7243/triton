@@ -92,7 +92,7 @@
   },
   "storage": {
     "staging_parent": "/data/scratch-fast/kwen1/structured-rotations-v2/staging",
-    "environment": "/data/scratch-fast/kwen1/micromamba/root/envs/causal_forcing",
+    "environment": "/data/scratch-fast/kwen1/structured-rotations-v2/envs/gate-a-quality",
     "cache_root": "/data/scratch-fast/kwen1/.cache",
     "retained_root": "/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r1"
   },

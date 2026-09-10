@@ -181,3 +181,41 @@ Exactly one next experiment: after authorization for a new attempt, run one
 replacement of the unchanged frozen A2 workloads from a fresh complete stage
 using the matching A1 scratch environment with `pyarrow==17.0.0` and a passed
 CPU import preflight.
+
+## 2026-09-10 — Replacement environment preflight and minimal repair
+
+- No GPU was requested. Scheduler-tracked CPU preflight job `1825764` ran on
+  `groenig-3` in `tig-cpu` with account `csail`, QoS `tig-main`, one CPU,
+  4 GiB, and a five-minute limit. It completed `0:0` in 52 seconds.
+- The exact Python environment is the unchanged A1 environment
+  `/data/scratch-fast/kwen1/structured-rotations-v2/envs/gate-a-quality`.
+  Python 3.10.20 imported the required frozen runtime stack: accelerate 1.14.0,
+  NumPy 1.24.4, PyArrow 17.0.0, safetensors 0.8.0, tokenizers 0.22.2, Torch
+  2.8.0+cu128, Transformers 5.12.1, and Triton 3.4.0.
+- The CPU job loaded the preserved A1 `layer-00.pt`, rehashed it to
+  `ac76a0aee1260dd9947c1cde11a4d54535d859fa277ce61c9402cfcb7e23b7d7`,
+  and observed the frozen 12288-wide statistics and 1024-by-12288 BF16 uniform
+  and tail activation reservoirs. CUDA was unavailable, as required for the
+  CPU-only check.
+- Result and Slurm-log SHA-256 values are respectively
+  `d869357292dfa8d11cbb84c13275e443751d1d49698dfcc8458d3b48cc2a00b7`
+  and `91ef002e427be4bb4ee38adea3e382659df11e5211fe8583bb6bb4fccd0878f6`.
+  They are retained under
+  `/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r1/provenance/environment-preflight-20260910T234913Z/`.
+- The preflight Python and batch-script SHA-256 values are
+  `68d84b5b48599cbab0744f9984cbc6cce7d3d1d29e30051514111ac8dec533ba`
+  and `dc80603069b4bc035e19403ba3050695e268b655250c6843b9451e01333190b2`.
+  The batch script used `--export=NIL` and did not set or repurpose `HOME`.
+- A prior CPU-only check, job `1825673`, is preserved as failed checker evidence:
+  it unnecessarily required the unused `datasets` package and failed before
+  cache loading. A2 reads Arrow directly through PyArrow and contains no
+  `datasets` import. This was a preflight-specification correction, not an
+  environment mutation or A2 attempt.
+- The minimal source repair changes the A2 interpreter/PATH from the incomplete
+  `causal_forcing` environment to the proven A1 environment and removes the
+  unsafe `HOME` override. It changes no method, workload, tensor, quantizer,
+  native backend, fusion boundary, sample count, or decision threshold.
+
+Exactly one next experiment: create and verify a fresh complete CSAIL stage,
+inspect duplicate ownership and live Slurm inventory, pass `sbatch --test-only`,
+and submit the one authorized unchanged replacement A2 job.

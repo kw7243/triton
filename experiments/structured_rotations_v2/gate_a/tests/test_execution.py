@@ -73,7 +73,10 @@ class BatchScriptTest(unittest.TestCase):
         self.assertNotIn("BASH_SOURCE", text)
         self.assertNotIn("salloc", text)
         self.assertNotIn("srun", text)
+        self.assertNotIn("export HOME=", text)
         self.assertIn("PYTHONNOUSERSITE=1", text)
+        self.assertIn("structured-rotations-v2/envs/gate-a-quality/bin/python", text)
+        self.assertNotIn("micromamba/root/envs/causal_forcing/bin/python", text)
 
 
 if __name__ == "__main__":
