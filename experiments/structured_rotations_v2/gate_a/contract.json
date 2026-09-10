@@ -1,0 +1,107 @@
+{
+  "schema_version": "structured-rotations-v2-gate-a-contract-v1",
+  "frozen_at_utc": "2026-09-10T00:00:00Z",
+  "scope": {
+    "experiment": "A1",
+    "target": "FFN down-projection inputs only",
+    "execution_kind": "numerical_only",
+    "excluded": [
+      "native timing",
+      "Gate B representative bridges",
+      "transform-family search",
+      "per-layer transform selection",
+      "whole-model quality evaluation"
+    ]
+  },
+  "model": {
+    "default": "meta-llama/Llama-3.1-8B",
+    "substitution": "Qwen/Qwen3-8B",
+    "substitution_reason": "The default repository is gated and no Hugging Face credential is installed on CSAIL; the permitted Qwen3-8B snapshot is complete and its FFN width is compatible with both block controls.",
+    "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "snapshot": "/data/scratch-fast/kwen1/.cache/huggingface/hub/models--Qwen--Qwen3-8B/snapshots/b968826d9c46dd6066d109eabc6255188de91218",
+    "config_sha256": "f7c4eadfbbf522470667b797a3c89be2524832d2d599797248dc304fff447c30",
+    "index_sha256": "f9fdbcb91c23971c13ec5d5f2573d2349e8f61f2f049371ec699281748fdb1bc",
+    "tokenizer_sha256": "aeb13307a71acd8fe81861d94ad54ab689df773318809eed3cbe794b4492dae4",
+    "tokenizer_config_sha256": "d5d09f07b48c3086c508b30d1c9114bd1189145b74e982a265350c923acd8101",
+    "weight_shards_sha256": [
+      "31d6a825ae35f11fb85b195b4c42c146c051e446433125a215336abdf95cbf5f",
+      "5991236cea6fe21f3d43cab0f0e84448734fbbe0789816202989f2ddc9d18282",
+      "c5185c4794be2d8a9784d5753c9922db38df478ce11f9ed0b415b7304d896836",
+      "b5ee7de71fbf17db3d5704e0c8f2bc7d005ca9e1d7ca2aeb19827b0cfcaa917a",
+      "20c2d6366ab85c90786ccdd829cd2b9e7d30ef3b2ebbb998280e7e4014b542ff"
+    ],
+    "num_layers": 36,
+    "hidden_size": 4096,
+    "ffn_intermediate_size": 12288,
+    "sampled_layers": [0, 7, 14, 21, 28, 35]
+  },
+  "data": {
+    "repository": "Salesforce/wikitext",
+    "configuration": "wikitext-2-raw-v1",
+    "revision": "b08601e04326c79dfdd32d625aee71d232d685c3",
+    "calibration_split": "train",
+    "calibration_arrow": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-train.arrow",
+    "calibration_arrow_sha256": "57947bc7b58df4b19662c0609cc30651bc84328dab5fd588860b752072911789",
+    "calibration_tokens": 32768,
+    "development_split": "validation",
+    "development_arrow": "/data/scratch-fast/kwen1/.cache/huggingface/datasets/Salesforce___wikitext/wikitext-2-raw-v1/0.0.0/b08601e04326c79dfdd32d625aee71d232d685c3/wikitext-validation.arrow",
+    "development_arrow_sha256": "8e136ab7130c5fca602eb406ce2557967a974d901b53c4f2992f87b873e0fe5b",
+    "development_tokens": 16384,
+    "sequence_length": 2048,
+    "tokenization": "fast tokenizer, add_special_tokens=false, exact prefix",
+    "document_separation": "official train and validation splits; reject any exact article hash overlap"
+  },
+  "activation_sample": {
+    "calibration_tail_stat_rows": 4096,
+    "calibration_tail_stat_sampling": "uniform stride over the 32K calibration stream",
+    "uniform_development_rows": 1024,
+    "uniform_development_sampling": "uniform stride over the 16K development stream",
+    "tail_reservoir_rows": 1024,
+    "tail_reservoir_score": "pre-transform per-row max absolute activation",
+    "calibration_channel_tail_statistic": "99th percentile absolute activation on calibration_tail_stat_rows"
+  },
+  "methods": [
+    {"name": "identity", "permutation": "none", "transform": "identity", "b": null},
+    {"name": "full_hadamard", "permutation": "none", "transform": "normalized Paley-H12 tensor Sylvester-H1024", "b": 12288},
+    {"name": "local_h32", "permutation": "none", "transform": "normalized contiguous Sylvester block Hadamard", "b": 32},
+    {"name": "local_h128", "permutation": "none", "transform": "normalized contiguous Sylvester block Hadamard", "b": 128},
+    {"name": "perq_h32", "permutation": "MassDiff block assignment with within-block descending calibration-p99 order", "transform": "normalized contiguous Sylvester block Hadamard", "b": 32},
+    {"name": "perq_h128", "permutation": "MassDiff block assignment with within-block descending calibration-p99 order", "transform": "normalized contiguous Sylvester block Hadamard", "b": 128}
+  ],
+  "quantization": {
+    "precision": "packed INT4 W4A4 reconstruction",
+    "weight": "symmetric signed narrow INT4 [-7,7], per output channel",
+    "activation": "asymmetric unsigned INT4 [0,15], dynamic per token row",
+    "rounding": "round to nearest, ties to even",
+    "zero_points": "weight zero; activation rounded affine zero point clamped to [0,15]",
+    "weight_clipping_search": "21 linearly spaced max-absolute shrink factors from 1.00 through 0.80, independently selected per output channel by weight MSE",
+    "activation_clipping": "dynamic observed row min/max; no extra percentile clipping",
+    "packing": "two 4-bit values per byte; unpack is verified before dequantized reconstruction",
+    "weight_reconstruction": "start from the original BF16 checkpoint weight for every method, apply the method basis, then independently clip, round, pack, unpack, and dequantize",
+    "group_width": 12288
+  },
+  "metrics": {
+    "primary_mean_output_error": "sum squared output error divided by sum squared BF16-reference output on the uniform development rows",
+    "row_error": "per-row squared output error divided by per-row squared reference norm plus 1e-12",
+    "tail_output_error": "mean row_error over the highest-error 10 percent of uniform development rows",
+    "diagnostic_tail_reservoir": "the same metrics on the separately selected activation-tail reservoir",
+    "large_activation_events": "largest 0.1 percent absolute pre-transform entries in each retained sample",
+    "representative_coverage": "event and row-maximum coverage for the first one and two p99-ranked lanes per MassDiff block",
+    "remaining_quality_gap": "PeRQ block primary error minus full-Hadamard primary error, reported directly and relative to the identity-to-full improvement only when positive"
+  },
+  "storage": {
+    "staging_parent": "/data/scratch-fast/kwen1/structured-rotations-v2/staging",
+    "environment": "/data/scratch-fast/kwen1/structured-rotations-v2/envs/gate-a-quality",
+    "cache_root": "/data/scratch-fast/kwen1/.cache",
+    "retained_root": "/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-quality-r1"
+  },
+  "budget": {
+    "gate_a_total_active_gpu_hours": [4, 10],
+    "quality_lane_allocation_gpus": 1,
+    "quality_lane_wall_time_limit_hours": 2,
+    "requeue": false,
+    "attempt_limit": 1
+  },
+  "next_experiment": "Experiment A2 under the separate execution owner: measure the matched native rotation-quantize-pack-consumer and end-to-end baselines, then combine with A1 at Decision A."
+}
+
