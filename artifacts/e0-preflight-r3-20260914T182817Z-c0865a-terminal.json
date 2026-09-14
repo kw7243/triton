@@ -1,0 +1,166 @@
+{
+  "attempt_id": "e0-preflight-r3-20260914T182817Z-c0865a",
+  "classification": {
+    "category": "IMPLEMENTATION_FAILURE_BEFORE_ENVIRONMENT_CREATION",
+    "experiment_executed": false,
+    "failure_command": "[[ \"$(pwd -P)\" == \"$(realpath \"$source_repo\")\" ]]",
+    "failure_stage": "validated-stage working-directory guard",
+    "root_cause": "The sbatch invocation used the durable preflight attempt directory as --chdir, while the frozen script requires its current working directory to be the immutable stage.",
+    "scientific_evidence": false,
+    "smallest_unexecuted_repair": "Use the exact immutable stage path as --chdir without changing the frozen R/C contract.",
+    "status": "FAILED"
+  },
+  "contract": {
+    "changed": false,
+    "contract_id": "e0-quarot-packed-mlp-hadamard-removal-v1",
+    "sha256": "433a7760df1fa5b05e1ac277ae2364deb03fba96be64a2de5ff467376f43156a"
+  },
+  "created_at_utc": "2026-09-14T19:01:10Z",
+  "gpu_gate": {
+    "e1_opened": false,
+    "gpu_job_submitted": false,
+    "gpu_submission_count": 0,
+    "historical_gpu_hours_charged": 0.0547222,
+    "nominal_remaining_gpu_hour_cap": 2.9452778,
+    "reason": "The required CPU CUDA/build preflight did not pass.",
+    "retry_submitted": false,
+    "scientific_fallback_invoked": false
+  },
+  "preflight": {
+    "accounting": {
+      "allocated_tres": "billing=166,cpu=8,mem=24G,node=1",
+      "elapsed": "00:01:17",
+      "exit_code": "1:0",
+      "node": "groenig-3",
+      "state": "FAILED"
+    },
+    "artifacts": {
+      "expected_success_manifest": {
+        "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/manifests/e0-preflight-r3-20260914T182817Z-c0865a-preflight.json",
+        "present": false
+      },
+      "launch_plan": {
+        "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-20260914T182817Z-c0865a/launch-plan.json",
+        "sha256": "f94d02f86e1018d92e1d45e17a5a773b3c5e94d75dc5de153f6f65e6ef6c324a"
+      },
+      "micromamba_info_before_create_present": false,
+      "running_state_present": false,
+      "source_content_before_build_delta_present": false,
+      "state_final": {
+        "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-20260914T182817Z-c0865a/state.final.json",
+        "sha256": "1d0ce6cb452bb137749945963d26b8350418407772b60e97f9be142e62f8654b"
+      },
+      "stderr": {
+        "bytes": 64,
+        "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-20260914T182817Z-c0865a/stderr.log",
+        "sha256": "3964e4912d2aaa6d3f4fc8437dead635d06dcab418c2db7813d51c1ccad95fae"
+      },
+      "stdout": {
+        "bytes": 0,
+        "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-20260914T182817Z-c0865a/stdout.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "build_root": {
+      "path": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/preflight-builds/e0-preflight-r3-20260914T182817Z-c0865a",
+      "present": false
+    },
+    "completed_at_utc": "2026-09-14T18:47:54.013134+00:00",
+    "duplicate_live_job_count_before_submission": 0,
+    "environment": {
+      "path": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/envs/quarot-e0-py310-cu121-r6-c0865a",
+      "present": false
+    },
+    "job_id": "1927348",
+    "job_name": "absym-e0-preflight",
+    "mamba_state": {
+      "empty_directories": [
+        "pkgs",
+        "root"
+      ],
+      "path": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/mamba-state/quarot-e0-py310-cu121-r6-c0865a",
+      "present": true
+    },
+    "micromamba_no_rc_repair_reached": false,
+    "scheduler": {
+      "account": "csail",
+      "cpus_per_task": 8,
+      "export_mode": "NIL",
+      "memory": "24G",
+      "nodes": 1,
+      "partition": "tig-cpu",
+      "qos": "tig-main",
+      "single_terminal_owner": true,
+      "tasks": 1,
+      "time_limit": "01:30:00"
+    },
+    "submission": {
+      "arguments": [
+        "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/staging/e0-preflight-r3-20260914T182817Z-c0865a-stage/20260914_142941-dc0727-4bc8433-code",
+        "4bc8433528cec54e6b0c32ce94bd755f80303e33",
+        "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-20260914T182817Z-c0865a",
+        "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/manifests/e0-preflight-r3-20260914T182817Z-c0865a-preflight.json",
+        "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/envs/quarot-e0-py310-cu121-r6-c0865a",
+        "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/preflight-builds/e0-preflight-r3-20260914T182817Z-c0865a"
+      ],
+      "mode": "sbatch --parsable --wait --no-requeue --export=NIL",
+      "script": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/staging/e0-preflight-r3-20260914T182817Z-c0865a-stage/20260914_142941-dc0727-4bc8433-code/e0/scripts/cuda_build_preflight.sbatch",
+      "script_sha256": "5978246496f2e178e462226742a4eaec2f468a9825dcbde530a9056ffa7714e2",
+      "working_directory": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-20260914T182817Z-c0865a"
+    }
+  },
+  "presentation_handoff": {
+    "measurement_reached": false,
+    "retained_plot_inputs": [],
+    "retained_table_inputs": [],
+    "statement": "No R/C measurement exists, so no scientific table or plot is valid for this attempt."
+  },
+  "recovery": {
+    "denied_transport_changed_remote_git_state": false,
+    "denied_transport_copied_bytes": false,
+    "missing_prior_local_commit": "93e5c01e5bf6bc9985a7774361258c7aaa42e9c4",
+    "reconstruction": "The missing object's exact two-line --no-rc create/install repair was recovered from durable records. Preserved remote history contains that repair at 079d8737fe3e55abd0c9bcc0131b33dd4d7eb116 and later state isolation through the executed source commit.",
+    "retained_repair_commit": "079d8737fe3e55abd0c9bcc0131b33dd4d7eb116"
+  },
+  "scheduler_precheck": {
+    "cpu_tuple": "csail/tig-main/tig-cpu",
+    "cpu_tuple_available": true,
+    "gpu_tuple": "vision-torralba-urops-meng/interactive/vision-torralba-rtx3090",
+    "gpu_tuple_available": true,
+    "live_matching_jobs_after_preflight": 0
+  },
+  "schema_version": 1,
+  "source": {
+    "commit": "4bc8433528cec54e6b0c32ce94bd755f80303e33",
+    "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/baseline-src",
+    "status_before_execution": "clean",
+    "tree": "c6892dfc0662f8f74952b51566427d92fc9afe8e"
+  },
+  "stage": {
+    "accounting": {
+      "allocated_tres": "billing=20,cpu=1,mem=2G,node=1",
+      "elapsed": "00:07:25",
+      "exit_code": "0:0",
+      "node": "groenig-2",
+      "state": "COMPLETED"
+    },
+    "content_delta_bytes": 0,
+    "content_delta_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "job_id": "1926606",
+    "job_name": "absym-e0-stage",
+    "manifest": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/manifests/e0-preflight-r3-20260914T182817Z-c0865a-stage.json",
+      "sha256": "ee062c1b857565d19ceed659624d119f8b750f395f58e85b743fac0edf220311"
+    },
+    "metadata_sha256": "ec9bc7055fa9be9ea8959e60416c2034a8ff6bbbe487f0dbb2d5ba035d377660",
+    "path": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/staging/e0-preflight-r3-20260914T182817Z-c0865a-stage/20260914_142941-dc0727-4bc8433-code",
+    "semantic_validation": "PASS",
+    "submodules": {
+      "cutlass": "ffa34e70756b0bc744e1dfcc115b5a991a68f132",
+      "fast_hadamard_transform": "4ea722e434e3d4f2a14522341959ebdbe62be2de",
+      "nvbench": "d8dced8a64d9ce305add92fa6d274fd49b569b7e"
+    },
+    "validation_sha256": "9fb676e9415c2b5704bf468fdbb344bd900da3a7441f8c9d25924fb62f6eaebd"
+  },
+  "terminal_state": "STOPPED_AFTER_CPU_PREFLIGHT_FAILURE"
+}
