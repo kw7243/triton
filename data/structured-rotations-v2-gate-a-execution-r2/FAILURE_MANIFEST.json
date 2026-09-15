@@ -1,0 +1,105 @@
+{
+  "schema_version": "structured-rotations-v2-gate-a-execution-r2-failure-v1",
+  "recorded_at_utc": "2026-09-15T02:19:56Z",
+  "run_id": "slurm-1826099",
+  "job": {
+    "id": "1826099",
+    "name": "rot-v2-gatea-a2-r2",
+    "state": "FAILED",
+    "exit_code": "2:0",
+    "submit_time_scheduler_local": "2026-09-10T20:02:42-04:00",
+    "start_time_scheduler_local": "2026-09-14T20:09:11-04:00",
+    "end_time_scheduler_local": "2026-09-14T20:09:12-04:00",
+    "elapsed": "00:00:01",
+    "node": "torralba-3090-1",
+    "partition": "vision-torralba-rtx3090",
+    "account": "vision-torralba-urops-meng",
+    "qos": "vision-torralba-interactive",
+    "requested_tres": "cpu=4,mem=32G,node=1,billing=1048,gres/gpu=1",
+    "requeue": false
+  },
+  "experiment": {
+    "name": "Structured Rotations v2 Gate A Experiment A2",
+    "started": false,
+    "scientific_result": false,
+    "results_json": "absent",
+    "raw_timings": "absent",
+    "measurement_ledger": "absent"
+  },
+  "failure": {
+    "stage": "batch_wrapper_stage_guard",
+    "message": "refusing non-stage submit directory: /afs/csail.mit.edu/u/k/kwen1",
+    "cause": "The submission ran from the AFS login directory. Slurm preserved that path in SLURM_SUBMIT_DIR even though --chdir selected the immutable stage, so the wrapper exited before creating a run directory or starting Python.",
+    "slurm_submit_dir": "/afs/csail.mit.edu/u/k/kwen1",
+    "slurm_work_dir": "/data/scratch-fast/kwen1/structured-rotations-v2/staging/20260910_195644-1f614e-999b695dd-code"
+  },
+  "source": {
+    "sealed_r1_commit": "fd46e40ba6e3d8851ae98cee224e86c90a0db809",
+    "repair_commit": "999b695dde0bad090104d1e619c14f6271c4b1fe",
+    "repair_tree": "c28db9e3802b46eaa1af80ca7ab0213ed5172a68",
+    "execution_py_sha256": "3a0123227c33d32d31be872d7cfe783342c39957525b46743346ab92efd34890",
+    "execution_contract_sha256": "461baeefc12291b8772d41d77248c01c905dfda6f194d69fe7ba347b7853a7f1",
+    "batch_script_sha256": "d8485030d43d707d3cdef1c0fd0a4d23c0606cfa04a51ad4fd8273d3f511d564"
+  },
+  "stage": {
+    "path": "/data/scratch-fast/kwen1/structured-rotations-v2/staging/20260910_195644-1f614e-999b695dd-code",
+    "head": "999b695dde0bad090104d1e619c14f6271c4b1fe",
+    "tree": "c28db9e3802b46eaa1af80ca7ab0213ed5172a68",
+    "file_manifest_entries": 1750,
+    "file_manifest_sha256": "29c04a11e82a9b7cc9c0aa6a46ea20822385078e4c0600d5098f72247e1b98c0",
+    "reproducibility_metadata_sha256": "5a2175ace0906ff8639e5455f20a43dda6fc14b92a602424467ecaeec7c02595"
+  },
+  "environment_preflight": {
+    "job_id": "1825764",
+    "state": "COMPLETED",
+    "exit_code": "0:0",
+    "gpu_requested": false,
+    "environment": "/data/scratch-fast/kwen1/structured-rotations-v2/envs/gate-a-quality",
+    "result_sha256": "d869357292dfa8d11cbb84c13275e443751d1d49698dfcc8458d3b48cc2a00b7",
+    "versions": {
+      "accelerate": "1.14.0",
+      "numpy": "1.24.4",
+      "pyarrow": "17.0.0",
+      "safetensors": "0.8.0",
+      "tokenizers": "0.22.2",
+      "torch": "2.8.0+cu128",
+      "transformers": "5.12.1",
+      "triton": "3.4.0"
+    }
+  },
+  "inputs": {
+    "native_extension_sha256": "10a961e8855d7349708412aa8c21a38667fb75c94c372180dd6f992913e0a8e0",
+    "quality_layer0_cache_sha256": "ac76a0aee1260dd9947c1cde11a4d54535d859fa277ce61c9402cfcb7e23b7d7",
+    "a1_result_sha256": "51c94593a17e855c650ff1c23518a955d9a58dd2df249ac6bd52035ea1180ee4"
+  },
+  "preserved_history": {
+    "a1_job": "1818754",
+    "failed_a2_job": "1824515",
+    "failed_a2_stage": "/data/scratch-fast/kwen1/structured-rotations-v2/staging/20260910_191426-dff84f-edd1bf833-code",
+    "failed_a2_stage_manifest_sha256": "c9b32c4a2b6ad1273804cf5039544621f41c25eb732a78c06a3576001ca2490a",
+    "failed_a2_failure_manifest_sha256": "f5bfaabdb9e66c84d90b6dc75f5685f301b394be898b619d3de1ec06b0d8d627"
+  },
+  "retained": {
+    "root": "/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r2",
+    "job_log": "logs/slurm-1826099.out",
+    "job_log_sha256": "73ecbcb8e80154c83b4f9f6ca1b6112884b3c561b053263383bb9c5b6ff0c4a4",
+    "accounting": "provenance/sacct-1826099.txt",
+    "accounting_sha256": "a6e500e2449eaf21bbeb35bc122024260b11874c0f03b34e46fb4b030cbd9210",
+    "scheduler_capture": "provenance/terminal-scheduler-capture-20260915T021700Z.txt",
+    "scheduler_capture_sha256": "425a65d20c2be2cbbc57979347ba6ecb16f6b7cc76b8d18e7b136c96a3652663",
+    "submission_manifest": "provenance/replacement-a2-999b695dde-submission.json",
+    "submission_manifest_sha256": "93aabcb177aeb07a2b3ebd7e48be7b0e12c7c21479d6976c76d572fafe6a8419",
+    "submission_latch": "provenance/replacement-a2-999b695dde-submit-latch-contract.json",
+    "submission_latch_sha256": "72cbee0eba1fd2de31288a5f6f361482e807eb2323ff66b62c6e29d7dbd393e4"
+  },
+  "accounting": {
+    "allocated_gpu_hours": 0.000278,
+    "active_gpu_hours": "unavailable_before_application_start",
+    "gate_a_total_allocated_gpu_hours_including_a1_lane_and_both_a2_failures": 0.028333,
+    "gate_a_valid_active_gpu_hours": 0.0229859799061281
+  },
+  "decision_a": "not_reached_gate_b_closed",
+  "replacement_attempts_used": 1,
+  "replacement_attempts_remaining": 0,
+  "next_experiment": "not_authorized"
+}

@@ -219,3 +219,105 @@ CPU import preflight.
 Exactly one next experiment: create and verify a fresh complete CSAIL stage,
 inspect duplicate ownership and live Slurm inventory, pass `sbatch --test-only`,
 and submit the one authorized unchanged replacement A2 job.
+
+## 2026-09-15 — Replacement A2 terminal failure and r2 reconciliation
+
+### Current state
+
+- Sole replacement job `1826099` is terminal `FAILED 2:0`. The batch wrapper
+  rejected the AFS submission directory before Python or A2 started.
+- No A2 timing exists. Decision A is not reached, Gate B remains closed, and
+  no second replacement is authorized.
+
+### Preflight, source, and stage
+
+- The authorized repair stayed limited to environment selection. Source commit
+  `999b695dde0bad090104d1e619c14f6271c4b1fe`, tree
+  `c28db9e3802b46eaa1af80ca7ab0213ed5172a68`, selects the unmodified A1
+  environment and leaves `execution.py` byte-identical at SHA-256
+  `3a0123227c33d32d31be872d7cfe783342c39957525b46743346ab92efd34890`.
+- CPU-only Slurm preflight job `1825764` completed `0:0` before the GPU request.
+  It imported Python 3.10.20, accelerate 1.14.0, NumPy 1.24.4, PyArrow 17.0.0,
+  safetensors 0.8.0, tokenizers 0.22.2, Torch 2.8.0+cu128, Transformers
+  5.12.1, and Triton 3.4.0 from
+  `/data/scratch-fast/kwen1/structured-rotations-v2/envs/gate-a-quality`.
+  It also loaded the frozen A1 layer-0 input on CPU and verified SHA-256
+  `ac76a0aee1260dd9947c1cde11a4d54535d859fa277ce61c9402cfcb7e23b7d7`.
+  The environment was not mutated.
+- The fresh full stage is
+  `/data/scratch-fast/kwen1/structured-rotations-v2/staging/20260910_195644-1f614e-999b695dd-code`.
+  It has an ordinary `.git`, HEAD/tree `999b695dde...` / `c28db9e380...`, and a
+  1,750-entry `STAGE_FILE_MANIFEST.json` with SHA-256
+  `29c04a11e82a9b7cc9c0aa6a46ea20822385078e4c0600d5098f72247e1b98c0`.
+  `REPRODUCIBILITY_METADATA.json` has SHA-256
+  `5a2175ace0906ff8639e5455f20a43dda6fc14b92a602424467ecaeec7c02595`.
+  The included native extension and A1 cache rehash to `10a961e8...e0a8e0`
+  and `ac76a0ae...b7d7` respectively.
+- The repair execution contract has SHA-256
+  `461baeefc12291b8772d41d77248c01c905dfda6f194d69fe7ba347b7853a7f1`.
+  Relative to the sealed contract, only its environment path changed. Model,
+  methods, workloads, tensor shapes, quantizers, native backend, fusion
+  boundaries, timing counts, and decision thresholds did not change.
+
+Stage creation and manifest verification used:
+
+```bash
+/data/scratch-fast/kwen1/structured-rotations-v2/gate-a-execution-r1/tools/stage_and_run.sh --repo-root /data/scratch-fast/kwen1/structured-rotations-v2/gate-a-execution-r1/source/999b695dde0bad090104d1e619c14f6271c4b1fe-repo --staging-parent /data/scratch-fast/kwen1/structured-rotations-v2/staging --stage-only
+PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/data/scratch-fast/kwen1/structured-rotations-v2/staging/20260910_195644-1f614e-999b695dd-code /data/scratch-fast/kwen1/structured-rotations-v2/envs/gate-a-quality/bin/python -m experiments.structured_rotations_v2.gate_a.stage_manifest --root /data/scratch-fast/kwen1/structured-rotations-v2/staging/20260910_195644-1f614e-999b695dd-code --verify
+```
+
+### Sole replacement submission and terminal state
+
+- The atomic latch records zero prior replacement attempts, successful
+  `sbatch --test-only` ID `1826065`, and exactly one reserved replacement.
+- Exact submission argv was:
+
+  ```bash
+  /usr/bin/sbatch --parsable --wait --no-requeue --export=NIL --account=vision-torralba-urops-meng --qos=vision-torralba-interactive --partition=vision-torralba-rtx3090 --job-name=rot-v2-gatea-a2-r2 --nodes=1 --ntasks=1 --cpus-per-task=4 --mem=32G --time=02:00:00 --gres=gpu:rtx_3090:1 --chdir=/data/scratch-fast/kwen1/structured-rotations-v2/staging/20260910_195644-1f614e-999b695dd-code --output=/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r1/logs/slurm-%j.out --error=/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r1/logs/slurm-%j.out /data/scratch-fast/kwen1/structured-rotations-v2/staging/20260910_195644-1f614e-999b695dd-code/experiments/structured_rotations_v2/gate_a/run_execution.sbatch
+  ```
+
+- That sole replacement was job `1826099`. The terminal recheck used `squeue`,
+  `sacct`, and `scontrol` for that exact ID. `squeue` and `scontrol` no longer
+  found an active job; `sacct` reported `FAILED 2:0`, start/end
+  `2026-09-14T20:09:11-04:00` / `2026-09-14T20:09:12-04:00`, elapsed one
+  second, and node `torralba-3090-1`.
+- The retained log contains only the Slurm CPU-binding line and
+  `refusing non-stage submit directory: /afs/csail.mit.edu/u/k/kwen1`.
+  The submission was invoked from AFS. `--chdir` selected the stage as Slurm's
+  work directory, but did not rewrite `SLURM_SUBMIT_DIR`, so the batch wrapper
+  exited at its stage guard before Python or the A2 application began.
+- There is no run directory in the original r1 retained root and no
+  `results.json`, raw timing file, event trace, native validation, tensor-shape
+  capture, or measurement ledger. The failure is a submission-wrapper error,
+  not a scientific result and not evidence against the repaired environment or
+  native W4A4 backend.
+
+### Retained evidence, accounting, and decision
+
+- Canonical r2 evidence is under
+  `/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r2/`.
+  The terminal failure manifest is mirrored from
+  `data/structured-rotations-v2-gate-a-execution-r2/FAILURE_MANIFEST.json` and
+  has SHA-256
+  `13b4431e717f4ef54d8157d589bc6344fc99c930eb8578a74133967e3fe91236`.
+- The canonical decision and r2 ledger have SHA-256 values
+  `c503f23e3e5b4488af1d02675a17ce78bed4ba024382ea7c70e64eaa2e4f5f7d`
+  and `49732c4b843b5685c5ee572baed1af656ea55def4afda20ffeb7df76f2288ae7`.
+- Retained SHA-256 values are: job log `73ecbcb8...0c4a4`, terminal accounting
+  `a6e500e2...9210`, scheduler capture `425a65d2...2663`, submission manifest
+  `93aabcb1...a8419`, and latch contract `72cbee0e...93e4`. The successful CPU
+  preflight result/log remain byte-identical at `d8693572...00b7` and
+  `91ef002e...8f6`.
+- Job `1826099` allocated one GPU for one second, or `0.000278` GPU-hours.
+  Its active GPU time is unavailable because the application never started.
+  Including the A1 lane (`0.027500`) and failed A2 jobs `1824515`
+  (`0.000556`) and `1826099` (`0.000278`), Gate A allocated `0.028333`
+  GPU-hours. Valid measured active time remains A1's `0.02298598` GPU-hours.
+- Preserved A1 job `1818754` remains valid: full Hadamard pooled output error
+  is `0.030639`, PeRQ-32 is `0.096933`, and PeRQ-128 is `0.047932`. Neither A2
+  attempt produced native segment or end-to-end cost evidence, so Decision A
+  is not reached and Gate B remains closed. This is not a scientific STOP.
+
+No next experiment is authorized. The sole replacement has been consumed; a
+second replacement, changed workload, bridge, selector, or Gate B run is outside
+this task.
