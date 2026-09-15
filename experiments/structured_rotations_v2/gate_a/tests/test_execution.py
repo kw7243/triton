@@ -3,6 +3,9 @@ from __future__ import annotations
 import json
 import math
 from pathlib import Path
+import shlex
+import subprocess
+import tempfile
 import unittest
 
 from experiments.structured_rotations_v2.gate_a import execution
@@ -67,9 +70,10 @@ class AlgebraTest(unittest.TestCase):
 
 
 class BatchScriptTest(unittest.TestCase):
-    def test_batch_script_uses_slurm_submit_dir_and_nil_safe_environment(self) -> None:
+    def test_batch_script_uses_working_directory_and_nil_safe_environment(self) -> None:
         text = (ROOT / "experiments/structured_rotations_v2/gate_a/run_execution.sbatch").read_text()
-        self.assertIn("SLURM_SUBMIT_DIR", text)
+        self.assertIn('stage="$(pwd -P)"', text)
+        self.assertNotIn("SLURM_SUBMIT_DIR", text)
         self.assertNotIn("BASH_SOURCE", text)
         self.assertNotIn("salloc", text)
         self.assertNotIn("srun", text)
@@ -77,6 +81,58 @@ class BatchScriptTest(unittest.TestCase):
         self.assertIn("PYTHONNOUSERSITE=1", text)
         self.assertIn("structured-rotations-v2/envs/gate-a-quality/bin/python", text)
         self.assertNotIn("micromamba/root/envs/causal_forcing/bin/python", text)
+
+    def test_batch_script_guard_uses_chdir_cwd_not_submit_dir(self) -> None:
+        path = ROOT / "experiments/structured_rotations_v2/gate_a/run_execution.sbatch"
+        text = path.read_text()
+        guard, separator, _ = text.partition("\n\nexport PATH=")
+        self.assertTrue(separator)
+        configured_parent = (
+            'expected_parent="/data/scratch-fast/kwen1/structured-rotations-v2/staging"'
+        )
+        self.assertEqual(guard.count(configured_parent), 1)
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            staging_parent = root / "staging"
+            stage = staging_parent / "test-attempt-code"
+            outside_submit_dir = root / "submit-origin"
+            (stage / ".git").mkdir(parents=True)
+            outside_submit_dir.mkdir()
+            (stage / "REPRODUCIBILITY_METADATA.json").touch()
+            (stage / "STAGE_FILE_MANIFEST.json").touch()
+
+            executable_guard = guard.replace(
+                configured_parent,
+                f"expected_parent={shlex.quote(str(staging_parent))}",
+            )
+            executable_guard += '\nprintf "%s\\n" "$stage"\n'
+            environment = {
+                "PATH": "/usr/bin:/bin",
+                "SLURM_SUBMIT_DIR": str(outside_submit_dir),
+            }
+
+            selected = subprocess.run(
+                ["/bin/bash", "-c", executable_guard],
+                cwd=stage,
+                env=environment,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(selected.returncode, 0, selected.stderr)
+            self.assertEqual(selected.stdout.strip(), str(stage.resolve()))
+
+            rejected = subprocess.run(
+                ["/bin/bash", "-c", executable_guard],
+                cwd=outside_submit_dir,
+                env={**environment, "SLURM_SUBMIT_DIR": str(stage)},
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(rejected.returncode, 2)
+            self.assertIn("refusing non-stage submit directory", rejected.stderr)
 
 
 if __name__ == "__main__":

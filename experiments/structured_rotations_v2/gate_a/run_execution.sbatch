@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-stage="${SLURM_SUBMIT_DIR:?Slurm submit directory is required}"
+stage="$(pwd -P)"
 expected_parent="/data/scratch-fast/kwen1/structured-rotations-v2/staging"
 case "$stage" in
   "$expected_parent"/*-code) ;;
