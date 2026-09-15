@@ -402,3 +402,64 @@ Exactly one next experiment: transfer the clean committed source, create and
 verify one fresh full-repository stage, rerun the duplicate check, pass
 `sbatch --test-only`, then issue the sole corrected A2 `sbatch` and retain its
 terminal result. No Gate B work is authorized.
+
+## 2026-09-15 — Corrected A2 job 1955670 submitted once
+
+### Source and immutable stage
+
+- The clean execution source is commit
+  `09b970b4c526a9a1d84e236a72ad867ba8cd6ac9`, tree
+  `26ada1205a48414c2903aaf83bf966c0d3bbb0b0`. Its transfer bundle SHA-256 is
+  `8b267cce989b524d829013ce25e3c59ec2da757b7d3f3e4b6db1d387806471ce`.
+- Fresh full stage:
+  `/data/scratch-fast/kwen1/structured-rotations-v2/staging/20260915_130019-1aa854-09b970b4c-code`.
+  It has an ordinary independent `.git` object store, passed `git fsck`, and
+  contains no writable entry after finalization.
+- `REPRODUCIBILITY_METADATA.json` SHA-256 is
+  `411668c21c72727daed0c46c34071e2915d21d2baed1d203ece1e479078a34ba`.
+  The 1,753-entry `STAGE_FILE_MANIFEST.json` SHA-256 is
+  `7cdefc9b32a26cf38bd244b3b9783be736bc6d3059c01a6e1f23743011f06874`.
+  Full manifest verification passed before and after all staged tests.
+- The staged native extension, A1 layer-0 input, wrapper, `execution.py`, and
+  frozen contract match the predeclared hashes. `/bin/bash -n` and all seven
+  execution tests passed inside the stage with no byte change.
+
+### Submission controls
+
+- Attempt root:
+  `/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r2/attempts/corrected-a2-r3-84aa6b30da/`.
+  Exact source, stage, scheduler, storage, test, command, and hash captures are
+  retained there. The atomic latch is
+  `/data/scratch-fast/kwen1/structured-rotations-v2/gate-a-execution-r2/run-state/corrected-a2-r3-84aa6b30da.submit.latch/`.
+- One first final-check capture stopped before reservation because it checked an
+  incorrect remote mirror path for job `1826099`'s failure manifest. The actual
+  preserved path is `gate-a-execution-r2/runs/slurm-1826099/FAILURE_MANIFEST.json`,
+  which rehashed to the expected `13b4431e...1236`. No scheduler call or attempt
+  reservation occurred. `presubmit-2/` then repeated the live checks with the
+  correct path and passed.
+- Immediately before submission, the matching queue was empty, accounting held
+  only terminal jobs `1824515` and `1826099`, neither r1 nor r2 contained an A2
+  `results.json`, and A1 plus both failure manifests rehashed unchanged.
+- `sbatch --test-only` ran from `/afs/csail.mit.edu/u/k/kwen1`, returned zero,
+  and reported estimate/reference ID `1955641` with predicted start
+  `2026-09-17T20:30:10-04:00`. That ID has no queue or accounting record because
+  test-only does not submit a job.
+- The sole corrected submission command was:
+
+  ```bash
+  /usr/bin/sbatch --parsable --no-requeue --export=NIL --account=vision-torralba-urops-meng --qos=vision-torralba-interactive --partition=vision-torralba-rtx3090 --job-name=rot-v2-gatea-a2-r3 --nodes=1 --ntasks=1 --cpus-per-task=4 --mem=32G --time=02:00:00 --gres=gpu:rtx_3090:1 --chdir=/data/scratch-fast/kwen1/structured-rotations-v2/staging/20260915_130019-1aa854-09b970b4c-code --output=/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r2/attempts/corrected-a2-r3-84aa6b30da/logs/slurm-%j.out --error=/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r2/attempts/corrected-a2-r3-84aa6b30da/logs/slurm-%j.out /data/scratch-fast/kwen1/structured-rotations-v2/staging/20260915_130019-1aa854-09b970b4c-code/experiments/structured_rotations_v2/gate_a/run_execution.sbatch
+  ```
+
+- The command ran from `/afs/csail.mit.edu/u/k/kwen1`, returned zero, and
+  yielded exactly job `1955670`. The latch records one submission and consumes
+  the complete corrected-attempt authority. No retry remains.
+- Initial `squeue`, `sacct`, and `scontrol` agree: job `1955670` is pending for
+  `Priority`; `Requeue=0`; requested resources are one RTX 3090, four CPUs,
+  32 GiB, and two hours; `WorkDir` is the fresh stage; command and log paths are
+  exact. Current estimated start is `2026-09-17T20:43:47-04:00` on
+  `torralba-3090-2` and may change.
+
+Exactly one next action: wait for job `1955670` to become terminal, then capture
+its scheduler state and retained outputs once. On success, combine A2 with A1
+and write Decision A. On failure, retain the evidence and stop. No submission,
+retry, cancellation, Gate B work, or second monitor is authorized.
