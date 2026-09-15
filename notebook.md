@@ -321,3 +321,84 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/data/scratch-fast/kwen1/structured-rotatio
 No next experiment is authorized. The sole replacement has been consumed; a
 second replacement, changed workload, bridge, selector, or Gate B run is outside
 this task.
+
+## 2026-09-15 — Captain-authorized corrected A2 attempt
+
+### Authority and fixed scope
+
+- The captain authorized exactly one corrected A2 attempt in
+  `/home/ubuntu/firstmate/data/structured-rotations-v2-gate-a-execution-r2/corrected-a2-retry-decision.md`,
+  SHA-256 `3bf7d2f004eb9b39521dad25c605f4fda43fd370376c9af4062db0763ec8329a`.
+- Attempt identity is `corrected-a2-r3-84aa6b30da`. Preserved A1 job `1818754`
+  and failed A2 jobs `1824515` and `1826099`, their stages, logs, manifests,
+  latches, and retained outputs remain historical evidence and were not changed.
+- The only production-code change is commit
+  `84aa6b30da19712a1bcfd605a8a1b0fd34cc7d6f`: the batch wrapper derives the
+  immutable stage with `pwd -P` instead of `SLURM_SUBMIT_DIR`. The existing
+  `*-code`, staging-parent, ordinary `.git`, reproducibility-metadata, and
+  stage-manifest checks remain in place.
+- The faulty static assertion was reversed. An executable regression runs the
+  actual wrapper guard with the process working directory set to a synthetic
+  stage and `SLURM_SUBMIT_DIR` set to a different submission origin. It also
+  proves that reversing those paths is rejected.
+- Wrapper and test SHA-256 values are
+  `d438cc5ef009db78f45c04a86466628b54d4683dbab6197dbc057ccfdaba23c9`
+  and `ba67a2dce32871567813b551b81651d92c7b46658a2fd4c1e6269dd16548c5d3`.
+  `execution.py` remains byte-identical at
+  `3a0123227c33d32d31be872d7cfe783342c39957525b46743346ab92efd34890`;
+  `execution_contract.json` remains byte-identical at
+  `461baeefc12291b8772d41d77248c01c905dfda6f194d69fe7ba347b7853a7f1`.
+- `/bin/bash -n`, all seven Gate A execution unit tests, and
+  `git diff --check` passed. `make` was not run because no native/compiler code
+  changed.
+
+### Non-GPU preflight and resource choice
+
+- The temporary Slurm policy through 2026-09-26 requires all non-GPU checks
+  first and permits the final reproducible attempt as one `sbatch`. No debug
+  allocation or extra preflight job is planned.
+- Scheduler-tracked CPU preflight job `1825764` remains the clean preflight.
+  Its unchanged result and log rehash to `d8693572...00b7` and
+  `91ef002e...8f6`. It imported Python 3.10.20, PyArrow 17.0.0, NumPy 1.24.4,
+  Torch 2.8.0+cu128, Transformers 5.12.1, tokenizers 0.22.2, and Triton 3.4.0,
+  then loaded the frozen A1 layer-0 input at `ac76a0ae...b7d7`.
+- The 2026-09-15T16:52Z live inventory covered both user associations and every
+  visible allowed GPU partition. Torralba exposes V100, RTX 3090, H100, and
+  H200. Vision Shared exposes RTX 2080 Ti, Titan RTX, A6000, A100, L40S, H100,
+  H200, V100, RTX 3090, RTX 3080, RTX 6000 Ada, and RTX 4090; the `csail`
+  association also exposes shared H200 and L40S.
+- The frozen application itself requires compute capability 8.6 and a device
+  name containing `RTX 3090`. V100/Titan/2080 Ti are the wrong architecture;
+  H100/H200/L40S/Ada/4090 are not SM86; A100 and A6000 would be rejected by the
+  frozen runtime identity check; RTX 3080 is both name-incompatible and too
+  small. The only compatible class is one 24 GiB RTX 3090.
+- At capture time all Torralba RTX 3090 GPUs and both usable shared
+  `improbablex001` RTX 3090 GPUs were allocated; the other shared RTX 3090 nodes
+  were drained or invalid. The dedicated Torralba tuple retains the same
+  smallest device with the proven priority-100 interactive QoS; shared access
+  would use priority-1 `shared-if-available` on the same or currently unavailable
+  hardware.
+- The selected frozen minimum is one node, one task, four CPUs, 32 GiB RAM, one
+  `gpu:rtx_3090`, and two hours in `vision-torralba-rtx3090`, account
+  `vision-torralba-urops-meng`, QoS `vision-torralba-interactive`. This exactly
+  matches the unchanged A2 contract.
+
+### Pre-stage reconciliation
+
+- Fresh provenance root:
+  `/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r2/attempts/corrected-a2-r3-84aa6b30da/`.
+  The timestamped inventory, associations, QoS, partition/node controls, storage
+  mounts, queue, accounting, retained inventory, prior latch inventory, and
+  per-file capture hashes are under `prestage/`.
+- The matching live queue was empty. Matching accounting contained only terminal
+  jobs `1824515` (`FAILED 1:0`) and `1826099` (`FAILED 2:0`). The only current
+  user job was unrelated job `1955305`; no accepted A2 result or corrected-attempt
+  latch existed.
+- Both storage roots are user-owned and mounted at their declared NFS locations.
+  The fresh source and immutable stage will remain under scratch; attempt
+  provenance and accepted output will remain under the r2 retained root.
+
+Exactly one next experiment: transfer the clean committed source, create and
+verify one fresh full-repository stage, rerun the duplicate check, pass
+`sbatch --test-only`, then issue the sole corrected A2 `sbatch` and retain its
+terminal result. No Gate B work is authorized.
