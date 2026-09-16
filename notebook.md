@@ -463,3 +463,110 @@ Exactly one next action: wait for job `1955670` to become terminal, then capture
 its scheduler state and retained outputs once. On success, combine A2 with A1
 and write Decision A. On failure, retain the evidence and stop. No submission,
 retry, cancellation, Gate B work, or second monitor is authorized.
+
+## 2026-09-16 — Corrected A2 job 1955670 terminal failure
+
+### Scheduler and retained state
+
+- Read-only `squeue`, `sacct`, and `scontrol` checks reconciled the exact job.
+  `squeue` and `scontrol` now return `Invalid job id specified` for the aged
+  terminal job. `sacct` reports `FAILED 1:0`, submit/eligible time
+  `2026-09-15T13:09:34-04:00`, start `2026-09-15T23:18:53-04:00`, end
+  `2026-09-15T23:19:57-04:00`, and elapsed 64 seconds on
+  `torralba-3090-3`.
+- The allocation remained the frozen minimum: one RTX 3090, four CPUs, 32 GiB,
+  and a two-hour limit in `vision-torralba-rtx3090`. The batch step had
+  `MaxRSS=18088176K` and `TotalCPU=00:47.418`.
+- Terminal scheduler captures are retained under
+  `/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r2/attempts/corrected-a2-r3-84aa6b30da/terminal/`.
+  The capture was made at `2026-09-16T18:19:47Z`; its hash manifest has
+  SHA-256
+  `de3a0c506cbae3b03e57b883317e8f95cbcafcb310bd6b90a0d517d1c4dc71fe`.
+- The retained Slurm log is
+  `/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r2/attempts/corrected-a2-r3-84aa6b30da/logs/slurm-1955670.out`,
+  SHA-256
+  `628e2839a2d4b21d0c576e430453cb8a8504d8072f1ac4c41e12ed0cc9d72c92`.
+  The original four-row event trace remains under the frozen r1 output root and
+  was copied byte-for-byte to
+  `/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r2/runs/slurm-1955670/events.jsonl`.
+  Both copies have SHA-256
+  `7a36ba8f514a541d08aaade8b9083817a20be56852012174b019864606ec180e`.
+
+### Verified execution boundary and failure
+
+- The wrapper correction worked. `run_started` records the exact immutable
+  scratch stage, source commit/tree `09b970b4c5...` / `26ada1205a...`, the
+  1,753-entry stage manifest at `7cdefc9b...06874`, and the unchanged execution
+  contract at `461baeef...a7f1`.
+- The allocated node was authoritative and passed the frozen checks: hostname
+  `torralba-3090-3.csail.mit.edu`, one visible NVIDIA GeForce RTX 3090,
+  compute capability 8.6, 25,296,044,032 bytes of memory, driver 580.178.04,
+  CUDA runtime 12.8, Python 3.10.20, Torch 2.8.0+cu128, and Triton 3.4.0.
+- Input verification completed. This includes model-file hashes, native
+  extension load/hash, the frozen A1 layer-0 cache hash, and the 2K Arrow prompt.
+  The prompt SHA-256 is `6b998cc3...fd0c`; its source SHA-256 is
+  `8e136ab7...fe5b`.
+- The final persisted event is `tensor_contract_verified` at
+  `2026-09-16T03:19:52.953106Z`, with actual producer shapes
+  `prefill_b1_s2048=[2048,4096]`, `decode_b1_ctx2048=[1,4096]`, and
+  `decode_b8_ctx2048=[8,4096]`.
+- `benchmark_segments` constructed and validated the identity runner in memory,
+  then entered full-Hadamard weight preparation. At staged `execution.py:211`,
+  the first Hadamard launch asked Triton to compile
+  `half: tl.constexpr = 1 << stage` inside `tl.static_range(0, STAGES)` with
+  `STAGES=10`. Triton raised
+  `ValueError('half is already defined. constexpr cannot be reassigned.')`.
+- The exact cause is Triton 3.4.0's AST lowering: `tl.static_range` is unrolled
+  in one function-local scope, so the first iteration defines `half` and the
+  next iteration rejects the repeated annotated constexpr assignment. The
+  installed `code_generator.py` has SHA-256
+  `463e6d170a9f8cc475f9caf60b13abde73f7133d95e0413710d290029ebab977`.
+- The failing Hadamard kernel never dispatched. The complete native-validation
+  set did not finish, and the timing loop at `execution.py:726` was never
+  reached. No `native_segment_completed` or end-to-end event exists. The run
+  directory contains only `events.jsonl`; `results.json`, raw timings, and a
+  measurement ledger are absent.
+- Earlier checks could not expose this boundary. `sbatch --test-only` validates
+  scheduling, not application code. The CPU preflight imported the exact stack
+  and loaded the frozen input but had no CUDA device. The seven staged tests
+  covered static/CPU logic and the wrapper guard, not exact-stack Triton JIT
+  compilation on SM86.
+
+### Accounting and scientific consequence
+
+- Job `1955670` allocated 64 GPU-seconds, or `0.0177777778` GPU-hours.
+  Contract active GPU time is unavailable, not zero: setup used the GPU, but
+  the process failed before writing the metric.
+- Including the A1 lane and failed jobs `1824515`, `1826099`, and `1955670`,
+  Gate A allocated 166 GPU-seconds, or `0.0461111111` GPU-hours. Valid measured
+  active time remains A1's `0.0229859799061281` GPU-hours.
+- This is a Triton compile-time implementation failure, not a scientific A2
+  result. It provides no matched native segment or end-to-end cost for full,
+  local, or PeRQ rotations. A1 therefore cannot be combined into Decision A;
+  do not infer GO, quality-at-fixed-cost, or scientific STOP. Decision A is not
+  reached and Gate B remains closed.
+- The machine-readable record is
+  `data/structured-rotations-v2-gate-a-execution-r2/FAILURE_MANIFEST_1955670.json`,
+  SHA-256
+  `c7d2a8934d21279fa07e69788219e3ca6f83d694f64d1c1ee6e1496e8a4548c6`.
+  Its retained copy is
+  `/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r2/runs/slurm-1955670/FAILURE_MANIFEST.json`.
+  The updated canonical decision and append-only ledger have SHA-256 values
+  `9f7150212574bee3ff1303a235c6027e8622bb9263d1254ba46d6d5ef9d136c4`
+  and `b1bffaf26f0cbf24ae2ec02dd31f872f5a5756741b43ed790f04441dc85a0715`.
+  Preserved A1 job `1818754` and failed jobs `1824515` and `1826099` remain
+  unchanged.
+
+### Next decision boundary
+
+The captain-authorized corrected attempt has been consumed; no retry remains.
+Current authority ends with this reconciliation. The next captain decision is
+either to authorize a new narrowly scoped compiler repair and A2 attempt, or to
+close Gate A as inconclusive because A2 execution evidence is unavailable.
+
+If repair is later authorized, the minimum scope is to remove the loop-local
+constexpr rebinding without changing the scientific contract and add an
+exact-stack SM86 regression for Hadamard stages 5, 7, and 10 against the
+existing Torch reference. No such edit or GPU action was made here. No job was
+submitted, retried, cancelled, requeued, or otherwise altered, and no monitor
+was created.

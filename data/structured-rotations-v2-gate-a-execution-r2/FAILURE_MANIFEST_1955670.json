@@ -1,0 +1,156 @@
+{
+  "schema_version": "structured-rotations-v2-gate-a-execution-r2-corrected-failure-v1",
+  "recorded_at_utc": "2026-09-16T18:19:47Z",
+  "attempt_id": "corrected-a2-r3-84aa6b30da",
+  "run_id": "slurm-1955670",
+  "job": {
+    "id": "1955670",
+    "name": "rot-v2-gatea-a2-r3",
+    "state": "FAILED",
+    "exit_code": "1:0",
+    "derived_exit_code": "0:0",
+    "submit_time_scheduler_local": "2026-09-15T13:09:34-04:00",
+    "start_time_scheduler_local": "2026-09-15T23:18:53-04:00",
+    "end_time_scheduler_local": "2026-09-15T23:19:57-04:00",
+    "elapsed_seconds": 64,
+    "time_limit": "02:00:00",
+    "node": "torralba-3090-3",
+    "partition": "vision-torralba-rtx3090",
+    "account": "vision-torralba-urops-meng",
+    "qos": "vision-torralba-interactive",
+    "requested_tres": "billing=1048,cpu=4,gres/gpu=1,mem=32G,node=1",
+    "allocated_tres": "billing=1048,cpu=4,gres/gpu=1,mem=32G,node=1",
+    "batch_max_rss": "18088176K",
+    "batch_total_cpu": "00:47.418",
+    "requeue": false
+  },
+  "experiment": {
+    "name": "Structured Rotations v2 Gate A Experiment A2",
+    "application_started": true,
+    "scientific_measurement_started": false,
+    "scientific_result": false,
+    "native_validation": "identity_completed_in_memory; full/local/PeRQ set not completed or persisted",
+    "native_segment_timing": "not_started",
+    "end_to_end_timing": "not_started",
+    "results_json": "absent",
+    "raw_timings": "absent",
+    "measurement_ledger": "absent"
+  },
+  "failure": {
+    "stage": "triton_jit_compile_before_native_validation_completion_or_timing",
+    "exception": "ValueError('half is already defined. constexpr cannot be reassigned.')",
+    "source": "experiments/structured_rotations_v2/gate_a/execution.py:211",
+    "source_statement": "half: tl.constexpr = 1 << stage",
+    "kernel": "hadamard_tile_kernel",
+    "kernel_arguments": {
+      "STAGES": 10,
+      "method": "full_hadamard"
+    },
+    "call_path": [
+      "run:1049",
+      "benchmark_segments:720",
+      "SegmentRunner.__init__:462",
+      "Transform.__call__:302",
+      "hadamard_tile_kernel:211"
+    ],
+    "cause": "Triton 3.4.0 statically unrolls tl.static_range in one function-local scope. The first iteration defines the annotated constexpr name half; the next unrolled iteration revisits the assignment and rejects constexpr reassignment.",
+    "failing_hadamard_kernel_dispatched": false,
+    "identity_native_validation_completed_in_memory": true,
+    "measurement_loop_reached": false,
+    "last_persisted_event": "tensor_contract_verified",
+    "last_persisted_event_at_utc": "2026-09-16T03:19:52.953106+00:00"
+  },
+  "verified_before_failure": {
+    "stage_integrity": true,
+    "retained_output_creation": true,
+    "environment": {
+      "hostname": "torralba-3090-3.csail.mit.edu",
+      "python": "3.10.20",
+      "torch": "2.8.0+cu128",
+      "triton": "3.4.0",
+      "cuda_runtime": "12.8",
+      "driver": "580.178.04",
+      "cuda_visible_devices": "0",
+      "device_name": "NVIDIA GeForce RTX 3090",
+      "device_uuid": "0cce3f5e-f574-068a-53c1-6fde2a6ac374",
+      "compute_capability": [8, 6],
+      "total_memory_bytes": 25296044032
+    },
+    "native_extension_loaded": true,
+    "native_extension_sha256": "10a961e8855d7349708412aa8c21a38667fb75c94c372180dd6f992913e0a8e0",
+    "quality_layer0_cache_sha256": "ac76a0aee1260dd9947c1cde11a4d54535d859fa277ce61c9402cfcb7e23b7d7",
+    "prompt": {
+      "tokens": 2048,
+      "sha256": "6b998cc3edf0ec143bf85e189044681c3d8d5f40c4f334cb347700f8c879fd0c",
+      "source_sha256": "8e136ab7130c5fca602eb406ce2557967a974d901b53c4f2992f87b873e0fe5b"
+    },
+    "tensor_shapes": {
+      "prefill_b1_s2048": [2048, 4096],
+      "decode_b1_ctx2048": [1, 4096],
+      "decode_b8_ctx2048": [8, 4096]
+    }
+  },
+  "source": {
+    "sealed_r1_commit": "fd46e40ba6e3d8851ae98cee224e86c90a0db809",
+    "wrapper_fix_commit": "84aa6b30da19712a1bcfd605a8a1b0fd34cc7d6f",
+    "execution_commit": "09b970b4c526a9a1d84e236a72ad867ba8cd6ac9",
+    "execution_tree": "26ada1205a48414c2903aaf83bf966c0d3bbb0b0",
+    "execution_py_sha256": "3a0123227c33d32d31be872d7cfe783342c39957525b46743346ab92efd34890",
+    "execution_contract_sha256": "461baeefc12291b8772d41d77248c01c905dfda6f194d69fe7ba347b7853a7f1",
+    "batch_script_sha256": "d438cc5ef009db78f45c04a86466628b54d4683dbab6197dbc057ccfdaba23c9",
+    "triton_code_generator_sha256": "463e6d170a9f8cc475f9caf60b13abde73f7133d95e0413710d290029ebab977"
+  },
+  "stage": {
+    "path": "/data/scratch-fast/kwen1/structured-rotations-v2/staging/20260915_130019-1aa854-09b970b4c-code",
+    "head": "09b970b4c526a9a1d84e236a72ad867ba8cd6ac9",
+    "tree": "26ada1205a48414c2903aaf83bf966c0d3bbb0b0",
+    "file_manifest_entries": 1753,
+    "file_manifest_sha256": "7cdefc9b32a26cf38bd244b3b9783be736bc6d3059c01a6e1f23743011f06874",
+    "reproducibility_metadata_sha256": "411668c21c72727daed0c46c34071e2915d21d2baed1d203ece1e479078a34ba"
+  },
+  "retained": {
+    "root": "/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r2",
+    "job_log": "attempts/corrected-a2-r3-84aa6b30da/logs/slurm-1955670.out",
+    "job_log_sha256": "628e2839a2d4b21d0c576e430453cb8a8504d8072f1ac4c41e12ed0cc9d72c92",
+    "original_events": "/data/vision/torralba/u/kwen1/structured-rotations-v2/gate-a-execution-r1/runs/slurm-1955670/events.jsonl",
+    "mirrored_events": "runs/slurm-1955670/events.jsonl",
+    "events_sha256": "7a36ba8f514a541d08aaade8b9083817a20be56852012174b019864606ec180e",
+    "terminal_accounting": "attempts/corrected-a2-r3-84aa6b30da/terminal/sacct-allocation.txt",
+    "terminal_accounting_sha256": "a2a65725ede829e10f0ed7f5db671257de6b8b2cc25da8e9322d70fcf89f6330",
+    "terminal_steps": "attempts/corrected-a2-r3-84aa6b30da/terminal/sacct-steps.txt",
+    "terminal_steps_sha256": "62aee9af12094e06de1bc5abd650a4dad53774be21be28aa67bee0a59c5e704a",
+    "terminal_capture_manifest": "attempts/corrected-a2-r3-84aa6b30da/terminal-capture-sha256.txt",
+    "terminal_capture_manifest_sha256": "de3a0c506cbae3b03e57b883317e8f95cbcafcb310bd6b90a0d517d1c4dc71fe",
+    "submission_argv": "attempts/corrected-a2-r3-84aa6b30da/submission/submit-latch/submission.argv.nul",
+    "submission_argv_sha256": "7bb19a3cd66bfd28b1401d0eeaee0b7d1cf218cf676efbf37eb0b83832312ec6",
+    "submission_latch_contract_sha256": "69df2973248e0fa2ad851e9f8b3cb9e2bcae6f664bc5c6204bbbc4634986534a"
+  },
+  "accounting": {
+    "allocated_gpu_seconds": 64,
+    "allocated_gpu_hours": 0.017777777777777778,
+    "active_gpu_hours": "unavailable_before_result_record",
+    "gate_a_total_allocated_gpu_seconds_including_a1_lane_and_all_a2_failures": 166,
+    "gate_a_total_allocated_gpu_hours": 0.04611111111111111,
+    "gate_a_valid_measured_active_gpu_hours": 0.0229859799061281
+  },
+  "scientific_consequence": {
+    "a2_cost_result": "unavailable",
+    "a1_a2_combination": "not_possible",
+    "decision_a": "not_reached",
+    "gate_b": "closed",
+    "interpretation": "This is a Triton compilation failure before the complete native-validation set and all timing, not evidence for GO, quality-at-fixed-cost, or scientific STOP and not a performance result for full, local, or PeRQ rotations."
+  },
+  "authority": {
+    "corrected_attempts_authorized": 1,
+    "corrected_attempts_used": 1,
+    "corrected_attempts_remaining": 0,
+    "retry_authorized": false,
+    "next_decision": "The captain must either authorize a new narrowly scoped compiler repair and A2 attempt or close Gate A as inconclusive. No Slurm action or Gate B work is authorized under the current task.",
+    "minimum_candidate_repair_if_authorized": "Remove the loop-local constexpr rebinding without changing the contract, then add an exact-stack SM86 executable transform regression covering STAGES 5, 7, and 10 against the existing Torch reference before any new A2 submission."
+  },
+  "preserved_history": {
+    "a1_job": "1818754",
+    "a1_result_sha256": "51c94593a17e855c650ff1c23518a955d9a58dd2df249ac6bd52035ea1180ee4",
+    "failed_a2_jobs": ["1824515", "1826099"]
+  }
+}
