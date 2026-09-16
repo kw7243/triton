@@ -1,0 +1,51 @@
+{
+  "cpu_preflight_authorized_after_proof": true,
+  "created_at_utc": "2026-09-16T20:16:16.323056+00:00",
+  "decision": "/home/ubuntu/firstmate/data/absorbable-symmetry-v2-e0-preflight-r3/mamba-registry-retry-decision.md",
+  "failed_create_proof": {
+    "afs_registry_after": "242e431ab0bda8dbbf647b9914f578653a136653e968d628bd960a8eeb40cf63",
+    "afs_registry_before": "a622f69e68347c91a3fa828775d0cdf7aed66c032405ff12dc2d16ab1348945f",
+    "durable_copy": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/registry-proofs/e0-mamba-registry-proof-20260916T200220Z-ad875c",
+    "durable_inventory": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/registry-proofs/e0-mamba-registry-proof-20260916T200220Z-ad875c.inventory.sha256",
+    "durable_inventory_sha256": "fb54d7cbcbfeea0480fc5594607c855c1c5347ef15e59fd7c895b1fc507479a9",
+    "effect": "micromamba create appended the fresh proof prefix to the AFS environment registry",
+    "path": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/registry-proofs/e0-mamba-registry-proof-20260916T200220Z-ad875c/proof.json",
+    "rollback_performed": false,
+    "sha256": "8616a9b3f820a766ecb80846ef93446b7e9c782bf538f191446d64eea3f7a9ce",
+    "status": "FAIL"
+  },
+  "gpu_measurement_authorized_only_if_cpu_preflight_passes": true,
+  "home_reassigned": false,
+  "immutable_stage": {
+    "commit": "4bc8433528cec54e6b0c32ce94bd755f80303e33",
+    "path": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/staging/e0-preflight-r3-20260914T182817Z-c0865a-stage/20260914_142941-dc0727-4bc8433-code",
+    "tree": "c6892dfc0662f8f74952b51566427d92fc9afe8e"
+  },
+  "passed_install_proof": {
+    "afs_registry_after": "242e431ab0bda8dbbf647b9914f578653a136653e968d628bd960a8eeb40cf63",
+    "afs_registry_before": "242e431ab0bda8dbbf647b9914f578653a136653e968d628bd960a8eeb40cf63",
+    "afs_registry_content_unchanged": true,
+    "afs_registry_metadata_unchanged": true,
+    "durable_copy": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/registry-proofs/e0-mamba-registry-proof-install-20260916T201036Z-f20ee9",
+    "durable_inventory": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/registry-proofs/e0-mamba-registry-proof-install-20260916T201036Z-f20ee9.inventory.sha256",
+    "durable_inventory_sha256": "fd6fc1e343a3dbe21d13b2e6154ac29af8447c95e038a6bae69c500a1a7ea4f9",
+    "package_transaction_passed": true,
+    "path": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/registry-proofs/e0-mamba-registry-proof-install-20260916T201036Z-f20ee9/proof.json",
+    "sha256": "7a80c45bd4a5f9a23b785648dee8179a488a8dadec7093e672d2d5517e33826a",
+    "status": "PASS"
+  },
+  "preserved_failed_jobs": {
+    "1927348": {
+      "terminal_record": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/manifests/e0-preflight-r3-20260914T182817Z-c0865a-terminal.json",
+      "terminal_record_sha256": "1622c1c9af7e823044fc55c1ca62ea9a4a92b3ea346fb2aec8aab8ea765c8649"
+    },
+    "1977465": {
+      "terminal_record": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/manifests/e0-preflight-r3-corrected-20260916T192229Z-fb5cd9-terminal.json",
+      "terminal_record_sha256": "2c7a6d508c33986c3a049bc68ea23b0e7f9b37b7b2c397abbd34e1b988b47da6"
+    }
+  },
+  "scheduler_jobs_used_for_proofs": 0,
+  "schema_version": 1,
+  "selected_strategy": "initialize an empty valid conda prefix, then use micromamba install rather than create",
+  "status": "PASS"
+}

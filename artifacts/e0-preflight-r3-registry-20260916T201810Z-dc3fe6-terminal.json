@@ -1,0 +1,177 @@
+{
+  "artifacts": {
+    "afs-registry.sha256.after-job-from-login.txt": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/afs-registry.sha256.after-job-from-login.txt",
+      "sha256": "a6291673790b1e9156a1a005c305ad62d209d96ab69e3309590cbf25631d7619",
+      "size_bytes": 65
+    },
+    "afs-registry.stat.after-job-from-login.txt": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/afs-registry.stat.after-job-from-login.txt",
+      "sha256": "45dfdbe3d5b7b30a39a49052bb3d8f39ee320ef59eb4338174fc7eb215e65a79",
+      "size_bytes": 45
+    },
+    "cuda_build_preflight_registry_isolated.sbatch": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/cuda_build_preflight_registry_isolated.sbatch",
+      "sha256": "f15779e5946f519760dd37d35cb560e70f7e65ffbb2657c6e6749572db20d49d",
+      "size_bytes": 20764
+    },
+    "launch-plan.json": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/launch-plan.json",
+      "sha256": "eb4b15170ae4c27bc9809d60c159c0e979f82a66551b3d80edf9ae794c66adfa",
+      "size_bytes": 6845
+    },
+    "pre-submit-validation.json": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/pre-submit-validation.json",
+      "sha256": "c678ca0f53a1668d47ee44c80262b3ef484c77c1314464eec5f83bd6a04432c6",
+      "size_bytes": 2841
+    },
+    "sacct.txt": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/sacct.txt",
+      "sha256": "de428b03121636f57928bf2ef6b4b91d3b2102ebd2c01bb2296243d0fdef7963",
+      "size_bytes": 579
+    },
+    "sbatch-test-only.txt": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/sbatch-test-only.txt",
+      "sha256": "6c792763c9c953b2990ec1470b06bcc5df6593961c0b3651e5dff5f627cbd232",
+      "size_bytes": 153
+    },
+    "sbatch-wait-exit-code.txt": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/sbatch-wait-exit-code.txt",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "size_bytes": 2
+    },
+    "sbatch-wait-output.txt": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/sbatch-wait-output.txt",
+      "sha256": "be961e8c521e1823ae971f3f43ea5ec4b02a5baeec219903ca2fb7c4fbb66b3b",
+      "size_bytes": 8
+    },
+    "scontrol-unavailable.txt": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/scontrol-unavailable.txt",
+      "sha256": "b851e43aa126203afab3d73e9499677ce1c233ac2ee5999ce298e9df9696087a",
+      "size_bytes": 75
+    },
+    "scontrol.txt": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/scontrol.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    },
+    "squeue-after-test-only.txt": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/squeue-after-test-only.txt",
+      "sha256": "eb3abaf90cb19027af17ed299c027c11ad1b79443e659cc1cc06e5388f6c26df",
+      "size_bytes": 98
+    },
+    "squeue-before-submit.txt": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/squeue-before-submit.txt",
+      "sha256": "eb3abaf90cb19027af17ed299c027c11ad1b79443e659cc1cc06e5388f6c26df",
+      "size_bytes": 98
+    },
+    "state.final.json": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/state.final.json",
+      "sha256": "3430cab7b9e0d78131fd064d8fd9fcf3838e63e0376088351202f4117a3342a8",
+      "size_bytes": 1189
+    },
+    "stderr.log": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/stderr.log",
+      "sha256": "dffcf8faf63adf486bfe7e3d40b84bc376496065a513b54d1506941fb89543d5",
+      "size_bytes": 65
+    },
+    "stdout.log": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/preflight-attempts/e0-preflight-r3-registry-20260916T201810Z-dc3fe6/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size_bytes": 0
+    }
+  },
+  "attempt_id": "e0-preflight-r3-registry-20260916T201810Z-dc3fe6",
+  "authority": {
+    "decision": "/home/ubuntu/firstmate/data/absorbable-symmetry-v2-e0-preflight-r3/mamba-registry-retry-decision.md",
+    "decision_sha256": "81d7ec33ef50ad18868e7c98a26ee183151ed889a7b84c1682aede4138bff627",
+    "fresh_cpu_preflight_allowance_consumed": true,
+    "retry_authorized": false
+  },
+  "classification": "implementation failure before environment creation, CUDA/build work, or experiment execution",
+  "created_at_utc": "2026-09-16T20:25:28.559415+00:00",
+  "failure": {
+    "build_started": false,
+    "cause": "the Slurm allocation could not read the AFS environment registry under --export=NIL",
+    "command": "[[ -r \"$environment_registry\" ]]",
+    "environment_created": false,
+    "experiment_started": false,
+    "scientific_evidence": false,
+    "scratch_local_install_strategy_reached": false,
+    "stage": "compute-node AFS registry readability guard"
+  },
+  "fresh_paths": {
+    "build_root": {
+      "path": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/preflight-builds/e0-preflight-r3-registry-20260916T201810Z-dc3fe6",
+      "present": false
+    },
+    "environment": {
+      "path": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/envs/quarot-e0-py310-cu121-r8-dc3fe6",
+      "present": false
+    },
+    "expected_pass_manifest": {
+      "path": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/manifests/e0-preflight-r3-registry-20260916T201810Z-dc3fe6-preflight.json",
+      "present": false
+    },
+    "mamba_state": {
+      "path": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/mamba-state/quarot-e0-py310-cu121-r8-dc3fe6",
+      "present": false
+    }
+  },
+  "gpu_gate": {
+    "gpu_job_submitted": false,
+    "reason": "CPU preflight did not pass every gate",
+    "status": "CLOSED"
+  },
+  "job": {
+    "account": "csail",
+    "allocated_tres": "billing=166,cpu=8,mem=24G,node=1",
+    "elapsed": "00:00:01",
+    "exit_code": "1:0",
+    "gpu_requested": false,
+    "job_id": "1978687",
+    "job_name": "absym-e0-pf-r3reg",
+    "node": "groenig-5",
+    "partition": "tig-cpu",
+    "qos": "tig-main",
+    "single_terminal_owner": true,
+    "state": "FAILED",
+    "submission_mode": "sbatch --parsable --wait --no-requeue --export=NIL",
+    "working_directory": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/staging/e0-preflight-r3-20260914T182817Z-c0865a-stage/20260914_142941-dc0727-4bc8433-code"
+  },
+  "phase_after_run": "E0_PREFLIGHT_FAILED_STOP",
+  "preserved_prior_failures": {
+    "1927348": {
+      "terminal_record": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/manifests/e0-preflight-r3-20260914T182817Z-c0865a-terminal.json",
+      "terminal_record_sha256": "1622c1c9af7e823044fc55c1ca62ea9a4a92b3ea346fb2aec8aab8ea765c8649"
+    },
+    "1977465": {
+      "terminal_record": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/manifests/e0-preflight-r3-corrected-20260916T192229Z-fb5cd9-terminal.json",
+      "terminal_record_sha256": "2c7a6d508c33986c3a049bc68ea23b0e7f9b37b7b2c397abbd34e1b988b47da6"
+    }
+  },
+  "registry_recovery": {
+    "afs_registry_matches_passed_proof_baseline": true,
+    "afs_registry_repair_or_rollback_performed": false,
+    "afs_registry_sha256_after_job_from_login": "242e431ab0bda8dbbf647b9914f578653a136653e968d628bd960a8eeb40cf63",
+    "afs_registry_stat_after_job_from_login": "54:4294224244:916:1789589154:664:kwen1:kwen1",
+    "failed_create_proof": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/registry-proofs/e0-mamba-registry-proof-20260916T200220Z-ad875c/proof.json",
+    "failed_create_proof_sha256": "8616a9b3f820a766ecb80846ef93446b7e9c782bf538f191446d64eea3f7a9ce",
+    "home_reassigned": false,
+    "manifest": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/manifests/e0-mamba-registry-recovery-20260916T201036Z-f20ee9.json",
+    "manifest_sha256": "661df5b135940ee077d3948fe638e2e9457e18a85c76cfdc3a65e4a8fd63c731",
+    "passed_login_node_proof": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/registry-proofs/e0-mamba-registry-proof-install-20260916T201036Z-f20ee9/proof.json",
+    "passed_login_node_proof_sha256": "7a80c45bd4a5f9a23b785648dee8179a488a8dadec7093e672d2d5517e33826a",
+    "selected_strategy": "initialize an empty valid conda prefix, then use micromamba install rather than create"
+  },
+  "schema_version": 1,
+  "stage": {
+    "commit": "4bc8433528cec54e6b0c32ce94bd755f80303e33",
+    "manifest": "/data/vision/torralba/u/kwen1/absorbable-transformer-symmetries/manifests/e0-preflight-r3-20260914T182817Z-c0865a-stage.json",
+    "manifest_sha256": "ee062c1b857565d19ceed659624d119f8b750f395f58e85b743fac0edf220311",
+    "path": "/data/scratch-fast/kwen1/absorbable-transformer-symmetries/staging/e0-preflight-r3-20260914T182817Z-c0865a-stage/20260914_142941-dc0727-4bc8433-code",
+    "preserved": true,
+    "tree": "c6892dfc0662f8f74952b51566427d92fc9afe8e"
+  },
+  "status": "FAILED"
+}
